@@ -1,0 +1,46 @@
+[
+  {
+    "cost": 1500000,
+    "progress": 45,
+    "name": "Sample Project",
+    "description": "This is a sample project",
+    "status": "active",
+    "role": "architect",
+    "date": "2024-05-15T00:00:00.000Z",
+    "id": "a57f8d82-90cb-457f-bdbe-7a8e7a9f1b9f",
+    "ui": {}
+  },
+  {
+    "cost": 2000000,
+    "progress": 10,
+    "name": "Hospital Center",
+    "description": "This is a hospital center project",
+    "status": "pending",
+    "role": "engineer",
+    "date": "2024-01-25T00:00:00.000Z",
+    "id": "eda67d68-e84b-4060-b32f-510112da32c7",
+    "ui": {}
+  },
+  {
+    "cost": 500000,
+    "progress": 60,
+    "name": "That Open Project",
+    "description": "This project is a public project.",
+    "status": "active",
+    "role": "developer",
+    "date": "2024-01-27T00:00:00.000Z",
+    "id": "5b09e816-801a-471c-a44e-72dc971789c3",
+    "ui": {}
+  },
+  {
+    "cost": 475000,
+    "progress": 85,
+    "name": "Yet Another Project",
+    "description": "This project is a yet another project.",
+    "status": "active",
+    "role": "architect",
+    "date": "2024-01-19T00:00:00.000Z",
+    "id": "cd459592-0ef3-4360-a52c-c1f6daffc1da",
+    "ui": {}
+  }
+]
