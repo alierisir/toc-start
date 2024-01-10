@@ -60,7 +60,11 @@ if (newUserBtn) {
 } else console.log("Button cannot be found, check the ID!");
 
 const projectsListUi = document.getElementById("projects-list") as HTMLElement;
-const projectsManager = new ProjectsManager(projectsListUi);
+const projectDetailsPage = document.getElementById(
+  "project-details"
+) as HTMLElement;
+
+const projectsManager = new ProjectsManager(projectsListUi, projectDetailsPage);
 
 const projectForm = document.getElementById("new-project-form");
 const formCancel = document.getElementById("form-cancel");

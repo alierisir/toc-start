@@ -4,20 +4,69 @@ import { IProject, Project } from "./Project";
 export class ProjectsManager {
   list: Project[] = [];
   ui: HTMLElement;
+  detailsPage: HTMLElement;
 
-  constructor(container: HTMLElement) {
+  constructor(container: HTMLElement, page: HTMLElement) {
     this.ui = container;
+    this.detailsPage = page;
+  }
+
+  setPageDetails(project: Project) {
+    const page = this.detailsPage;
+    const pageInfoDummy = {
+      name: "name",
+      description: "description",
+      status: "status",
+      cost: "cost",
+      role: "role",
+      date: "date",
+      progress: "progress",
+      initials: "initials",
+    };
+    const pageInfo = {};
+    for (const key in pageInfoDummy) {
+      const value = pageInfoDummy[key];
+      const projectValue = project[key];
+      pageInfo[key] = page.querySelector(`[data-project-info=${value}]`);
+      pageInfo[key].textContent = projectValue;
+      if (value === "name") {
+        const headName = page.querySelector(`[data-project-info="headName"]`);
+        if (headName) headName.textContent = projectValue;
+      }
+      if (value === "description") {
+        const headDescription = page.querySelector(
+          `[data-project-info="headDescription"]`
+        );
+        if (headDescription) headDescription.textContent = projectValue;
+      }
+      if (value === "initials") {
+        pageInfo[key].style.backgroundColor = project.boxColor;
+      }
+      if (value === "progress") {
+        pageInfo[key].textContent += "%";
+        pageInfo[key].style.width = `${projectValue}%`;
+      }
+      if (value === "cost") {
+        pageInfo[key].textContent = `$${projectValue}`;
+      }
+      if (value === "date") {
+        console.log(typeof projectValue);
+        const formattedDate = projectValue.split("T")[0];
+        pageInfo[key].texContent = `${formattedDate}`;
+      }
+    }
   }
 
   setPage(project: Project) {
     const card = project.ui;
     card.addEventListener("click", () => {
-      console.log(this.getProject(project.id));
       const page = document.getElementById("projects-page") as HTMLElement;
       const details = document.getElementById("project-details") as HTMLElement;
       page.style.display = "none";
       details.style.display = "flex";
+      this.setPageDetails(project);
     });
+    //add page detaling here
   }
 
   newProject(data: IProject) {

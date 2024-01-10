@@ -24,10 +24,20 @@ export class Project implements IProject {
   cost: number = 0;
   progress: number = 0;
   id: string;
+  initials: string;
+  boxColor: string;
 
   constructor(data: IProject) {
     //Project Data definitions
-    const keys = ["name", "description", "status", "role", "date"];
+    const keys = [
+      "name",
+      "description",
+      "status",
+      "role",
+      "date",
+      "initials",
+      "boxColor",
+    ];
     for (const key of keys) {
       this[key] = data[key];
     }
@@ -37,6 +47,9 @@ export class Project implements IProject {
   }
 
   setInitialsBox() {
+    if (this.boxColor && this.initials) {
+      return;
+    }
     const words = this.name.split(" ");
     const count = words.length;
     const initials = words[0][0] + words[count - 1][0];
@@ -60,19 +73,18 @@ export class Project implements IProject {
     ];
     const selectedColor =
       colors[Math.floor((Math.random() * 100) % colors.length)];
-    return [initials, selectedColor];
+    this.initials = initials;
+    this.boxColor = selectedColor;
   }
 
   setUi() {
     if (this.ui) {
       return;
     }
-    const initialBox = this.setInitialsBox();
-    const initials = initialBox[0];
-    const color = initialBox[1];
+    this.setInitialsBox();
     this.ui = document.createElement("div");
     this.ui.innerHTML = `<div class="card-header">
-        <p style='background-color:${color}'>${initials}</p>
+        <p style='background-color:${this.boxColor}'>${this.initials}</p>
         <div>
         <h2>${this.name}</h2>
         <p >${this.description}</p>
