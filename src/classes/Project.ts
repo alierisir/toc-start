@@ -41,7 +41,7 @@ export class Project implements IProject {
     for (const key of keys) {
       this[key] = data[key];
     }
-
+    this.setInitialsBox();
     this.id = uuid4();
     this.setUi();
   }
@@ -81,7 +81,6 @@ export class Project implements IProject {
     if (this.ui) {
       return;
     }
-    this.setInitialsBox();
     this.ui = document.createElement("div");
     this.ui.innerHTML = `<div class="card-header">
         <p style='background-color:${this.boxColor}'>${this.initials}</p>
