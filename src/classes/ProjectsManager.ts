@@ -50,13 +50,16 @@ export class ProjectsManager {
         pageInfo[key].textContent = `$${projectValue}`;
       }
       if (value === "date") {
-        console.log(typeof projectValue);
-        const date = projectValue.toString();
-        const dateSplitted = date.split(" ");
-        const formatted =
-          dateSplitted[1] + "/" + dateSplitted[2] + "/" + dateSplitted[3];
-        console.log(formatted);
-        pageInfo[key].texContent = `${formatted}`;
+        if (typeof projectValue === "object") {
+          const date = projectValue.toString();
+          const splittedDate = date.split(" ");
+          const text =
+            splittedDate[3] + "-" + splittedDate[1] + "-" + splittedDate[2];
+          pageInfo[key].textContent = text;
+        }
+        if (typeof projectValue === "string") {
+          pageInfo[key].textContent = projectValue.split("T")[0];
+        }
       }
     }
   }
@@ -90,7 +93,6 @@ export class ProjectsManager {
     //add event listener to project ui
     this.setPage(project);
     //here
-
     return project;
   }
 

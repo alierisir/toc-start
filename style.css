@@ -280,6 +280,7 @@ h2{
     border-radius: 0.5rem;
     padding: 14px;
     font-size: var(--text-3xl);
+    text-transform: uppercase;
 }
 
 .card-header>div>h2{
@@ -300,6 +301,7 @@ h2{
     justify-content: space-between;
     padding: 15px 0;
     font-size: var(--text-l);
+    text-transform: capitalize;
 }
 
 .card-property p:last-child{
@@ -361,6 +363,7 @@ h2{
     background-color: orangered;
     border-radius: 10rem;
     padding: 15px;
+    text-transform: uppercase;
 }
 
 .info-header button{

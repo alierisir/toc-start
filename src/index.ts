@@ -84,12 +84,13 @@ if (
   projectForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const formData = new FormData(projectForm);
+    const date = formData.get("date") as string;
     const projectData: IProject = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       status: formData.get("status") as Status,
       role: formData.get("role") as Role,
-      date: new Date(formData.get("date") as string),
+      date: new Date(date),
     };
     try {
       projectsManager.newProject(projectData);

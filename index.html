@@ -32,7 +32,7 @@
                         <label for="name"><span class="material-symbols-outlined">
                             label
                             </span>Name</label>
-                        <input type="text" name="name" id="name" placeholder="Name of the project" required>
+                        <input type="text" name="name" id="name" placeholder="Name of the project" minlength="5" required>
                         <p class="modal-tips">TIP:Give it simple name</p>
                     </div>
                     <div class="project-properties">
@@ -65,7 +65,7 @@
                         <label for="date"><span class="material-symbols-outlined">
                             event
                             </span>Finishing Date</label>
-                        <input name="date" type="date"></label>
+                        <input id="date-input" name="date" type="date"></label>
                     </div>
                     <div class="button-section">
                         <button id="form-cancel" type="button" class="cancel-btn"><span class="material-symbols-outlined">

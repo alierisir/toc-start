@@ -41,6 +41,10 @@ export class Project implements IProject {
     for (const key of keys) {
       this[key] = data[key];
     }
+    if (data.date.toString() === "Invalid Date") {
+      this.date = new Date();
+      this.date.setMonth(this.date.getMonth() + 6);
+    }
     this.setInitialsBox();
     this.id = uuid4();
     this.setUi();
@@ -52,7 +56,12 @@ export class Project implements IProject {
     }
     const words = this.name.split(" ");
     const count = words.length;
-    const initials = words[0][0] + words[count - 1][0];
+    let initials: string;
+    if (count < 2) {
+      initials = words[0][0] + words[0][1];
+    } else {
+      initials = words[0][0] + words[count - 1][0];
+    }
     const colors = [
       "#50ad45",
       "#7c45ad",
