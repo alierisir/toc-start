@@ -130,6 +130,71 @@
             </div>
         </div>
         <div id="project-details" class="page" style="display:none">
+            <dialog id="edit-project-modal" style="max-height: fit-content;">
+                <form id="edit-project-form" class="modal-container">
+                    <h2 class="modal-header"><span class="material-symbols-outlined">
+                        tune
+                        </span>Edit Project</h2>
+                    <div class="project-properties">
+                        <label for="edit-name"><span class="material-symbols-outlined">
+                            label
+                            </span>Edit Name</label>
+                        <input type="text" name="edit-name" id="edit-name" placeholder="Name of the project">
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-description"><span class="material-symbols-outlined">
+                            description
+                            </span>Edit Description</label>
+                        <textarea name="edit-description" id="edit-description" cols="20" rows="5" placeholder="Describe your project (max:120 characters)" maxlength="120"></textarea>    
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-status"><span class="material-symbols-outlined">
+                            pending_actions
+                            </span>Edit Status</label>
+                        <select name="edit-status" id="edit-status">
+                            <option value="active" >Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="finished">Finished</option>
+                        </select>
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-role"><span class="material-symbols-outlined">
+                            school
+                            </span>Edit Role</label>
+                        <select name="edit-role" id="edit-role">
+                            <option value="architect" >Architect</option>
+                            <option value="engineer">Engineer</option>
+                            <option value="developer">Developer</option>
+                        </select>
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-cost"><span class="material-symbols-outlined">
+                            payments
+                            </span>Edit Cost</label>
+                        <input type="number" name="edit-cost" id="edit-cost" placeholder="Cost of the project">
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-progress"><span class="material-symbols-outlined">
+                            donut_large
+                            </span>Edit Progress</label>
+                        <input type="number" name="edit-progress" id="edit-progress" placeholder="Progress of the project">
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-date"><span class="material-symbols-outlined">
+                            event
+                            </span>Edit Finishing Date</label>
+                        <input id="edit-date" name="edit-date" type="date"></label>
+                    </div>
+                    <div class="button-section">
+                        <button id="edit-form-cancel" type="button" class="cancel-btn"><span class="material-symbols-outlined">
+                            cancel
+                            </span>Cancel</button>
+                        <button type="submit" class="accept-btn"><span class="material-symbols-outlined">
+                            check_circle
+                            </span>Accept</button>
+                    </div>
+                </form>
+            </dialog> 
             <header>
                 <div>
                     <h2 data-project-info="headName">Sample Project</h2>
@@ -141,7 +206,7 @@
                     <div class="dashboard-card">
                         <div class="info-header">
                             <p data-project-info="initials">SP</p>
-                            <button>Edit</button>
+                            <button project-info-btn="edit" id="p-edit">Edit</button>
                         </div>
                         <div class="info-title">
                             <h3 data-project-info="name">Sample Project</h3>
@@ -173,11 +238,11 @@
                         <div class="todo-header">
                             <h3>To-Do</h3>
                             <div>
-                                <button todo-search><span class="material-symbols-outlined">
+                                <button project-info-btn="todo-search" todo-search><span class="material-symbols-outlined">
                                     search
                                     </span></button>
                                 <input type="text" placeholder="Search task by name">
-                                <button todo-add><span class="material-symbols-outlined">
+                                <button project-info-btn="todo-add" todo-add><span class="material-symbols-outlined">
                                     playlist_add
                                     </span></button>
                             </div>

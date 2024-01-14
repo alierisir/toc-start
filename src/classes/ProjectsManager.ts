@@ -1,5 +1,5 @@
 import { ErrorManager } from "./ErrorManager";
-import { IProject, Project } from "./Project";
+import { IProject, Project, EProject } from "./Project";
 
 export class ProjectsManager {
   list: Project[] = [];
@@ -73,7 +73,6 @@ export class ProjectsManager {
       details.style.display = "flex";
       this.setPageDetails(project);
     });
-    //add page detaling here
   }
 
   newProject(data: IProject) {
@@ -87,7 +86,7 @@ export class ProjectsManager {
     }
 
     const project = new Project(data);
-    this.ui.append(project.ui);
+    this.ui.prepend(project.ui);
     this.list.push(project);
 
     //add event listener to project ui
@@ -105,8 +104,9 @@ export class ProjectsManager {
 
   getProjectByName(name: string) {
     const project = this.list.find((project) => {
-      if (project.name === name) return this.getProject(project.id);
+      return project.name === name;
     });
+    if (project) return this.getProject(project.id);
   }
 
   deleteProject(id: string) {
@@ -168,5 +168,9 @@ export class ProjectsManager {
       reader.readAsText(file);
     });
     input.click();
+  }
+
+  editProject(edit: EProject, current: Project) {
+    console.log(edit, current);
   }
 }

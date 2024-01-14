@@ -11,6 +11,11 @@ export interface IProject {
   date: Date;
 }
 
+export interface EProject extends IProject {
+  progress: number;
+  cost: number;
+}
+
 export class Project implements IProject {
   //To satisfy IProject
   name: string;

@@ -1,4 +1,4 @@
-import { IProject, Status, Role } from "./classes/Project";
+import { IProject, EProject, Status, Role } from "./classes/Project";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
@@ -67,7 +67,9 @@ const projectDetailsPage = document.getElementById(
 const projectsManager = new ProjectsManager(projectsListUi, projectDetailsPage);
 
 const projectForm = document.getElementById("new-project-form");
+const editForm = document.getElementById("edit-project-form");
 const formCancel = document.getElementById("form-cancel");
+const editFormCancel = document.getElementById("edit-form-cancel");
 
 if (
   projectForm &&
@@ -84,13 +86,12 @@ if (
   projectForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const formData = new FormData(projectForm);
-    const date = formData.get("date") as string;
     const projectData: IProject = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       status: formData.get("status") as Status,
       role: formData.get("role") as Role,
-      date: new Date(date),
+      date: new Date(formData.get("date") as string),
     };
     try {
       projectsManager.newProject(projectData);
@@ -130,87 +131,74 @@ if (
   console.warn("Buttons are not found. Check export and import button ids!");
 }
 
-//page navigation tryouts
+//edit project form
 
-//
-// function activePage(id) {
-//   allPages.forEach((page) => (page.style.display = "none"));
-//   document.getElementById(id).style.display = "flex";
-// }
-//
-// const projectPageBtn = document.getElementById("nav-project");
-// const userPageBtn = document.getElementById("nav-user");
-//
-// projectPageBtn.addEventListener("click", () => {
-//   activePage("projects-page");
-// });
-//
-// userPageBtn.addEventListener("click", () => {
-//   activePage("users-page");
-// });
-
-/* Mock Functions for create buttons
-
-const createUser={
-    btnId:"new-user-btn",
-    containerId:"users-list",
-    cardTag:"ul",
-    cardHtml:`
-    <li class="w20 center">Cansu Tüfekci</li>
-    <li class="w20 center">Developer</li>
-    <li class="w20 center">Universal-ph3</li>
-    <li class="w20 center">cc.tufekci@gmail.com</li>
-    <li class="w20 center">Özgün Koçyiğit</li>
-    `,
-    cardClass:"user-row"
+const editFormBtn = document.getElementById("p-edit");
+if (editFormBtn && editFormBtn instanceof HTMLButtonElement) {
+  editFormBtn.addEventListener("click", () => {
+    toggleModal("edit-project-modal");
+    const page = projectsManager.detailsPage;
+    const projectName = page.querySelector(
+      `[data-project-info="name"]`
+    )?.textContent;
+    //get project parameters
+    if (
+      projectName &&
+      editForm &&
+      editFormCancel &&
+      editForm instanceof HTMLFormElement
+    ) {
+      const project = projectsManager.getProjectByName(projectName);
+      //Get project values as placeholder for inputs
+      if (project) {
+        const name = document.getElementById("edit-name") as HTMLInputElement;
+        name.placeholder = project.name;
+        const description = document.getElementById(
+          "edit-description"
+        ) as HTMLInputElement;
+        description.placeholder = project.description;
+        const date = document.getElementById("edit-date") as HTMLInputElement;
+        date.value = project.date.toString().split("T")[0];
+        const role = document.getElementById("edit-role") as HTMLSelectElement;
+        role.value = project.role;
+        const status = document.getElementById(
+          "edit-status"
+        ) as HTMLSelectElement;
+        status.value = project.status;
+        const cost = document.getElementById("edit-cost") as HTMLInputElement;
+        cost.placeholder = `$${project.cost}`;
+        const progress = document.getElementById(
+          "edit-progress"
+        ) as HTMLInputElement;
+        progress.placeholder = `${project.progress}%`;
+      }
+      //Cancel button functionality
+      editFormCancel.addEventListener("click", () => {
+        const dia = document.getElementById(
+          "edit-project-modal"
+        ) as HTMLDialogElement;
+        dia?.close();
+        editForm.reset();
+      });
+      editForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const editData = new FormData(editForm);
+        const edittedProjectData: EProject = {
+          name: editData.get("edit-name") as string,
+          description: editData.get("edit-description") as string,
+          status: editData.get("edit-status") as Status,
+          role: editData.get("edit-role") as Role,
+          date: new Date(editData.get("edit-date") as string),
+          cost: Number(editData.get("edit-cost") as string),
+          progress: Number(editData.get("edit-progress") as string),
+        };
+        if (project) projectsManager.editProject(edittedProjectData, project);
+        const dia = document.getElementById(
+          "edit-project-modal"
+        ) as HTMLDialogElement;
+        dia?.close();
+        editForm.reset();
+      });
+    }
+  });
 }
-
-
-
-const createProject={
-    btnId:"new-project-btn",
-    containerId:"projects-list",
-    cardTag:"div",
-    cardHtml:`<div class="card-header">
-    <p>HC</p>
-    <div>
-    <h2>Project Name</h2>
-    <p >Project Description Lorem ipsum dolor sit amet.</p>
-    </div>
-    </div>
-    <div class="card-content">
-    <div class="card-property">
-        <p>Status</p>
-        <p>Active</p>
-    </div>
-    <div class="card-property">
-        <p>Role</p>
-        <p>Engineer</p>
-    </div>
-    <div class="card-property">
-        <p>Cost</p>
-        <p>20000TRY</p>
-    </div>
-    <div class="card-property">
-        <p>Finishing Date</p>
-        <p>26/12/2025</p>
-    </div>
-    </div>`,
-    cardClass:"project-card"
-}
-
-function makeFunctional(createObject){
-    const btn=document.getElementById(createObject.btnId)
-    const container=document.getElementById(createObject.containerId)
-    btn.addEventListener("click",()=>{
-        const card = document.createElement(createObject.cardTag)
-        card.innerHTML=createObject.cardHtml
-        card.className=createObject.cardClass
-        container.append(card)
-    })
-}
-
-makeFunctional(createProject)
-makeFunctional(createUser)
-
-*/

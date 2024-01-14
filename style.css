@@ -561,3 +561,13 @@ h2{
 .center{
     justify-content: center;
 }
+
+.sc80{
+    scale:80%
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
