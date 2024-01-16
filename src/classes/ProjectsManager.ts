@@ -1,5 +1,5 @@
 import { ErrorManager } from "./ErrorManager";
-import { IProject, Project, EProject } from "./Project";
+import { IProject, Project, EProject, monthsAfter } from "./Project";
 
 export class ProjectsManager {
   list: Project[] = [];
@@ -62,6 +62,7 @@ export class ProjectsManager {
         }
       }
     }
+    this.updateToDoList(project);
   }
 
   setPage(project: Project) {
@@ -72,6 +73,33 @@ export class ProjectsManager {
       page.style.display = "none";
       details.style.display = "flex";
       this.setPageDetails(project);
+    });
+  }
+
+  updateToDoList(project: Project) {
+    const container = this.detailsPage.querySelector(
+      `[todo-list-container]`
+    ) as HTMLElement;
+    container.innerHTML = ``;
+    const list = project.getToDoList();
+    list.map((todo) => {
+      container.prepend(todo.getUi());
+      if (todo.getStatus() === "active") {
+        todo.getUi().addEventListener("click", () => {
+          project.changeToCompleted(todo.taskId);
+          todo.getUi().addEventListener("click", () => {
+            project.changeToActive(todo.taskId);
+          });
+        });
+      }
+      if (todo.getStatus() === "completed") {
+        todo.getUi().addEventListener("click", () => {
+          project.changeToActive(todo.taskId);
+          todo.getUi().addEventListener("click", () => {
+            project.changeToCompleted(todo.taskId);
+          });
+        });
+      }
     });
   }
 
@@ -171,6 +199,7 @@ export class ProjectsManager {
   }
 
   editProject(edit: EProject, current: Project) {
+    // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek, eğer eski ve yeni proje verisi çakışıyorsa yeni olan seçilecek!
     console.log(edit, current);
   }
 }

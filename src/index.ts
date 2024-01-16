@@ -1,4 +1,4 @@
-import { IProject, EProject, Status, Role } from "./classes/Project";
+import { IProject, EProject, Status, Role, Project } from "./classes/Project";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
@@ -149,7 +149,7 @@ if (editFormBtn && editFormBtn instanceof HTMLButtonElement) {
       editForm instanceof HTMLFormElement
     ) {
       const project = projectsManager.getProjectByName(projectName);
-      //Get project values as placeholder for inputs
+      //Get current project values as placeholder for new inputs
       if (project) {
         const name = document.getElementById("edit-name") as HTMLInputElement;
         name.placeholder = project.name;
@@ -201,4 +201,33 @@ if (editFormBtn && editFormBtn instanceof HTMLButtonElement) {
       });
     }
   });
+}
+
+const addTodoBtn = projectDetailsPage.querySelector(`[todo-add]`);
+const todoContainer = projectDetailsPage.querySelector(`[todo-list-container]`);
+if (
+  addTodoBtn &&
+  addTodoBtn instanceof HTMLElement &&
+  todoContainer &&
+  todoContainer instanceof HTMLElement
+) {
+  addTodoBtn.addEventListener("click", () => {
+    const projectName = projectsManager.detailsPage.querySelector(
+      `[data-project-info="name"]`
+    )?.textContent;
+    if (projectName) {
+      const project = projectsManager.getProjectByName(projectName);
+      if (project && project instanceof Project) {
+        project.addDummyToDo();
+        projectsManager.updateToDoList(project);
+      }
+    } else {
+      return console.log(
+        projectName,
+        " cannot be found. Check the project name!"
+      );
+    }
+  });
+} else {
+  console.log("check the HTML elements for ToDo List Functionality");
 }
