@@ -23,23 +23,28 @@ export class ToDo implements IToDo {
     this.taskId = uuid4();
     this.task = data.task;
     this.deadline = data.deadline;
+    this.status="active"
+    this.checkStatus()
     this.setUi();
   }
 
   //methods
   private checkStatus() {
-    const today = new Date();
-    if (this.deadline >= today || this.status === "completed") return;
-    else this.setStatus("overdue");
-    console.log("checkStatus successfull");
+    const today = new Date()
+    if (this.deadline>=today|| this.status==="overdue"){
+      this.status="active"
+      this.updateUi()
+    }
+    if (this.deadline >= today || this.status === "completed") return this.status;
+    else return this.status="overdue";
   }
 
   setDeadline(date: Date) {
     this.deadline = date;
+    this.checkStatus()
   }
 
   getStatus() {
-    this.checkStatus();
     return this.status;
   }
 
@@ -49,12 +54,14 @@ export class ToDo implements IToDo {
   }
 
   setUi() {
-    this.checkStatus();
     if (this.ui) return console.log("todo item ui already exists!");
     this.ui = document.createElement("div");
     this.ui.innerHTML = this.getTemplate();
     this.ui.className = `list-item todo-${this.getStatus()}`;
     console.log(this.taskId, "setUi() successfull");
+    this.ui.addEventListener("click",()=>{
+      this.toggleStatus(this.status)
+    })
   }
 
   private getTemplate() {
@@ -63,7 +70,7 @@ export class ToDo implements IToDo {
       completed: "check_box",
       overdue: "disabled_by_default",
     };
-    const status = this.getStatus();
+    const status = this.status;
     const status_symbol = symbols[status];
     const formattedDate = this.deadline.toDateString().split("T")[0].split(" ");
     const template = `
@@ -81,9 +88,17 @@ export class ToDo implements IToDo {
   }
 
   private updateUi() {
-    this.checkStatus();
-    this.ui.className = `list-item todo-${this.getStatus()}`;
+    this.ui.className = `list-item todo-${this.status}`;
     this.ui.innerHTML = this.getTemplate();
     console.log("updateUi() successfull");
+  }
+
+  private toggleStatus(status:ToDoStatus){
+    if(status==="active") return this.setStatus("completed")
+    if(status==="completed") return this.setStatus("active")
+    if(status==="overdue") {
+      alert("note to self: add a date input or delete task options here. for now deadline is updated to 1 month from today!")
+      this.setDeadline(monthsAfter(1))
+    }
   }
 }
