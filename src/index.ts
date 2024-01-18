@@ -203,6 +203,8 @@ if (editFormBtn && editFormBtn instanceof HTMLButtonElement) {
   });
 }
 
+//ToDo Create functionality
+
 const addTodoBtn = projectDetailsPage.querySelector(`[todo-add]`);
 const todoContainer = projectDetailsPage.querySelector(`[todo-list-container]`);
 if (
@@ -213,12 +215,13 @@ if (
 ) {
   addTodoBtn.addEventListener("click", () => {
     const projectName = projectsManager.detailsPage.querySelector(
+      //Get project
       `[data-project-info="name"]`
     )?.textContent;
     if (projectName) {
       const project = projectsManager.getProjectByName(projectName);
       if (project && project instanceof Project) {
-        project.addDummyToDo();
+        const todo = project.addDummyToDo(); //This line will change as a form gather todo datas and make a new todo, for now,  dummytodo will be used as test
         projectsManager.updateToDoList(project);
       }
     } else {

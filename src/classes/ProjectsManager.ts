@@ -1,14 +1,19 @@
 import { ErrorManager } from "./ErrorManager";
-import { IProject, Project, EProject, monthsAfter } from "./Project";
+import { IProject, Project, monthsAfter } from "./Project";
+import { ToDo } from "./ToDo";
 
 export class ProjectsManager {
   list: Project[] = [];
   ui: HTMLElement;
   detailsPage: HTMLElement;
+  todoContainer: HTMLElement;
 
   constructor(container: HTMLElement, page: HTMLElement) {
     this.ui = container;
     this.detailsPage = page;
+    this.todoContainer = this.detailsPage.querySelector(
+      `[todo-list-container]`
+    ) as HTMLElement;
   }
 
   setPageDetails(project: Project) {
@@ -62,45 +67,41 @@ export class ProjectsManager {
         }
       }
     }
-    this.updateToDoList(project);
+    this.setTodoListUi(project);
   }
 
   setPage(project: Project) {
     const card = project.ui;
     card.addEventListener("click", () => {
-      const page = document.getElementById("projects-page") as HTMLElement;
-      const details = document.getElementById("project-details") as HTMLElement;
+      const page = this.ui.parentElement as HTMLElement;
+      const details = this.detailsPage;
       page.style.display = "none";
       details.style.display = "flex";
       this.setPageDetails(project);
     });
   }
 
-  updateToDoList(project: Project) {
-    const container = this.detailsPage.querySelector(
-      `[todo-list-container]`
-    ) as HTMLElement;
-    container.innerHTML = ``;
+  initiateToDoList(project: Project, todoList: ToDo[]) {
+    project.todoList = todoList;
+  }
+
+  setTodoListUi(project: Project) {
+    const container = this.todoContainer;
+    container.innerHTML = "";
     const list = project.getToDoList();
-    list.map((todo) => {
+    for (const todo of list) {
+      console.log(todo);
       container.prepend(todo.getUi());
-      if (todo.getStatus() === "active") {
-        todo.getUi().addEventListener("click", () => {
-          project.changeToCompleted(todo.taskId);
-          todo.getUi().addEventListener("click", () => {
-            project.changeToActive(todo.taskId);
-          });
-        });
-      }
-      if (todo.getStatus() === "completed") {
-        todo.getUi().addEventListener("click", () => {
-          project.changeToActive(todo.taskId);
-          todo.getUi().addEventListener("click", () => {
-            project.changeToCompleted(todo.taskId);
-          });
-        });
-      }
-    });
+    }
+  }
+
+  updateToDoList(project: Project) {
+    const container = this.todoContainer;
+    console.log(project.getToDoList());
+    const list = project.getToDoList();
+    const lastIndex = list.length - 1;
+    const todo = list[lastIndex];
+    container.prepend(todo.getUi());
   }
 
   newProject(data: IProject) {
@@ -158,6 +159,7 @@ export class ProjectsManager {
 
   exportToJSON(fileName: string = "projects") {
     const json = JSON.stringify(this.list, null, 2);
+    console.log(json);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -178,7 +180,7 @@ export class ProjectsManager {
         return;
       }
 
-      const projects: IProject[] = JSON.parse(json as string);
+      const projects: Project[] = JSON.parse(json as string);
       for (const project of projects) {
         try {
           this.newProject(project);
@@ -198,8 +200,8 @@ export class ProjectsManager {
     input.click();
   }
 
-  editProject(edit: EProject, current: Project) {
+  editProject(editted: Project, current: Project) {
     // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek, eğer eski ve yeni proje verisi çakışıyorsa yeni olan seçilecek!
-    console.log(edit, current);
+    console.log(editted);
   }
 }

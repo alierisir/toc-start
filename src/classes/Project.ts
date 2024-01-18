@@ -1,92 +1,8 @@
 import { v4 as uuid4 } from "uuid";
+import { IToDo, ToDo } from "./ToDo";
 
 export type Status = "active" | "pending" | "finished";
 export type Role = "engineer" | "architect" | "developer";
-export type ToDoStatus = "active" | "completed" | "overdue";
-
-export interface IToDo {
-  task: string;
-  deadline: Date;
-}
-
-export class ToDo implements IToDo {
-  //satisfy IToDo
-  task: string =
-    "this is a blank task created by default.Deadline is set to 1 month from today.";
-  deadline: Date = monthsAfter(1);
-
-  //class internals
-  status: ToDoStatus = "active";
-  taskId: string;
-  ui: HTMLElement;
-
-  constructor(data: IToDo) {
-    this.taskId = uuid4();
-    this.task = data.task;
-    this.deadline = data.deadline;
-    this.setUi();
-  }
-
-  //methods
-  private checkStatus() {
-    const today = new Date();
-    if (this.deadline >= today || this.status === "completed") return;
-    else this.setStatus("overdue");
-    console.log("checkStatus successfull");
-  }
-
-  setDeadline(date: Date) {
-    this.deadline = date;
-  }
-
-  getStatus() {
-    this.checkStatus();
-    return this.status;
-  }
-
-  setStatus(status: ToDoStatus) {
-    this.status = status;
-    this.updateUi();
-  }
-
-  setUi() {
-    this.checkStatus();
-    if (this.ui) return console.log("todo item ui already exists!");
-    this.ui = document.createElement("div");
-    this.ui.innerHTML = this.getTemplate();
-    this.ui.className = `list-item todo-${this.getStatus()}`;
-    console.log(this.taskId, "setUi() successfull");
-  }
-
-  private getTemplate() {
-    const symbols = {
-      active: "check_box_outline_blank",
-      completed: "check_box",
-      overdue: "disabled_by_default",
-    };
-    const status = this.getStatus();
-    const status_symbol = symbols[status];
-    const formattedDate = this.deadline.toDateString().split("T")[0].split(" ");
-    const template = `
-    <p todo-list-functions="toggle-active"><span class="material-symbols-outlined">
-        ${status_symbol}
-    </span></p>
-    <p>${this.task}</p>
-    <p>${formattedDate[3]}-${formattedDate[1]}-${formattedDate[2]}</p>`;
-    return template;
-  }
-
-  getUi() {
-    return this.ui;
-  }
-
-  private updateUi() {
-    this.checkStatus();
-    this.ui.className = `list-item todo-${this.getStatus()}`;
-    this.ui.innerHTML = this.getTemplate();
-    console.log("updateUi() successfull");
-  }
-}
 
 export interface IProject {
   name: string;
@@ -94,11 +10,6 @@ export interface IProject {
   status: Status;
   role: Role;
   date: Date;
-}
-
-export interface EProject extends IProject {
-  progress: number;
-  cost: number;
 }
 
 //Global Functions that may help
@@ -227,11 +138,13 @@ export class Project implements IProject {
     const todo = new ToDo(itodo);
     this.todoList.push(todo);
     console.log("addDumyToDo() successfull");
+    return todo;
   }
 
   newToDo(iTodo: IToDo) {
     const todo = new ToDo(iTodo);
-    return todo.getUi();
+    this.todoList.push(todo);
+    return todo;
   }
 
   getToDoList() {
@@ -267,5 +180,15 @@ export class Project implements IProject {
     todo.ui.remove();
     const remaining = this.todoList.filter((todo) => todo.taskId !== id);
     this.todoList = remaining;
+  }
+
+  updateProject(project: Project) {
+    const keys = Object.keys(this);
+    //['cost', 'progress', 'todoList', 'name', 'description', 'status', 'role', 'date', 'initials', 'boxColor', 'id', 'ui']
+    for (const key of keys) {
+      if (project[key]) {
+        this[key] = project[key];
+      }
+    }
   }
 }
