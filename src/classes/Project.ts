@@ -12,6 +12,11 @@ export interface IProject {
   date: Date;
 }
 
+export interface EProject extends IProject{
+  cost:number;
+  progress:number;
+}
+
 //Global Functions that may help
 
 export function monthsAfter(months: number) {
@@ -143,7 +148,9 @@ export class Project implements IProject {
 
   newToDo(iTodo: IToDo) {
     const todo = new ToDo(iTodo);
+    console.log(todo.deadline,todo.task)
     this.todoList.push(todo);
+    console.log(todo.taskId," todo added successfully")
     return todo;
   }
 

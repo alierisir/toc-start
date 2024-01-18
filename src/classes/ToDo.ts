@@ -23,7 +23,6 @@ export class ToDo implements IToDo {
     this.taskId = uuid4();
     this.task = data.task;
     this.deadline = data.deadline;
-    this.status="active"
     this.checkStatus()
     this.setUi();
   }
@@ -31,12 +30,14 @@ export class ToDo implements IToDo {
   //methods
   private checkStatus() {
     const today = new Date()
-    if (this.deadline>=today|| this.status==="overdue"){
-      this.status="active"
-      this.updateUi()
+    if (this.deadline>today){
+      if(this.status==="completed"||this.status==="active"){
+        return this.status
+      }
+    }else{
+      this.status="overdue"
+      return this.status
     }
-    if (this.deadline >= today || this.status === "completed") return this.status;
-    else return this.status="overdue";
   }
 
   setDeadline(date: Date) {

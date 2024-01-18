@@ -402,6 +402,7 @@ h2{
     font-size: var(--text-l);
     display: flex;
     justify-content: space-between;
+    text-transform: capitalize;
 }
 
 .info-property-field>div>:first-child{
@@ -480,15 +481,20 @@ h2{
 }
 
 .todo-active{
-    background-color: #c9a635;
+    background-color: #ffd54f;
+    font-size: var(--text-s);
 }
 
 .todo-completed{
-    background-color: #53c935;
+    background-color: #70ff4c;
+    font-size: var(--text-s);
+    text-decoration: line-through;
 }
 
 .todo-overdue{
-    background-color: #c93535;
+    background-color: #ff5959;
+    font-size: var(--text-s);
+    text-decoration: underline;
 }
 
 .todo-list>*{

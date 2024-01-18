@@ -195,6 +195,33 @@
                     </div>
                 </form>
             </dialog> 
+            <dialog id="new-todo-modal">
+                <form id="new-todo-form" class="modal-container">
+                    <h2 class="modal-header"><span class="material-symbols-outlined">
+                        tune
+                        </span>New ToDo</h2>
+                    <div class="project-properties">
+                        <label for="todo-task"><span class="material-symbols-outlined">
+                            label
+                            </span>Task</label>
+                        <input type="text" name="todo-task" id="todo-task" placeholder="Write the task to be done." required>
+                    </div>
+                    <div class="project-properties">
+                        <label for="todo-deadline"><span class="material-symbols-outlined">
+                            event
+                            </span>Deadline</label>
+                        <input id="todo-deadline" name="todo-deadline" type="date"></label>
+                    </div>
+                    <div class="button-section">
+                        <button id="todo-cancel" type="button" class="cancel-btn"><span class="material-symbols-outlined">
+                            cancel
+                            </span>Cancel</button>
+                        <button type="submit" class="accept-btn"><span class="material-symbols-outlined">
+                            check_circle
+                            </span>Accept</button>
+                    </div>
+                </form>
+            </dialog>
             <header>
                 <div>
                     <h2 data-project-info="headName">Sample Project</h2>

@@ -2,6 +2,7 @@ import { IProject, EProject, Status, Role, Project } from "./classes/Project";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
+import { IToDo } from "./classes/ToDo";
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];
@@ -70,6 +71,8 @@ const projectForm = document.getElementById("new-project-form");
 const editForm = document.getElementById("edit-project-form");
 const formCancel = document.getElementById("form-cancel");
 const editFormCancel = document.getElementById("edit-form-cancel");
+const todoForm=document.getElementById("new-todo-form")
+const todoCancel=document.getElementById("todo-cancel")
 
 if (
   projectForm &&
@@ -182,17 +185,17 @@ if (editFormBtn && editFormBtn instanceof HTMLButtonElement) {
       });
       editForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        const editData = new FormData(editForm);
-        const edittedProjectData: EProject = {
-          name: editData.get("edit-name") as string,
-          description: editData.get("edit-description") as string,
-          status: editData.get("edit-status") as Status,
-          role: editData.get("edit-role") as Role,
-          date: new Date(editData.get("edit-date") as string),
-          cost: Number(editData.get("edit-cost") as string),
-          progress: Number(editData.get("edit-progress") as string),
+        const edittedData = new FormData(editForm);
+        const edittedProject: EProject = {
+          name: edittedData.get("edit-name") as string,
+          description: edittedData.get("edit-description") as string,
+          status: edittedData.get("edit-status") as Status,
+          role: edittedData.get("edit-role") as Role,
+          date: new Date(edittedData.get("edit-date") as string),
+          cost: Number(edittedData.get("edit-cost") as string),
+          progress: Number(edittedData.get("edit-progress") as string),
         };
-        if (project) projectsManager.editProject(edittedProjectData, project);
+        if (project) projectsManager.editProject(edittedProject, project);
         const dia = document.getElementById(
           "edit-project-modal"
         ) as HTMLDialogElement;
@@ -203,7 +206,7 @@ if (editFormBtn && editFormBtn instanceof HTMLButtonElement) {
   });
 }
 
-//ToDo Create functionality
+//ToDo Create Form
 
 const addTodoBtn = projectDetailsPage.querySelector(`[todo-add]`);
 const todoContainer = projectDetailsPage.querySelector(`[todo-list-container]`);
@@ -221,8 +224,33 @@ if (
     if (projectName) {
       const project = projectsManager.getProjectByName(projectName);
       if (project && project instanceof Project) {
-        const todo = project.addDummyToDo(); //This line will change as a form gather todo datas and make a new todo, for now,  dummytodo will be used as test
-        projectsManager.updateToDoList(project);
+        //Open new form
+        toggleModal("new-todo-modal")
+        if (todoForm&&todoForm instanceof HTMLFormElement&&todoCancel&&todoCancel instanceof HTMLButtonElement){
+          //cancel form functionality 
+          todoCancel.addEventListener("click",()=>{
+            todoForm.reset()
+            toggleModal("new-todo-modal")
+          })
+          //form functionality
+          todoForm.addEventListener("submit",(e)=>{
+            e.preventDefault()
+            const formData=new FormData(todoForm)
+            const todoData:IToDo={
+              task:formData.get("todo-task") as string,
+              deadline:new Date(formData.get("todo-deadline")as string )
+            }
+            try {
+              project.newToDo(todoData)
+              projectsManager.updateToDoList(project);
+              todoForm.reset()
+              toggleModal("new-todo-modal")
+            } catch (error) {
+              "There was a problem while creating todo task! 'note to self: make errors better someday'"
+            }
+          })
+        }
+        //const todo = project.addDummyToDo(); //This line will change as a form gather todo datas and make a new todo, for now,  dummytodo will be used as test
       }
     } else {
       return console.log(

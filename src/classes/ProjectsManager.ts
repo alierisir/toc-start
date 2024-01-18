@@ -1,5 +1,5 @@
 import { ErrorManager } from "./ErrorManager";
-import { IProject, Project, monthsAfter } from "./Project";
+import { IProject, Project, monthsAfter,EProject } from "./Project";
 import { ToDo } from "./ToDo";
 
 export class ProjectsManager {
@@ -200,7 +200,7 @@ export class ProjectsManager {
     input.click();
   }
 
-  editProject(editted: Project, current: Project) {
+  editProject(editted: EProject, current: Project) {
     // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek, eğer eski ve yeni proje verisi çakışıyorsa yeni olan seçilecek!
     console.log(editted);
   }
