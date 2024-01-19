@@ -7,6 +7,7 @@ export class ProjectsManager {
   ui: HTMLElement;
   detailsPage: HTMLElement;
   todoContainer: HTMLElement;
+  activeProject:Project;
 
   constructor(container: HTMLElement, page: HTMLElement) {
     this.ui = container;
@@ -16,8 +17,9 @@ export class ProjectsManager {
     ) as HTMLElement;
   }
 
-  setPageDetails(project: Project) {
+  setPageDetails() {
     const page = this.detailsPage;
+    const project=this.activeProject
     const pageInfoDummy = {
       name: "name",
       description: "description",
@@ -73,11 +75,12 @@ export class ProjectsManager {
   setPage(project: Project) {
     const card = project.ui;
     card.addEventListener("click", () => {
+      this.activeProject=project
       const page = this.ui.parentElement as HTMLElement;
       const details = this.detailsPage;
       page.style.display = "none";
       details.style.display = "flex";
-      this.setPageDetails(project);
+      this.setPageDetails();
     });
   }
 
@@ -95,7 +98,8 @@ export class ProjectsManager {
     }
   }
 
-  updateToDoList(project: Project) {
+  updateToDoList() {
+    const project=this.activeProject
     const container = this.todoContainer;
     console.log(project.getToDoList());
     const list = project.getToDoList();

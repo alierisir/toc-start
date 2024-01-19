@@ -1,6 +1,16 @@
 import { monthsAfter } from "./Project";
 import { v4 as uuid4 } from "uuid";
 
+export function formatDate(date:Date){
+  const months=["Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec."]
+  const formatted={
+    day:date.getDate().toString(),
+    month:months[date.getMonth()],
+    year:date.getFullYear().toString()
+  }
+  return formatted
+}
+
 export type ToDoStatus = "active" | "completed" | "overdue";
 
 export interface IToDo {
@@ -23,21 +33,49 @@ export class ToDo implements IToDo {
     this.taskId = uuid4();
     this.task = data.task;
     this.deadline = data.deadline;
-    this.checkStatus()
+    console.log(this.deadline)
+    this.status="active"
+    console.log("1",this.status)
     this.setUi();
+    console.log("2",this.status)
+    this.checkStatus()
+    console.log("3",this.status)
   }
 
   //methods
   private checkStatus() {
     const today = new Date()
-    if (this.deadline>today){
-      if(this.status==="completed"||this.status==="active"){
-        return this.status
-      }
-    }else{
-      this.status="overdue"
+    if(this.deadline>=today && this.status==="active"){
+      console.log("1")
+      this.setStatus("active")
       return this.status
     }
+    if(this.deadline>=today && this.status==="completed"){
+      console.log("2")
+      this.setStatus("completed")
+      return this.status
+    }
+    if(this.deadline>=today && this.status==="overdue") {
+      console.log("3")
+      this.setStatus("active")
+      return this.status
+    }
+    if(this.deadline<today && this.status==="active"){
+      console.log("4")
+      this.setStatus("overdue")
+      return this.status
+    }
+    if(this.deadline<today && this.status==="completed"){
+      console.log("5")
+      this.setStatus("completed")
+      return this.status
+    }
+    if(this.deadline<today && this.status==="overdue"){
+      console.log("5")
+      this.setStatus("overdue")
+      return this.status
+    }
+    
   }
 
   setDeadline(date: Date) {
@@ -73,14 +111,14 @@ export class ToDo implements IToDo {
     };
     const status = this.status;
     const status_symbol = symbols[status];
-    const formattedDate = this.deadline.toDateString().split("T")[0].split(" ");
+    const {day,month,year}=formatDate(this.deadline)
     const template = `
     <p todo-list-functions="toggle-active"><span class="material-symbols-outlined">
         ${status_symbol}
     </span></p>
     <p todo-id style="content-visibility:hidden">${this.taskId}</p>
     <p>${this.task}</p>
-    <p>${formattedDate[3]}-${formattedDate[1]}-${formattedDate[2]}</p>`;
+    <p>${year}-${month}-${day}</p>`;
     return template;
   }
 

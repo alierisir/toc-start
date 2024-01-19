@@ -215,50 +215,10 @@ if (
   addTodoBtn instanceof HTMLElement &&
   todoContainer &&
   todoContainer instanceof HTMLElement
-) {
-  addTodoBtn.addEventListener("click", () => {
-    const projectName = projectsManager.detailsPage.querySelector(
-      //Get project
-      `[data-project-info="name"]`
-    )?.textContent;
-    if (projectName) {
-      const project = projectsManager.getProjectByName(projectName);
-      if (project && project instanceof Project) {
-        //Open new form
-        toggleModal("new-todo-modal")
-        if (todoForm&&todoForm instanceof HTMLFormElement&&todoCancel&&todoCancel instanceof HTMLButtonElement){
-          //cancel form functionality 
-          todoCancel.addEventListener("click",()=>{
-            todoForm.reset()
-            toggleModal("new-todo-modal")
-          })
-          //form functionality
-          todoForm.addEventListener("submit",(e)=>{
-            e.preventDefault()
-            const formData=new FormData(todoForm)
-            const todoData:IToDo={
-              task:formData.get("todo-task") as string,
-              deadline:new Date(formData.get("todo-deadline")as string )
-            }
-            try {
-              project.newToDo(todoData)
-              projectsManager.updateToDoList(project);
-              todoForm.reset()
-              toggleModal("new-todo-modal")
-            } catch (error) {
-              "There was a problem while creating todo task! 'note to self: make errors better someday'"
-            }
-          })
-        }
-        //const todo = project.addDummyToDo(); //This line will change as a form gather todo datas and make a new todo, for now,  dummytodo will be used as test
-      }
-    } else {
-      return console.log(
-        projectName,
-        " cannot be found. Check the project name!"
-      );
-    }
-  });
-} else {
-  console.log("check the HTML elements for ToDo List Functionality");
+){
+  addTodoBtn.addEventListener("click",()=>{
+    projectsManager.activeProject.addDummyToDo()
+    projectsManager.updateToDoList()
+  })
 }
+  
