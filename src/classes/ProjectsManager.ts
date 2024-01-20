@@ -1,13 +1,14 @@
 import { ErrorManager } from "./ErrorManager";
-import { IProject, Project, monthsAfter,EProject } from "./Project";
-import { ToDo , formatDate, formatDateString} from "./ToDo";
+import { IProject, Project, EProject } from "./Project";
+import { ToDo } from "./ToDo";
+import { correctDate } from "./CustomFunctions";
 
 export class ProjectsManager {
   list: Project[] = [];
   ui: HTMLElement;
   detailsPage: HTMLElement;
   todoContainer: HTMLElement;
-  activeProject:Project;
+  activeProject: Project;
 
   constructor(container: HTMLElement, page: HTMLElement) {
     this.ui = container;
@@ -19,7 +20,7 @@ export class ProjectsManager {
 
   setPageDetails() {
     const page = this.detailsPage;
-    const project=this.activeProject
+    const project = this.activeProject;
     const pageInfoDummy = {
       name: "name",
       description: "description",
@@ -57,37 +58,29 @@ export class ProjectsManager {
         pageInfo[key].textContent = `$${projectValue}`;
       }
       if (value === "date") {
-        if (projectValue instanceof Date) {
-          console.log("date type is Date")
-          const {day,month,year}=formatDate(projectValue)
-          pageInfo[key].textContent = `${year}-${month}-${day}`;
-        }
-        if (typeof projectValue === "string") {
-          console.log("date type is string")
-          const {day,month,year}=formatDateString(projectValue)
-          pageInfo[key].textContent = `${year}-${month}-${day}`;
-        }
+        const { day, month, year } = correctDate(projectValue);
+        pageInfo[key].textContent = `${year}-${month}-${day}`;
       }
     }
     this.setTodoListUi(project);
 
     //Search Bar Function
-    const searchBar=page.querySelector(`[todo-search]`)
-    if(searchBar&&searchBar instanceof HTMLInputElement){
-      console.log(searchBar)
-      searchBar.addEventListener("change",()=>{
-        const todoTasks=project.getToDoList().map(todo=>{
-          return [todo.task,todo.taskId]
-        })
-        console.log(todoTasks)
-      })
+    const searchBar = page.querySelector(`[todo-search]`);
+    if (searchBar && searchBar instanceof HTMLInputElement) {
+      console.log(searchBar);
+      searchBar.addEventListener("change", () => {
+        const todoTasks = project.getToDoList().map((todo) => {
+          return [todo.task, todo.taskId];
+        });
+        console.log(todoTasks);
+      });
     }
   }
 
   setPage(project: Project) {
     const card = project.ui;
     card.addEventListener("click", () => {
-      this.activeProject=project
+      this.activeProject = project;
       const page = this.ui.parentElement as HTMLElement;
       const details = this.detailsPage;
       page.style.display = "none";
@@ -111,7 +104,7 @@ export class ProjectsManager {
   }
 
   updateToDoList() {
-    const project=this.activeProject
+    const project = this.activeProject;
     const container = this.todoContainer;
     console.log(project.getToDoList());
     const list = project.getToDoList();
@@ -218,6 +211,6 @@ export class ProjectsManager {
 
   editProject(editted: EProject, current: Project) {
     // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek, eğer eski ve yeni proje verisi çakışıyorsa yeni olan seçilecek!
-    console.log(editted);
+    console.log("editted:", editted, "current:", current);
   }
 }

@@ -2,7 +2,8 @@ import { IProject, EProject, Status, Role, Project } from "./classes/Project";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
-import { IToDo } from "./classes/ToDo";
+import { IToDo, ToDoStatus } from "./classes/ToDo";
+import { correctDate, dateAfterFromPoint } from "./classes/CustomFunctions";
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];
@@ -38,7 +39,6 @@ const errManager = new ErrorManager(errContainer);
 
 function toggleModal(id: string) {
   const modal = document.getElementById(id);
-
   if (modal && modal instanceof HTMLDialogElement) {
     if (modal.open) modal.close();
     else modal.showModal();
@@ -71,8 +71,6 @@ const projectForm = document.getElementById("new-project-form");
 const editForm = document.getElementById("edit-project-form");
 const formCancel = document.getElementById("form-cancel");
 const editFormCancel = document.getElementById("edit-form-cancel");
-const todoForm=document.getElementById("new-todo-form")
-const todoCancel=document.getElementById("todo-cancel")
 
 if (
   projectForm &&
@@ -140,47 +138,33 @@ const editFormBtn = document.getElementById("p-edit");
 if (editFormBtn && editFormBtn instanceof HTMLButtonElement) {
   editFormBtn.addEventListener("click", () => {
     toggleModal("edit-project-modal");
-    const page = projectsManager.detailsPage;
-    const projectName = page.querySelector(
-      `[data-project-info="name"]`
-    )?.textContent;
-    //get project parameters
-    if (
-      projectName &&
-      editForm &&
-      editFormCancel &&
-      editForm instanceof HTMLFormElement
-    ) {
-      const project = projectsManager.getProjectByName(projectName);
+    if (editForm && editFormCancel && editForm instanceof HTMLFormElement) {
+      const project = projectsManager.activeProject;
       //Get current project values as placeholder for new inputs
-      if (project) {
-        const name = document.getElementById("edit-name") as HTMLInputElement;
-        name.placeholder = project.name;
-        const description = document.getElementById(
-          "edit-description"
-        ) as HTMLInputElement;
-        description.placeholder = project.description;
-        const date = document.getElementById("edit-date") as HTMLInputElement;
-        date.value = project.date.toString().split("T")[0];
-        const role = document.getElementById("edit-role") as HTMLSelectElement;
-        role.value = project.role;
-        const status = document.getElementById(
-          "edit-status"
-        ) as HTMLSelectElement;
-        status.value = project.status;
-        const cost = document.getElementById("edit-cost") as HTMLInputElement;
-        cost.placeholder = `$${project.cost}`;
-        const progress = document.getElementById(
-          "edit-progress"
-        ) as HTMLInputElement;
-        progress.placeholder = `${project.progress}%`;
-      }
+      const name = document.getElementById("edit-name") as HTMLInputElement;
+      name.placeholder = project.name;
+      const description = document.getElementById(
+        "edit-description"
+      ) as HTMLInputElement;
+      description.placeholder = project.description;
+      const date = document.getElementById("edit-date") as HTMLInputElement;
+      const { year, monthNumber, day } = correctDate(project.date);
+      date.value = `${year}-${monthNumber}-${day}`;
+      const role = document.getElementById("edit-role") as HTMLSelectElement;
+      role.value = project.role;
+      const status = document.getElementById(
+        "edit-status"
+      ) as HTMLSelectElement;
+      status.value = project.status;
+      const cost = document.getElementById("edit-cost") as HTMLInputElement;
+      cost.placeholder = `$${project.cost}`;
+      const progress = document.getElementById(
+        "edit-progress"
+      ) as HTMLInputElement;
+      progress.placeholder = `${project.progress}%`;
       //Cancel button functionality
       editFormCancel.addEventListener("click", () => {
-        const dia = document.getElementById(
-          "edit-project-modal"
-        ) as HTMLDialogElement;
-        dia?.close();
+        toggleModal("edit-project-modal");
         editForm.reset();
       });
       editForm.addEventListener("submit", (e) => {
@@ -196,10 +180,7 @@ if (editFormBtn && editFormBtn instanceof HTMLButtonElement) {
           progress: Number(edittedData.get("edit-progress") as string),
         };
         if (project) projectsManager.editProject(edittedProject, project);
-        const dia = document.getElementById(
-          "edit-project-modal"
-        ) as HTMLDialogElement;
-        dia?.close();
+        toggleModal("edit-project-modal");
         editForm.reset();
       });
     }
@@ -207,18 +188,52 @@ if (editFormBtn && editFormBtn instanceof HTMLButtonElement) {
 }
 
 //ToDo Create Form
-
+const todoModal = document.getElementById("new-todo-modal");
+console.log("modal", todoModal);
+const todoForm = document.getElementById("new-todo-form");
+console.log("form", todoForm);
+const todoCancel = document.getElementById("todo-cancel");
+console.log("cancelbtn", todoCancel);
 const addTodoBtn = projectDetailsPage.querySelector(`[todo-add]`);
+console.log("addTodobtn", addTodoBtn);
 const todoContainer = projectDetailsPage.querySelector(`[todo-list-container]`);
 if (
+  todoModal &&
+  todoModal instanceof HTMLDialogElement &&
+  todoForm &&
+  todoForm instanceof HTMLFormElement &&
+  todoCancel &&
+  todoCancel instanceof HTMLButtonElement &&
   addTodoBtn &&
   addTodoBtn instanceof HTMLElement &&
   todoContainer &&
   todoContainer instanceof HTMLElement
-){
-  addTodoBtn.addEventListener("click",()=>{
-    projectsManager.activeProject.addDummyToDo()
-    projectsManager.updateToDoList()
-  })
+) {
+  //open dialog
+  addTodoBtn.addEventListener("click", () => {
+    todoModal.showModal();
+  });
+
+  //cancel button functionality
+  todoCancel.addEventListener("click", () => {
+    todoForm.reset();
+    todoModal.close();
+  });
+  todoForm.addEventListener("submit", (e) => {
+    //prevent default
+    e.preventDefault();
+    //gather todo parameters
+    const formData = new FormData(todoForm);
+    const iTodo: IToDo = {
+      task: formData.get("todo-task") as string,
+      status: formData.get("todo-status") as ToDoStatus,
+      deadline: new Date(formData.get("todo-deadline") as string),
+    };
+    //create new todo
+    projectsManager.activeProject.newToDo(iTodo);
+    //update Ui and Project
+    projectsManager.updateToDoList();
+    todoForm.reset();
+    todoModal.close();
+  });
 }
-  

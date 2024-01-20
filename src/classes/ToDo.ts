@@ -1,25 +1,11 @@
-import { monthsAfter } from "./Project";
+import { monthsAfterToday, correctDate } from "./CustomFunctions";
 import { v4 as uuid4 } from "uuid";
-
-export function formatDateString(strDate:string){
-  const date=new Date(strDate)
-  return formatDate(date)
-}
-
-export function formatDate(date:Date){
-  const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-  const formatted={
-    day:date.getDate().toString(),
-    month:months[date.getMonth()],
-    year:date.getFullYear().toString()
-  }
-  return formatted
-}
 
 export type ToDoStatus = "active" | "completed" | "overdue";
 
 export interface IToDo {
   task: string;
+  status?: ToDoStatus;
   deadline: Date;
 }
 
@@ -27,7 +13,7 @@ export class ToDo implements IToDo {
   //satisfy IToDo
   task: string =
     "this is a blank task created by default.Deadline is set to 1 month from today.";
-  deadline: Date = monthsAfter(1);
+  deadline: Date = monthsAfterToday(1);
 
   //class internals
   status: ToDoStatus = "active";
@@ -38,54 +24,55 @@ export class ToDo implements IToDo {
     this.taskId = uuid4();
     this.task = data.task;
     this.deadline = data.deadline;
-    console.log(this.deadline)
-    this.status="active"
-    console.log("1",this.status)
+    console.log(this.deadline);
+    this.status = data.status ? data.status : "active";
+    console.log("1", this.status);
     this.setUi();
-    console.log("2",this.status)
-    this.checkStatus()
-    console.log("3",this.status)
+    console.log("2", this.status);
+    this.checkStatus();
+    console.log("3", this.status);
   }
 
   //methods
   private checkStatus() {
-    const today = new Date()
-    if(this.deadline>=today && this.status==="active"){
-      console.log("1")
-      this.setStatus("active")
-      return this.status
+    const today = new Date();
+    if (this.deadline >= today && this.status === "active") {
+      console.log("Task is waiting to be done.");
+      this.setStatus("active");
+      return this.status;
     }
-    if(this.deadline>=today && this.status==="completed"){
-      console.log("2")
-      this.setStatus("completed")
-      return this.status
+    if (this.deadline >= today && this.status === "completed") {
+      console.log("Task is completed early.");
+      this.setStatus("completed");
+      return this.status;
     }
-    if(this.deadline>=today && this.status==="overdue") {
-      console.log("3")
-      this.setStatus("active")
-      return this.status
+    if (this.deadline >= today && this.status === "overdue") {
+      console.log(
+        "There is still time for the task to be completed, changing status to 'active'."
+      );
+      this.setStatus("active");
+      return this.status;
     }
-    if(this.deadline<today && this.status==="active"){
-      console.log("4")
-      this.setStatus("overdue")
-      return this.status
+    if (this.deadline < today && this.status === "active") {
+      console.log("Task is overdue.");
+      this.setStatus("overdue");
+      return this.status;
     }
-    if(this.deadline<today && this.status==="completed"){
-      console.log("5")
-      this.setStatus("completed")
-      return this.status
+    if (this.deadline < today && this.status === "completed") {
+      console.log("Task is already completed.");
+      this.setStatus("completed");
+      return this.status;
     }
-    if(this.deadline<today && this.status==="overdue"){
-      console.log("5")
-      this.setStatus("overdue")
-      return this.status
+    if (this.deadline < today && this.status === "overdue") {
+      console.log("Task couldn't be completed in time!");
+      this.setStatus("overdue");
+      return this.status;
     }
-    
   }
 
   setDeadline(date: Date) {
     this.deadline = date;
-    this.checkStatus()
+    this.checkStatus();
   }
 
   getStatus() {
@@ -103,9 +90,9 @@ export class ToDo implements IToDo {
     this.ui.innerHTML = this.getTemplate();
     this.ui.className = `list-item todo-${this.getStatus()}`;
     console.log(this.taskId, "setUi() successfull");
-    this.ui.addEventListener("click",()=>{
-      this.toggleStatus(this.status)
-    })
+    this.ui.addEventListener("click", () => {
+      this.toggleStatus(this.status);
+    });
   }
 
   private getTemplate() {
@@ -116,7 +103,7 @@ export class ToDo implements IToDo {
     };
     const status = this.status;
     const status_symbol = symbols[status];
-    const {day,month,year}=formatDate(this.deadline)
+    const { day, month, year } = correctDate(this.deadline);
     const template = `
     <p todo-list-functions="toggle-active"><span class="material-symbols-outlined">
         ${status_symbol}
@@ -137,12 +124,14 @@ export class ToDo implements IToDo {
     console.log("updateUi() successfull");
   }
 
-  private toggleStatus(status:ToDoStatus){
-    if(status==="active") return this.setStatus("completed")
-    if(status==="completed") return this.setStatus("active")
-    if(status==="overdue") {
-      alert("note to self: add a date input or delete task options here. for now deadline is updated to 1 month from today!")
-      this.setDeadline(monthsAfter(1))
+  private toggleStatus(status: ToDoStatus) {
+    if (status === "active") return this.setStatus("completed");
+    if (status === "completed") return this.setStatus("active");
+    if (status === "overdue") {
+      console.log(
+        "note to self: add a date input or delete task options here. for now deadline is updated to 1 month from today!"
+      );
+      this.setDeadline(monthsAfterToday(1));
     }
   }
 }

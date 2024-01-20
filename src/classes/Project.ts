@@ -1,5 +1,6 @@
 import { v4 as uuid4 } from "uuid";
 import { IToDo, ToDo } from "./ToDo";
+import { monthsAfterToday } from "./CustomFunctions";
 
 export type Status = "active" | "pending" | "finished";
 export type Role = "engineer" | "architect" | "developer";
@@ -12,19 +13,10 @@ export interface IProject {
   date: Date;
 }
 
-export interface EProject extends IProject{
-  cost:number;
-  progress:number;
+export interface EProject extends IProject {
+  cost: number;
+  progress: number;
 }
-
-//Global Functions that may help
-
-export function monthsAfter(months: number) {
-  const date = new Date();
-  date.setMonth(date.getMonth() + months);
-  return date;
-}
-//---------------------------------
 
 export class Project implements IProject {
   //To satisfy IProject
@@ -58,7 +50,11 @@ export class Project implements IProject {
       this[key] = data[key];
     }
     if (data.date.toString() === "Invalid Date") {
-      this.date = monthsAfter(6);
+      data.date ? console.log(true) : console.log(false);
+      console.log(
+        "There is no date input, project finish date is set to 6 months from today by default."
+      );
+      this.date = monthsAfterToday(6);
     }
     this.setInitialsBox();
     this.id = uuid4();
@@ -135,19 +131,19 @@ export class Project implements IProject {
     this.ui.className = "project-card";
   }
 
-  addDummyToDo() {
+  private addDummyToDo() {
     const itodo = {
       task: "test task, this is a dummy task created automatically deadline is 1 month from today",
-      deadline: monthsAfter(-1),
+      deadline: monthsAfterToday(-1),
     };
-    this.newToDo(itodo)
+    this.newToDo(itodo);
     console.log("addDumyToDo() successfull");
   }
 
   newToDo(iTodo: IToDo) {
     const todo = new ToDo(iTodo);
     this.todoList.push(todo);
-    console.log(todo.taskId," todo added successfully")
+    console.log(todo.taskId, " todo added successfully");
     return todo;
   }
 
