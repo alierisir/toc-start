@@ -1,8 +1,13 @@
 import { monthsAfter } from "./Project";
 import { v4 as uuid4 } from "uuid";
 
+export function formatDateString(strDate:string){
+  const date=new Date(strDate)
+  return formatDate(date)
+}
+
 export function formatDate(date:Date){
-  const months=["Jan.","Feb.","Mar.","Apr.","May","Jun.","Jul.","Aug.","Sep.","Oct.","Nov.","Dec."]
+  const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
   const formatted={
     day:date.getDate().toString(),
     month:months[date.getMonth()],

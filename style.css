@@ -509,7 +509,6 @@ h2{
 
 .list-item{
     opacity: 0.80;
-    content-visibility: hidden;
 }
 
 .list-item>:first-child{
@@ -523,7 +522,6 @@ h2{
 
 .list-item:hover{
     opacity: 1;
-    content-visibility: visible;
 }
 
 /* User Page Styles */

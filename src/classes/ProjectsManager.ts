@@ -1,6 +1,6 @@
 import { ErrorManager } from "./ErrorManager";
 import { IProject, Project, monthsAfter,EProject } from "./Project";
-import { ToDo } from "./ToDo";
+import { ToDo , formatDate, formatDateString} from "./ToDo";
 
 export class ProjectsManager {
   list: Project[] = [];
@@ -57,19 +57,31 @@ export class ProjectsManager {
         pageInfo[key].textContent = `$${projectValue}`;
       }
       if (value === "date") {
-        if (typeof projectValue === "object") {
-          const date = projectValue.toString();
-          const splittedDate = date.split(" ");
-          const text =
-            splittedDate[3] + "-" + splittedDate[1] + "-" + splittedDate[2];
-          pageInfo[key].textContent = text;
+        if (projectValue instanceof Date) {
+          console.log("date type is Date")
+          const {day,month,year}=formatDate(projectValue)
+          pageInfo[key].textContent = `${year}-${month}-${day}`;
         }
         if (typeof projectValue === "string") {
-          pageInfo[key].textContent = projectValue.split("T")[0];
+          console.log("date type is string")
+          const {day,month,year}=formatDateString(projectValue)
+          pageInfo[key].textContent = `${year}-${month}-${day}`;
         }
       }
     }
     this.setTodoListUi(project);
+
+    //Search Bar Function
+    const searchBar=page.querySelector(`[todo-search]`)
+    if(searchBar&&searchBar instanceof HTMLInputElement){
+      console.log(searchBar)
+      searchBar.addEventListener("change",()=>{
+        const todoTasks=project.getToDoList().map(todo=>{
+          return [todo.task,todo.taskId]
+        })
+        console.log(todoTasks)
+      })
+    }
   }
 
   setPage(project: Project) {

@@ -140,15 +140,12 @@ export class Project implements IProject {
       task: "test task, this is a dummy task created automatically deadline is 1 month from today",
       deadline: monthsAfter(-1),
     };
-    const todo = new ToDo(itodo);
-    this.todoList.push(todo);
+    this.newToDo(itodo)
     console.log("addDumyToDo() successfull");
-    return todo;
   }
 
   newToDo(iTodo: IToDo) {
     const todo = new ToDo(iTodo);
-    console.log(todo.deadline,todo.task)
     this.todoList.push(todo);
     console.log(todo.taskId," todo added successfully")
     return todo;
