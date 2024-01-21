@@ -1,4 +1,6 @@
 import { v4 as uuid4 } from "uuid";
+import { IToDo, ToDo } from "./ToDo";
+import { monthsAfterToday } from "./CustomFunctions";
 
 export type Status = "active" | "pending" | "finished";
 export type Role = "engineer" | "architect" | "developer";
@@ -9,6 +11,11 @@ export interface IProject {
   status: Status;
   role: Role;
   date: Date;
+}
+
+export interface EProject extends IProject {
+  cost: number;
+  progress: number;
 }
 
 export class Project implements IProject {
@@ -26,6 +33,7 @@ export class Project implements IProject {
   id: string;
   initials: string;
   boxColor: string;
+  todoList: ToDo[] = [];
 
   constructor(data: IProject) {
     //Project Data definitions
@@ -41,7 +49,13 @@ export class Project implements IProject {
     for (const key of keys) {
       this[key] = data[key];
     }
-
+    if (data.date.toString() === "Invalid Date") {
+      console.log(
+        "There is no date input, project finish date is set to 6 months from today by default."
+      );
+      this.date = monthsAfterToday(6);
+    }
+    this.setInitialsBox();
     this.id = uuid4();
     this.setUi();
   }
@@ -52,7 +66,14 @@ export class Project implements IProject {
     }
     const words = this.name.split(" ");
     const count = words.length;
-    const initials = words[0][0] + words[count - 1][0];
+    let initials: string;
+    if (count < 2) {
+      //If project name is only 1 word, get first two letters.
+      initials = words[0][0] + words[0][1];
+    } else {
+      //If project name is more than 1 word, get first and last word's first letters.
+      initials = words[0][0] + words[count - 1][0];
+    }
     const colors = [
       "#50ad45",
       "#7c45ad",
@@ -81,7 +102,6 @@ export class Project implements IProject {
     if (this.ui) {
       return;
     }
-    this.setInitialsBox();
     this.ui = document.createElement("div");
     this.ui.innerHTML = `<div class="card-header">
         <p style='background-color:${this.boxColor}'>${this.initials}</p>
@@ -110,5 +130,66 @@ export class Project implements IProject {
         </div>
         `;
     this.ui.className = "project-card";
+  }
+
+  private addDummyToDo() {
+    const itodo = {
+      task: "test task, this is a dummy task created automatically deadline is 1 month from today",
+      deadline: monthsAfterToday(-1),
+    };
+    this.newToDo(itodo);
+    console.log("addDumyToDo() successfull");
+  }
+
+  newToDo(iTodo: IToDo) {
+    const todo = new ToDo(iTodo);
+    this.todoList.push(todo);
+    console.log(todo.taskId, " todo added successfully");
+    return todo;
+  }
+
+  getToDoList() {
+    return this.todoList;
+  }
+
+  getToDo(id: string) {
+    const todo = this.todoList.find((todo) => todo.taskId === id);
+    return todo;
+  }
+
+  changeToActive(id: string) {
+    const todo = this.getToDo(id) as ToDo;
+    todo.setStatus("active");
+    console.log("changeToActive() successfull");
+  }
+
+  changeToCompleted(id: string) {
+    const todo = this.getToDo(id) as ToDo;
+    todo.setStatus("completed");
+    console.log("changeToCompleted() successfull");
+  }
+
+  changeToOverdue(id: string) {
+    const todo = this.getToDo(id) as ToDo;
+    todo.setStatus("overdue");
+    console.log("changeToOverdue() successfull");
+  }
+
+  removeToDo(id: string) {
+    const todo = this.getToDo(id);
+    if (!todo) return console.log(id, "this todo item doesn't exist.");
+    todo.ui.remove();
+    const remaining = this.todoList.filter((todo) => todo.taskId !== id);
+    this.todoList = remaining;
+  }
+
+  updateProject(project: Project) {
+    const keys = Object.keys(this);
+    //['cost', 'progress', 'todoList', 'name', 'description', 'status', 'role', 'date', 'initials', 'boxColor', 'id', 'ui']
+    for (const key of keys) {
+      if (project[key]) {
+        this[key] = project[key];
+      }
+    }
   }
 }

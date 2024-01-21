@@ -1,7 +1,9 @@
-import { IProject, Status, Role } from "./classes/Project";
+import { IProject, EProject, Status, Role, Project } from "./classes/Project";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
+import { IToDo, ToDoStatus } from "./classes/ToDo";
+import { correctDate, dateAfterFromPoint } from "./classes/CustomFunctions";
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];
@@ -37,7 +39,6 @@ const errManager = new ErrorManager(errContainer);
 
 function toggleModal(id: string) {
   const modal = document.getElementById(id);
-
   if (modal && modal instanceof HTMLDialogElement) {
     if (modal.open) modal.close();
     else modal.showModal();
@@ -67,7 +68,9 @@ const projectDetailsPage = document.getElementById(
 const projectsManager = new ProjectsManager(projectsListUi, projectDetailsPage);
 
 const projectForm = document.getElementById("new-project-form");
+const editForm = document.getElementById("edit-project-form");
 const formCancel = document.getElementById("form-cancel");
+const editFormCancel = document.getElementById("edit-form-cancel");
 
 if (
   projectForm &&
@@ -129,87 +132,117 @@ if (
   console.warn("Buttons are not found. Check export and import button ids!");
 }
 
-//page navigation tryouts
+//edit project form
+const editProjectModal = document.getElementById("edit-project-modal");
+const editFormBtn = document.getElementById("p-edit");
+if (
+  editProjectModal &&
+  editProjectModal instanceof HTMLDialogElement &&
+  editFormBtn &&
+  editFormBtn instanceof HTMLButtonElement &&
+  editForm &&
+  editFormCancel &&
+  editForm instanceof HTMLFormElement
+) {
+  editFormBtn.addEventListener("click", () => {
+    editProjectModal.showModal();
+    //Get current project values as placeholder for new inputs
+    const project = projectsManager.activeProject;
+    const name = document.getElementById("edit-name") as HTMLInputElement;
+    name.placeholder = project.name;
+    const description = document.getElementById(
+      "edit-description"
+    ) as HTMLInputElement;
+    description.placeholder = project.description;
+    const date = document.getElementById("edit-date") as HTMLInputElement;
+    const { year, monthNumber, day } = correctDate(project.date);
+    date.value = `${year}-${monthNumber}-${day}`;
+    const role = document.getElementById("edit-role") as HTMLSelectElement;
+    role.value = project.role;
+    const status = document.getElementById("edit-status") as HTMLSelectElement;
+    status.value = project.status;
+    const cost = document.getElementById("edit-cost") as HTMLInputElement;
+    cost.placeholder = `$${project.cost}`;
+    const progress = document.getElementById(
+      "edit-progress"
+    ) as HTMLInputElement;
+    progress.placeholder = `${project.progress}%`;
+    //Cancel button functionality
+    editFormCancel.addEventListener("click", () => {
+      editProjectModal.close();
+      editForm.reset();
+    });
 
-//
-// function activePage(id) {
-//   allPages.forEach((page) => (page.style.display = "none"));
-//   document.getElementById(id).style.display = "flex";
-// }
-//
-// const projectPageBtn = document.getElementById("nav-project");
-// const userPageBtn = document.getElementById("nav-user");
-//
-// projectPageBtn.addEventListener("click", () => {
-//   activePage("projects-page");
-// });
-//
-// userPageBtn.addEventListener("click", () => {
-//   activePage("users-page");
-// });
-
-/* Mock Functions for create buttons
-
-const createUser={
-    btnId:"new-user-btn",
-    containerId:"users-list",
-    cardTag:"ul",
-    cardHtml:`
-    <li class="w20 center">Cansu Tüfekci</li>
-    <li class="w20 center">Developer</li>
-    <li class="w20 center">Universal-ph3</li>
-    <li class="w20 center">cc.tufekci@gmail.com</li>
-    <li class="w20 center">Özgün Koçyiğit</li>
-    `,
-    cardClass:"user-row"
+    //Form submit functionality
+    editForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const edittedData = new FormData(editForm);
+      const edittedProject: EProject = {
+        name: edittedData.get("edit-name") as string,
+        description: edittedData.get("edit-description") as string,
+        status: edittedData.get("edit-status") as Status,
+        role: edittedData.get("edit-role") as Role,
+        date: new Date(edittedData.get("edit-date") as string),
+        cost: Number(edittedData.get("edit-cost") as string),
+        progress: Number(edittedData.get("edit-progress") as string),
+      };
+      if (project) projectsManager.editProject(edittedProject, project);
+      editProjectModal.close();
+      editForm.reset();
+    });
+  });
 }
 
+//ToDo Create Form
+const todoModal = document.getElementById("new-todo-modal");
+console.log("modal", todoModal);
+const todoForm = document.getElementById("new-todo-form");
+console.log("form", todoForm);
+const todoCancel = document.getElementById("todo-cancel");
+console.log("cancelbtn", todoCancel);
+const addTodoBtn = projectDetailsPage.querySelector(`[todo-add]`);
+console.log("addTodobtn", addTodoBtn);
+const todoContainer = projectDetailsPage.querySelector(`[todo-list-container]`);
+if (
+  todoModal &&
+  todoModal instanceof HTMLDialogElement &&
+  todoForm &&
+  todoForm instanceof HTMLFormElement &&
+  todoCancel &&
+  todoCancel instanceof HTMLButtonElement &&
+  addTodoBtn &&
+  addTodoBtn instanceof HTMLElement &&
+  todoContainer &&
+  todoContainer instanceof HTMLElement
+) {
+  //open dialog
+  addTodoBtn.addEventListener("click", () => {
+    todoModal.showModal();
+  });
 
+  //cancel button functionality
+  todoCancel.addEventListener("click", () => {
+    todoForm.reset();
+    todoModal.close();
+  });
+  todoForm.addEventListener("submit", (e) => {
+    //prevent default
+    e.preventDefault();
+    //gather todo parameters
+    const formData = new FormData(todoForm);
+    const dateInput = document.getElementById("todo-deadline");
+    console.log("Date input element:", dateInput);
 
-const createProject={
-    btnId:"new-project-btn",
-    containerId:"projects-list",
-    cardTag:"div",
-    cardHtml:`<div class="card-header">
-    <p>HC</p>
-    <div>
-    <h2>Project Name</h2>
-    <p >Project Description Lorem ipsum dolor sit amet.</p>
-    </div>
-    </div>
-    <div class="card-content">
-    <div class="card-property">
-        <p>Status</p>
-        <p>Active</p>
-    </div>
-    <div class="card-property">
-        <p>Role</p>
-        <p>Engineer</p>
-    </div>
-    <div class="card-property">
-        <p>Cost</p>
-        <p>20000TRY</p>
-    </div>
-    <div class="card-property">
-        <p>Finishing Date</p>
-        <p>26/12/2025</p>
-    </div>
-    </div>`,
-    cardClass:"project-card"
+    const iTodo: IToDo = {
+      task: formData.get("todo-task") as string,
+      status: formData.get("todo-status") as ToDoStatus,
+      deadline: new Date(formData.get("todo-deadline") as string),
+    };
+    //create new todo
+    projectsManager.activeProject.newToDo(iTodo);
+    //update Ui and Project
+    projectsManager.updateToDoList();
+    todoForm.reset();
+    todoModal.close();
+  });
 }
-
-function makeFunctional(createObject){
-    const btn=document.getElementById(createObject.btnId)
-    const container=document.getElementById(createObject.containerId)
-    btn.addEventListener("click",()=>{
-        const card = document.createElement(createObject.cardTag)
-        card.innerHTML=createObject.cardHtml
-        card.className=createObject.cardClass
-        container.append(card)
-    })
-}
-
-makeFunctional(createProject)
-makeFunctional(createUser)
-
-*/

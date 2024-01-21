@@ -1,18 +1,26 @@
 import { ErrorManager } from "./ErrorManager";
-import { IProject, Project } from "./Project";
+import { IProject, Project, EProject } from "./Project";
+import { ToDo } from "./ToDo";
+import { correctDate } from "./CustomFunctions";
 
 export class ProjectsManager {
   list: Project[] = [];
   ui: HTMLElement;
   detailsPage: HTMLElement;
+  todoContainer: HTMLElement;
+  activeProject: Project;
 
   constructor(container: HTMLElement, page: HTMLElement) {
     this.ui = container;
     this.detailsPage = page;
+    this.todoContainer = this.detailsPage.querySelector(
+      `[todo-list-container]`
+    ) as HTMLElement;
   }
 
-  setPageDetails(project: Project) {
+  setPageDetails() {
     const page = this.detailsPage;
+    const project = this.activeProject;
     const pageInfoDummy = {
       name: "name",
       description: "description",
@@ -50,23 +58,59 @@ export class ProjectsManager {
         pageInfo[key].textContent = `$${projectValue}`;
       }
       if (value === "date") {
-        console.log(typeof projectValue);
-        const formattedDate = projectValue.split("T")[0];
-        pageInfo[key].texContent = `${formattedDate}`;
+        const { day, month, year } = correctDate(projectValue);
+        pageInfo[key].textContent = `${year}-${month}-${day}`;
       }
+    }
+    this.setTodoListUi(project);
+
+    //Search Bar Function
+    const searchBar = page.querySelector(`[todo-search]`);
+    if (searchBar && searchBar instanceof HTMLInputElement) {
+      console.log(searchBar);
+      searchBar.addEventListener("change", () => {
+        const todoTasks = project.getToDoList().map((todo) => {
+          return [todo.task, todo.taskId];
+        });
+        console.log(todoTasks);
+      });
     }
   }
 
   setPage(project: Project) {
     const card = project.ui;
     card.addEventListener("click", () => {
-      const page = document.getElementById("projects-page") as HTMLElement;
-      const details = document.getElementById("project-details") as HTMLElement;
+      this.activeProject = project;
+      const page = this.ui.parentElement as HTMLElement;
+      const details = this.detailsPage;
       page.style.display = "none";
       details.style.display = "flex";
-      this.setPageDetails(project);
+      this.setPageDetails();
     });
-    //add page detaling here
+  }
+
+  initiateToDoList(project: Project, todoList: ToDo[]) {
+    project.todoList = todoList;
+  }
+
+  setTodoListUi(project: Project) {
+    const container = this.todoContainer;
+    container.innerHTML = "";
+    const list = project.getToDoList();
+    for (const todo of list) {
+      console.log(todo);
+      container.prepend(todo.getUi());
+    }
+  }
+
+  updateToDoList() {
+    const project = this.activeProject;
+    const container = this.todoContainer;
+    console.log(project.getToDoList());
+    const list = project.getToDoList();
+    const lastIndex = list.length - 1;
+    const todo = list[lastIndex];
+    container.prepend(todo.getUi());
   }
 
   newProject(data: IProject) {
@@ -80,13 +124,12 @@ export class ProjectsManager {
     }
 
     const project = new Project(data);
-    this.ui.append(project.ui);
+    this.ui.prepend(project.ui);
     this.list.push(project);
 
     //add event listener to project ui
     this.setPage(project);
     //here
-
     return project;
   }
 
@@ -99,8 +142,9 @@ export class ProjectsManager {
 
   getProjectByName(name: string) {
     const project = this.list.find((project) => {
-      if (project.name === name) return this.getProject(project.id);
+      return project.name === name;
     });
+    if (project) return this.getProject(project.id);
   }
 
   deleteProject(id: string) {
@@ -124,6 +168,7 @@ export class ProjectsManager {
 
   exportToJSON(fileName: string = "projects") {
     const json = JSON.stringify(this.list, null, 2);
+    console.log(json);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -144,7 +189,7 @@ export class ProjectsManager {
         return;
       }
 
-      const projects: IProject[] = JSON.parse(json as string);
+      const projects: Project[] = JSON.parse(json as string);
       for (const project of projects) {
         try {
           this.newProject(project);
@@ -162,5 +207,10 @@ export class ProjectsManager {
       reader.readAsText(file);
     });
     input.click();
+  }
+
+  editProject(editted: EProject, current: Project) {
+    // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek, eğer eski ve yeni proje verisi çakışıyorsa yeni olan seçilecek!
+    console.log("editted:", editted, "current:", current);
   }
 }
