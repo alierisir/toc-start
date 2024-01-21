@@ -1,4 +1,8 @@
-import { monthsAfterToday, correctDate } from "./CustomFunctions";
+import {
+  monthsAfterToday,
+  correctDate,
+  dateAfterFromPoint,
+} from "./CustomFunctions";
 import { v4 as uuid4 } from "uuid";
 
 export type ToDoStatus = "active" | "completed" | "overdue";
@@ -24,7 +28,12 @@ export class ToDo implements IToDo {
     this.taskId = uuid4();
     this.task = data.task;
     this.deadline = data.deadline;
-    console.log(this.deadline);
+    if (data.deadline.toString() === "Invalid Date") {
+      this.deadline = dateAfterFromPoint(new Date(), 0, 0, 14);
+      console.log(
+        "There is no deadline selected for this task. Deadline is set to 14 days from today by default."
+      );
+    }
     this.status = data.status ? data.status : "active";
     console.log("1", this.status);
     this.setUi();
@@ -126,12 +135,18 @@ export class ToDo implements IToDo {
 
   private toggleStatus(status: ToDoStatus) {
     if (status === "active") return this.setStatus("completed");
-    if (status === "completed") return this.setStatus("active");
+    if (status === "completed") {
+      if (this.deadline < new Date()) {
+        return this.setStatus("overdue");
+      } else {
+        return this.setStatus("active");
+      }
+    }
     if (status === "overdue") {
       console.log(
         "note to self: add a date input or delete task options here. for now deadline is updated to 1 month from today!"
       );
-      this.setDeadline(monthsAfterToday(1));
+      return this.setDeadline(monthsAfterToday(1));
     }
   }
 }

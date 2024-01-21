@@ -18,7 +18,7 @@ function formatDateString(strDate: string): IBasicDate {
   return formatDate(date);
 }
 
-function formatDate(date: Date): IBasicDate {
+export function formatDate(date: Date): IBasicDate {
   const months = [
     "Jan",
     "Feb",
@@ -61,13 +61,14 @@ function formatDate(date: Date): IBasicDate {
 
 export function dateAfterFromPoint(
   date: Date | string,
+  years: number = 0,
   months: number = 0,
   days: number = 0
 ) {
   const { nDay, nMonth, nYear } = correctDate(date);
   //The Date() constructor can be called with two or more arguments,
   //in which case they are interpreted as the year, month, day, hour, minute, second, and millisecond, respectively, in local time.
-  return new Date(nYear, nMonth + months, nDay + days);
+  return new Date(nYear + years, nMonth + months, nDay + days);
 }
 
 export function monthsAfterToday(months: number) {

@@ -50,7 +50,6 @@ export class Project implements IProject {
       this[key] = data[key];
     }
     if (data.date.toString() === "Invalid Date") {
-      data.date ? console.log(true) : console.log(false);
       console.log(
         "There is no date input, project finish date is set to 6 months from today by default."
       );
@@ -69,8 +68,10 @@ export class Project implements IProject {
     const count = words.length;
     let initials: string;
     if (count < 2) {
+      //If project name is only 1 word, get first two letters.
       initials = words[0][0] + words[0][1];
     } else {
+      //If project name is more than 1 word, get first and last word's first letters.
       initials = words[0][0] + words[count - 1][0];
     }
     const colors = [
