@@ -187,7 +187,7 @@ if (
         cost: Number(editedData.get("edit-cost") as string),
         progress: Number(editedData.get("edit-progress") as string),
       };
-      if (project) projectsManager.updateProject(editedProject, project);
+      if (project) projectsManager.editProject(editedProject, project);
       editProjectModal.close();
       editForm.reset();
     });

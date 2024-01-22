@@ -11,6 +11,7 @@ export interface IToDo {
   task: string;
   status?: ToDoStatus;
   deadline: Date;
+  taskId?: string;
 }
 
 export class ToDo implements IToDo {
@@ -25,7 +26,7 @@ export class ToDo implements IToDo {
   ui: HTMLElement;
 
   constructor(data: IToDo) {
-    this.taskId = uuid4();
+    this.taskId = data.taskId ? data.taskId : uuid4();
     this.task = data.task;
     this.deadline = data.deadline;
     if (data.deadline.toString() === "Invalid Date") {

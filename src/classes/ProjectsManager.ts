@@ -90,7 +90,10 @@ export class ProjectsManager {
   }
 
   initiateToDoList(project: Project, todoList: ToDo[]) {
-    project.todoList = todoList;
+    todoList.map((todo) => {
+      const { taskId, task, deadline, status } = todo;
+      project.newToDo({ task, deadline, status, taskId });
+    });
   }
 
   setTodoListUi(project: Project) {
@@ -113,6 +116,8 @@ export class ProjectsManager {
     container.prepend(todo.getUi());
   }
 
+  addIfNewUpdateIfExisting(data: IProject) {}
+
   newProject(data: IProject) {
     const projectNames = this.list.map((project) => {
       return project.name;
@@ -120,7 +125,8 @@ export class ProjectsManager {
     const nameInUse = projectNames.includes(data.name);
 
     if (nameInUse) {
-      throw new Error();
+      //bu noktada geri dönmek yerine, id'ler kontrol edilmeli, id mevcut ise proje update edilecek, değil ise yeni
+      throw new Error("There is already a project with the same name!");
     }
 
     const project = new Project(data);
@@ -189,14 +195,12 @@ export class ProjectsManager {
         return;
       }
 
-      const projects: Project[] = JSON.parse(json as string);
+      const projects: Project[] = JSON.parse(json as string); //id'si olmayan bir projeyi JSON içinde oluşturup import etmeyi denemeliyim.
       for (const project of projects) {
         try {
           const newProject = this.newProject(project);
-          project.todoList.map((todo) => {
-            const { task, deadline, status } = todo;
-            newProject.newToDo({ task, deadline, status });
-          });
+          if (project.todoList)
+            this.initiateToDoList(newProject, project.todoList);
         } catch (error) {
           alert(error);
         }
@@ -214,7 +218,7 @@ export class ProjectsManager {
     console.log(this.list);
   }
 
-  updateProject(edited: EProject, current: Project) {
+  editProject(edited: EProject, current: Project) {
     //aynı iki proje kıyaslandığından emin olunmalı.İsimler değiştirilebildiğine göre, id değişmeyen sabit ve ortak nokta olacak.
     if (edited.id !== current.id) return;
     // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek,
@@ -237,8 +241,8 @@ export class ProjectsManager {
       }
       if (edited[key]) current[key] = edited[key];
     }
-    current.updateUi();
-    this.setPageDetails();
+    current.updateUi(); // for card ui
+    this.setPageDetails(); // for details page infos
     console.log("edited:", edited, "current:", current);
   }
 }

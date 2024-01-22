@@ -188,7 +188,7 @@ export class Project implements IProject {
     this.todoList = remaining;
   }
 
-  updateProject(project: Project) {
+  updateProject(project: EProject) {
     const keys = Object.keys(this);
     //['cost', 'progress', 'todoList', 'name', 'description', 'status', 'role', 'date', 'initials', 'boxColor', 'id', 'ui']
     for (const key of keys) {
