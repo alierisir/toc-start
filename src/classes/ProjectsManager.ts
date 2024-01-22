@@ -192,7 +192,11 @@ export class ProjectsManager {
       const projects: Project[] = JSON.parse(json as string);
       for (const project of projects) {
         try {
-          this.newProject(project);
+          const newProject = this.newProject(project);
+          project.todoList.map((todo) => {
+            const { task, deadline, status } = todo;
+            newProject.newToDo({ task, deadline, status });
+          });
         } catch (error) {
           alert(error);
         }
@@ -207,10 +211,34 @@ export class ProjectsManager {
       reader.readAsText(file);
     });
     input.click();
+    console.log(this.list);
   }
 
-  editProject(editted: EProject, current: Project) {
-    // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek, eğer eski ve yeni proje verisi çakışıyorsa yeni olan seçilecek!
-    console.log("editted:", editted, "current:", current);
+  updateProject(edited: EProject, current: Project) {
+    //aynı iki proje kıyaslandığından emin olunmalı.İsimler değiştirilebildiğine göre, id değişmeyen sabit ve ortak nokta olacak.
+    if (edited.id !== current.id) return;
+    // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek,
+    //eğer eski ve yeni proje verisi çakışıyorsa yeni olan seçilecek!
+    //ilave olarak, projenin baş harflerinin olduğu kutunun rengi de sabit kalacak!.
+    const dummyProject = {
+      name: "name",
+      description: "description",
+      status: "status",
+      role: "role",
+      date: "date",
+      cost: "cost",
+      progress: "progress",
+    };
+    console.log("edited:", edited, "current:", current);
+    for (const key in dummyProject) {
+      if (dummyProject[key] === "date") {
+        edited[key] = new Date(edited[key]);
+        current[key] = new Date(current[key]);
+      }
+      if (edited[key]) current[key] = edited[key];
+    }
+    current.updateUi();
+    this.setPageDetails();
+    console.log("edited:", edited, "current:", current);
   }
 }

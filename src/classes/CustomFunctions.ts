@@ -8,6 +8,12 @@ interface IBasicDate {
   nYear: number;
 }
 
+export function basicToNativeDate(date: IBasicDate): Date {
+  const { nYear, nMonth, nDay } = date;
+  const nativeDate = new Date(nYear, nMonth, nDay);
+  return nativeDate;
+}
+
 export function correctDate(date: string | Date): IBasicDate {
   if (date instanceof Date) return formatDate(date);
   else return formatDateString(date);
@@ -76,3 +82,46 @@ export function monthsAfterToday(months: number) {
   date.setMonth(date.getMonth() + months);
   return date;
 }
+
+export function getInitials(name: string) {
+  const words = name.split(" ");
+  const count = words.length;
+  let initials: string;
+  if (count < 2) {
+    //If project name is only 1 word, get first two letters.
+    initials = words[0][0] + words[0][1];
+  } else {
+    //If project name is more than 1 word, get first and last word's first letters.
+    initials = words[0][0] + words[count - 1][0];
+  }
+  return initials;
+}
+
+export function getRandomColor() {
+  const colors = [
+    "#50ad45",
+    "#7c45ad",
+    "#ad4545",
+    "#45a3ad",
+    "#4745ad",
+    "#bd53c3",
+    "#56b84f",
+    "#a647b8",
+    "#b84f4f",
+    "#4faab8",
+    "#4f4fb8",
+    "#d362d1",
+    "#ad5845",
+    "#45adad",
+    "#ad8145",
+    "#4596ad",
+  ];
+  const selectedColor =
+    colors[Math.floor((Math.random() * 100) % colors.length)];
+  return selectedColor;
+}
+
+console.log("custom-functions! - test area start");
+//write code to check here
+
+console.log("custom-functions! - test area end");

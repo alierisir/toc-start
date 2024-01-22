@@ -176,17 +176,18 @@ if (
     //Form submit functionality
     editForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const edittedData = new FormData(editForm);
-      const edittedProject: EProject = {
-        name: edittedData.get("edit-name") as string,
-        description: edittedData.get("edit-description") as string,
-        status: edittedData.get("edit-status") as Status,
-        role: edittedData.get("edit-role") as Role,
-        date: new Date(edittedData.get("edit-date") as string),
-        cost: Number(edittedData.get("edit-cost") as string),
-        progress: Number(edittedData.get("edit-progress") as string),
+      const editedData = new FormData(editForm);
+      const editedProject: EProject = {
+        id: project.id,
+        name: editedData.get("edit-name") as string,
+        description: editedData.get("edit-description") as string,
+        status: editedData.get("edit-status") as Status,
+        role: editedData.get("edit-role") as Role,
+        date: new Date(editedData.get("edit-date") as string),
+        cost: Number(editedData.get("edit-cost") as string),
+        progress: Number(editedData.get("edit-progress") as string),
       };
-      if (project) projectsManager.editProject(edittedProject, project);
+      if (project) projectsManager.updateProject(editedProject, project);
       editProjectModal.close();
       editForm.reset();
     });
