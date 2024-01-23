@@ -209,6 +209,15 @@ export class ProjectsManager {
       for (const project of projects) {
         try {
           const newProject = this.newProject(project);
+          for (const key in project) {
+            console.log(
+              key,
+              " data:",
+              project[key],
+              " project:",
+              newProject[key]
+            );
+          }
           if (project.todoList)
             this.initiateToDoList(newProject, project.todoList);
         } catch (error) {

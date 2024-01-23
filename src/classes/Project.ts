@@ -1,6 +1,8 @@
 import { v4 as uuid4 } from "uuid";
 import { IToDo, ToDo } from "./ToDo";
 import {
+  basicToNativeDate,
+  correctDate,
   editDummy,
   getInitials,
   getRandomColor,
@@ -43,16 +45,22 @@ export class Project implements IProject {
   constructor(data: IProject) {
     //Project Data definitions
     const keys = [
+      "id",
       "name",
       "description",
       "status",
       "role",
       "date",
+      "cost",
+      "progress",
       "initials",
       "boxColor",
     ];
     for (const key of keys) {
       this[key] = data[key];
+      if (key === "id") {
+        this[key] = data[key] ? data[key] : uuid4();
+      }
     }
     if (data.date.toString() === "Invalid Date") {
       console.log(
@@ -60,8 +68,8 @@ export class Project implements IProject {
       );
       this.date = monthsAfterToday(6);
     }
+    this.date = basicToNativeDate(correctDate(data.date));
     this.setInitialsBox();
-    this.id = uuid4();
     this.setUi();
   }
 

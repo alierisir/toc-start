@@ -8,11 +8,23 @@ interface IBasicDate {
   nDay: number;
   nMonth: number;
   nYear: number;
+  nHour: number;
+  nMinute: number;
+  nSecond: number;
+  nMillisecond: number;
 }
 
 export function basicToNativeDate(date: IBasicDate): Date {
-  const { nYear, nMonth, nDay } = date;
-  const nativeDate = new Date(nYear, nMonth, nDay);
+  const { nYear, nMonth, nDay, nHour, nMinute, nSecond, nMillisecond } = date;
+  const nativeDate = new Date(
+    nYear,
+    nMonth,
+    nDay,
+    nHour,
+    nMinute,
+    nSecond,
+    nMillisecond
+  );
   return nativeDate;
 }
 
@@ -63,6 +75,10 @@ export function formatDate(date: Date): IBasicDate {
     nDay: date.getDate(),
     nMonth: date.getMonth(),
     nYear: date.getFullYear(),
+    nHour: date.getHours(),
+    nMinute: date.getMinutes(),
+    nSecond: date.getSeconds(),
+    nMillisecond: date.getMilliseconds(),
   };
   return formatted;
 }
