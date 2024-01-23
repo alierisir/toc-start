@@ -1,5 +1,5 @@
 import { ErrorManager } from "./ErrorManager";
-import { IProject, Project, EProject } from "./Project";
+import { IProject, Project } from "./Project";
 import { ToDo } from "./ToDo";
 import { correctDate } from "./CustomFunctions";
 
@@ -115,20 +115,30 @@ export class ProjectsManager {
     const todo = list[lastIndex];
     container.prepend(todo.getUi());
   }
+  checkEditNameInUse(data: IProject) {
+    const projectNames = this.list.map((project) => {
+      return project.name;
+    });
+    const otherProjectNames = projectNames.filter((name) => {
+      return name !== this.activeProject.name;
+    });
+    const nameInUse = otherProjectNames.includes(data.name);
+    return nameInUse;
+  }
 
-  addIfNewUpdateIfExisting(data: IProject) {}
-
-  newProject(data: IProject) {
+  checkNameInUse(data: IProject) {
     const projectNames = this.list.map((project) => {
       return project.name;
     });
     const nameInUse = projectNames.includes(data.name);
+    return nameInUse;
+  }
 
-    if (nameInUse) {
+  newProject(data: IProject) {
+    if (this.checkNameInUse(data)) {
       //bu noktada geri dönmek yerine, id'ler kontrol edilmeli, id mevcut ise proje update edilecek, değil ise yeni
       throw new Error("There is already a project with the same name!");
     }
-
     const project = new Project(data);
     this.ui.prepend(project.ui);
     this.list.push(project);
@@ -216,33 +226,5 @@ export class ProjectsManager {
     });
     input.click();
     console.log(this.list);
-  }
-
-  editProject(edited: EProject, current: Project) {
-    //aynı iki proje kıyaslandığından emin olunmalı.İsimler değiştirilebildiğine göre, id değişmeyen sabit ve ortak nokta olacak.
-    if (edited.id !== current.id) return;
-    // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek,
-    //eğer eski ve yeni proje verisi çakışıyorsa yeni olan seçilecek!
-    //ilave olarak, projenin baş harflerinin olduğu kutunun rengi de sabit kalacak!.
-    const dummyProject = {
-      name: "name",
-      description: "description",
-      status: "status",
-      role: "role",
-      date: "date",
-      cost: "cost",
-      progress: "progress",
-    };
-    console.log("edited:", edited, "current:", current);
-    for (const key in dummyProject) {
-      if (dummyProject[key] === "date") {
-        edited[key] = new Date(edited[key]);
-        current[key] = new Date(current[key]);
-      }
-      if (edited[key]) current[key] = edited[key];
-    }
-    current.updateUi(); // for card ui
-    this.setPageDetails(); // for details page infos
-    console.log("edited:", edited, "current:", current);
   }
 }

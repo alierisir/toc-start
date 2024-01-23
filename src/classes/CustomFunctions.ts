@@ -1,3 +1,5 @@
+import { Project } from "./Project";
+
 interface IBasicDate {
   day: string;
   month: string;
@@ -120,6 +122,16 @@ export function getRandomColor() {
     colors[Math.floor((Math.random() * 100) % colors.length)];
   return selectedColor;
 }
+
+export const editDummy = {
+  name: "placeholder",
+  description: "description",
+  cost: "cost",
+  progress: "progress",
+  status: "status",
+  role: "role",
+  date: "date",
+};
 
 console.log("custom-functions! - test area start");
 //write code to check here

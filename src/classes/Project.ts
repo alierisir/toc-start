@@ -1,6 +1,7 @@
 import { v4 as uuid4 } from "uuid";
 import { IToDo, ToDo } from "./ToDo";
 import {
+  editDummy,
   getInitials,
   getRandomColor,
   monthsAfterToday,
@@ -18,7 +19,6 @@ export interface IProject {
 }
 
 export interface EProject extends IProject {
-  id: string;
   cost: number;
   progress: number;
 }
@@ -78,63 +78,43 @@ export class Project implements IProject {
       return;
     }
     this.ui = document.createElement("div");
-    this.ui.innerHTML = `<div class="card-header">
-        <p style='background-color:${this.boxColor}'>${this.initials}</p>
-        <div>
-        <h2>${this.name}</h2>
-        <p >${this.description}</p>
-        </div>
-        </div>
-        <div class="card-content">
-        <div class="card-property">
-            <p>Status</p>
-            <p>${this.status}</p>
-        </div>
-        <div class="card-property">
-            <p>Role</p>
-            <p>${this.role}</p>
-        </div>
-        <div class="card-property">
-            <p>Cost</p>
-            <p>$${this.cost}</p>
-        </div>
-        <div class="card-property">
-            <p>Estimated Progress</p>
-            <p>${this.progress}%</p>
-        </div>
-        </div>
-        `;
+    this.ui.innerHTML = this.getUiTemplate();
     this.ui.className = "project-card";
+  }
+
+  private getUiTemplate() {
+    const html = `<div class="card-header">
+    <p style='background-color:${this.boxColor}'>${this.initials}</p>
+    <div>
+    <h2>${this.name}</h2>
+    <p >${this.description}</p>
+    </div>
+    </div>
+    <div class="card-content">
+    <div class="card-property">
+        <p>Status</p>
+        <p>${this.status}</p>
+    </div>
+    <div class="card-property">
+        <p>Role</p>
+        <p>${this.role}</p>
+    </div>
+    <div class="card-property">
+        <p>Cost</p>
+        <p>$${this.cost}</p>
+    </div>
+    <div class="card-property">
+        <p>Estimated Progress</p>
+        <p>${this.progress}%</p>
+    </div>
+    </div>
+    `;
+    return html;
   }
 
   updateUi() {
     this.initials = getInitials(this.name);
-    this.ui.innerHTML = `<div class="card-header">
-        <p style='background-color:${this.boxColor}'>${this.initials}</p>
-        <div>
-        <h2>${this.name}</h2>
-        <p >${this.description}</p>
-        </div>
-        </div>
-        <div class="card-content">
-        <div class="card-property">
-            <p>Status</p>
-            <p>${this.status}</p>
-        </div>
-        <div class="card-property">
-            <p>Role</p>
-            <p>${this.role}</p>
-        </div>
-        <div class="card-property">
-            <p>Cost</p>
-            <p>$${this.cost}</p>
-        </div>
-        <div class="card-property">
-            <p>Estimated Progress</p>
-            <p>${this.progress}%</p>
-        </div>
-        </div>
-        `;
+    this.ui.innerHTML = this.getUiTemplate();
   }
 
   private addDummyToDo() {
@@ -188,13 +168,13 @@ export class Project implements IProject {
     this.todoList = remaining;
   }
 
-  updateProject(project: EProject) {
-    const keys = Object.keys(this);
-    //['cost', 'progress', 'todoList', 'name', 'description', 'status', 'role', 'date', 'initials', 'boxColor', 'id', 'ui']
-    for (const key of keys) {
-      if (project[key]) {
-        this[key] = project[key];
-      }
+  updateProject(editedData: EProject) {
+    for (const key in editDummy) {
+      console.log(key, "current:", this[key], " edited:", editedData[key]);
+      const value = editedData[key] ? editedData[key] : this[key];
+      this[key] = value;
+      console.log(key, "result:", this[key]);
+      this.updateUi();
     }
   }
 }
