@@ -168,7 +168,7 @@ export class Project implements IProject {
     this.todoList = remaining;
   }
 
-  updateProject(editedData: EProject) {
+  editProject(editedData: EProject) {
     for (const key in editDummy) {
       console.log(key, "current:", this[key], " edited:", editedData[key]);
       const value = editedData[key] ? editedData[key] : this[key];

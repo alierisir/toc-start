@@ -232,7 +232,7 @@ editForm.addEventListener("submit", (e) => {
   };
   const nameIsAvailable = !projectsManager.checkEditNameInUse(editedData);
   if (nameIsAvailable) {
-    projectsManager.activeProject.updateProject(editedData);
+    projectsManager.activeProject.editProject(editedData);
     projectsManager.setPageDetails();
     toggleModal("edit-project-modal");
     editForm.reset();
