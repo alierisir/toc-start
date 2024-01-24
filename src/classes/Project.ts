@@ -61,14 +61,21 @@ export class Project implements IProject {
       if (key === "id") {
         this[key] = data[key] ? data[key] : uuid4();
       }
+      if (key === "cost") {
+        this[key] = data[key] ? data[key] : 0;
+      }
+      if (key === "progress") {
+        this[key] = data[key] ? data[key] : 0;
+      }
     }
     if (data.date.toString() === "Invalid Date") {
       console.log(
         "There is no date input, project finish date is set to 6 months from today by default."
       );
       this.date = monthsAfterToday(6);
+    } else {
+      this.date = basicToNativeDate(correctDate(data.date));
     }
-    this.date = basicToNativeDate(correctDate(data.date));
     this.setInitialsBox();
     this.setUi();
   }
