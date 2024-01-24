@@ -135,10 +135,30 @@ export class Project implements IProject {
   }
 
   newToDo(iTodo: IToDo) {
+    if (this.checkToDoExist(iTodo)) return this.updateToDo(iTodo as ToDo);
     const todo = new ToDo(iTodo);
     this.todoList.push(todo);
     console.log(todo.taskId, " todo added successfully");
     return todo;
+  }
+
+  updateToDo(todo: ToDo) {
+    const existingTodo = this.getToDo(todo.taskId);
+    if (existingTodo) {
+      existingTodo.task = todo.task;
+      existingTodo.setStatus(todo.status);
+      existingTodo.setDeadline(todo.deadline);
+    }
+  }
+
+  checkToDoExist(iTodo: IToDo) {
+    const todoIds = this.todoList.map((todo) => {
+      return todo.taskId;
+    });
+    const id = iTodo.taskId ? iTodo.taskId : false;
+    if (!id) return false;
+    const isTodoExist = todoIds.includes(id);
+    return isTodoExist;
   }
 
   getToDoList() {

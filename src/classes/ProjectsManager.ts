@@ -134,6 +134,14 @@ export class ProjectsManager {
     return nameInUse;
   }
 
+  checkIdInUse(data: Project) {
+    const projectIds = this.list.map((project) => {
+      return project.id;
+    });
+    const idInUse = projectIds.includes(data.id);
+    return idInUse;
+  }
+
   newProject(data: IProject) {
     if (this.checkNameInUse(data)) {
       //bu noktada geri dönmek yerine, id'ler kontrol edilmeli, id mevcut ise proje update edilecek, değil ise yeni
@@ -208,18 +216,26 @@ export class ProjectsManager {
       const projects: Project[] = JSON.parse(json as string); //id'si olmayan bir projeyi JSON içinde oluşturup import etmeyi denemeliyim.
       for (const project of projects) {
         try {
-          const newProject = this.newProject(project);
-          for (const key in project) {
-            console.log(
-              key,
-              " data:",
-              project[key],
-              " project:",
-              newProject[key]
-            );
+          if (!this.checkIdInUse(project)) {
+            const newProject = this.newProject(project);
+            for (const key in project) {
+              console.log(
+                key,
+                " data:",
+                project[key],
+                " project:",
+                newProject[key]
+              );
+            }
+            if (project.todoList)
+              this.initiateToDoList(newProject, project.todoList);
+          } else {
+            console.log(project.id, "is updated");
+            const existingProject = this.getProject(project.id) as Project;
+            existingProject.editProject(project);
+            if (project.todoList)
+              this.initiateToDoList(existingProject, project.todoList);
           }
-          if (project.todoList)
-            this.initiateToDoList(newProject, project.todoList);
         } catch (error) {
           alert(error);
         }
