@@ -1,9 +1,14 @@
-import { IProject, EProject, Status, Role, Project } from "./classes/Project";
+import { IProject, Status, Role, EProject } from "./classes/Project";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
 import { IToDo, ToDoStatus } from "./classes/ToDo";
-import { correctDate, dateAfterFromPoint } from "./classes/CustomFunctions";
+import {
+  editDummy,
+  correctDate,
+  dateAfterFromPoint,
+  formatDate,
+} from "./classes/CustomFunctions";
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];
@@ -68,9 +73,7 @@ const projectDetailsPage = document.getElementById(
 const projectsManager = new ProjectsManager(projectsListUi, projectDetailsPage);
 
 const projectForm = document.getElementById("new-project-form");
-const editForm = document.getElementById("edit-project-form");
 const formCancel = document.getElementById("form-cancel");
-const editFormCancel = document.getElementById("edit-form-cancel");
 
 if (
   projectForm &&
@@ -132,67 +135,6 @@ if (
   console.warn("Buttons are not found. Check export and import button ids!");
 }
 
-//edit project form
-const editProjectModal = document.getElementById("edit-project-modal");
-const editFormBtn = document.getElementById("p-edit");
-if (
-  editProjectModal &&
-  editProjectModal instanceof HTMLDialogElement &&
-  editFormBtn &&
-  editFormBtn instanceof HTMLButtonElement &&
-  editForm &&
-  editFormCancel &&
-  editForm instanceof HTMLFormElement
-) {
-  editFormBtn.addEventListener("click", () => {
-    editProjectModal.showModal();
-    //Get current project values as placeholder for new inputs
-    const project = projectsManager.activeProject;
-    const name = document.getElementById("edit-name") as HTMLInputElement;
-    name.placeholder = project.name;
-    const description = document.getElementById(
-      "edit-description"
-    ) as HTMLInputElement;
-    description.placeholder = project.description;
-    const date = document.getElementById("edit-date") as HTMLInputElement;
-    const { year, monthNumber, day } = correctDate(project.date);
-    date.value = `${year}-${monthNumber}-${day}`;
-    const role = document.getElementById("edit-role") as HTMLSelectElement;
-    role.value = project.role;
-    const status = document.getElementById("edit-status") as HTMLSelectElement;
-    status.value = project.status;
-    const cost = document.getElementById("edit-cost") as HTMLInputElement;
-    cost.placeholder = `$${project.cost}`;
-    const progress = document.getElementById(
-      "edit-progress"
-    ) as HTMLInputElement;
-    progress.placeholder = `${project.progress}%`;
-    //Cancel button functionality
-    editFormCancel.addEventListener("click", () => {
-      editProjectModal.close();
-      editForm.reset();
-    });
-
-    //Form submit functionality
-    editForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const edittedData = new FormData(editForm);
-      const edittedProject: EProject = {
-        name: edittedData.get("edit-name") as string,
-        description: edittedData.get("edit-description") as string,
-        status: edittedData.get("edit-status") as Status,
-        role: edittedData.get("edit-role") as Role,
-        date: new Date(edittedData.get("edit-date") as string),
-        cost: Number(edittedData.get("edit-cost") as string),
-        progress: Number(edittedData.get("edit-progress") as string),
-      };
-      if (project) projectsManager.editProject(edittedProject, project);
-      editProjectModal.close();
-      editForm.reset();
-    });
-  });
-}
-
 //ToDo Create Form
 const todoModal = document.getElementById("new-todo-modal");
 console.log("modal", todoModal);
@@ -246,3 +188,64 @@ if (
     todoModal.close();
   });
 }
+
+//edit project form elements, made sure they are exist in HTML
+const editFormBtn = document.getElementById("p-edit") as HTMLButtonElement;
+const editForm = document.getElementById(
+  "edit-project-form"
+) as HTMLFormElement;
+const editFormCancel = document.getElementById(
+  "edit-form-cancel"
+) as HTMLButtonElement;
+
+editFormBtn.addEventListener("click", () => {
+  toggleModal("edit-project-modal");
+  for (const key in editDummy) {
+    const value = projectsManager.activeProject[key];
+    const element = editForm.querySelector(
+      `[name="edit-${key}"]`
+    ) as HTMLInputElement;
+    element.placeholder = value;
+    if (key === "progress") element.placeholder += "%";
+    if (key === "cost") element.placeholder = `$${value}`;
+    if (key === "status" || key === "role") element.value = value;
+    if (key === "date") element.valueAsDate = new Date(value);
+  }
+});
+
+editFormCancel.addEventListener("click", () => {
+  toggleModal("edit-project-modal");
+  editForm.reset();
+});
+
+editForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const formData = new FormData(editForm);
+  const editedData: EProject = {
+    name: formData.get("edit-name") as string,
+    description: formData.get("edit-description") as string,
+    status: formData.get("edit-status") as Status,
+    role: formData.get("edit-role") as Role,
+    cost: Number(formData.get("edit-cost")),
+    progress: Number(formData.get("edit-progress")),
+    date: new Date(formData.get("edit-date") as string),
+  };
+  const nameIsAvailable = !projectsManager.checkEditNameInUse(editedData);
+  if (nameIsAvailable) {
+    projectsManager.activeProject.editProject(editedData);
+    projectsManager.setPageDetails();
+    toggleModal("edit-project-modal");
+    editForm.reset();
+  } else {
+    console.warn("There is another project with the same name!");
+    editForm.reset();
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "a" || e.key === "A")
+    console.log(
+      projectsManager.activeProject.id,
+      projectsManager.activeProject.name
+    );
+});

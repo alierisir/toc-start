@@ -1,6 +1,13 @@
 import { v4 as uuid4 } from "uuid";
 import { IToDo, ToDo } from "./ToDo";
-import { monthsAfterToday } from "./CustomFunctions";
+import {
+  basicToNativeDate,
+  correctDate,
+  editDummy,
+  getInitials,
+  getRandomColor,
+  monthsAfterToday,
+} from "./CustomFunctions";
 
 export type Status = "active" | "pending" | "finished";
 export type Role = "engineer" | "architect" | "developer";
@@ -38,25 +45,38 @@ export class Project implements IProject {
   constructor(data: IProject) {
     //Project Data definitions
     const keys = [
+      "id",
       "name",
       "description",
       "status",
       "role",
       "date",
+      "cost",
+      "progress",
       "initials",
       "boxColor",
     ];
     for (const key of keys) {
       this[key] = data[key];
+      if (key === "id") {
+        this[key] = data[key] ? data[key] : uuid4();
+      }
+      if (key === "cost") {
+        this[key] = data[key] ? data[key] : 0;
+      }
+      if (key === "progress") {
+        this[key] = data[key] ? data[key] : 0;
+      }
     }
     if (data.date.toString() === "Invalid Date") {
       console.log(
         "There is no date input, project finish date is set to 6 months from today by default."
       );
       this.date = monthsAfterToday(6);
+    } else {
+      this.date = basicToNativeDate(correctDate(data.date));
     }
     this.setInitialsBox();
-    this.id = uuid4();
     this.setUi();
   }
 
@@ -64,38 +84,8 @@ export class Project implements IProject {
     if (this.boxColor && this.initials) {
       return;
     }
-    const words = this.name.split(" ");
-    const count = words.length;
-    let initials: string;
-    if (count < 2) {
-      //If project name is only 1 word, get first two letters.
-      initials = words[0][0] + words[0][1];
-    } else {
-      //If project name is more than 1 word, get first and last word's first letters.
-      initials = words[0][0] + words[count - 1][0];
-    }
-    const colors = [
-      "#50ad45",
-      "#7c45ad",
-      "#ad4545",
-      "#45a3ad",
-      "#4745ad",
-      "#bd53c3",
-      "#56b84f",
-      "#a647b8",
-      "#b84f4f",
-      "#4faab8",
-      "#4f4fb8",
-      "#d362d1",
-      "#ad5845",
-      "#45adad",
-      "#ad8145",
-      "#4596ad",
-    ];
-    const selectedColor =
-      colors[Math.floor((Math.random() * 100) % colors.length)];
-    this.initials = initials;
-    this.boxColor = selectedColor;
+    this.initials = getInitials(this.name);
+    this.boxColor = getRandomColor();
   }
 
   setUi() {
@@ -103,33 +93,43 @@ export class Project implements IProject {
       return;
     }
     this.ui = document.createElement("div");
-    this.ui.innerHTML = `<div class="card-header">
-        <p style='background-color:${this.boxColor}'>${this.initials}</p>
-        <div>
-        <h2>${this.name}</h2>
-        <p >${this.description}</p>
-        </div>
-        </div>
-        <div class="card-content">
-        <div class="card-property">
-            <p>Status</p>
-            <p>${this.status}</p>
-        </div>
-        <div class="card-property">
-            <p>Role</p>
-            <p>${this.role}</p>
-        </div>
-        <div class="card-property">
-            <p>Cost</p>
-            <p>$${this.cost}</p>
-        </div>
-        <div class="card-property">
-            <p>Estimated Progress</p>
-            <p>${this.progress}%</p>
-        </div>
-        </div>
-        `;
+    this.ui.innerHTML = this.getUiTemplate();
     this.ui.className = "project-card";
+  }
+
+  private getUiTemplate() {
+    const html = `<div class="card-header">
+    <p style='background-color:${this.boxColor}'>${this.initials}</p>
+    <div>
+    <h2>${this.name}</h2>
+    <p >${this.description}</p>
+    </div>
+    </div>
+    <div class="card-content">
+    <div class="card-property">
+        <p>Status</p>
+        <p>${this.status}</p>
+    </div>
+    <div class="card-property">
+        <p>Role</p>
+        <p>${this.role}</p>
+    </div>
+    <div class="card-property">
+        <p>Cost</p>
+        <p>$${this.cost}</p>
+    </div>
+    <div class="card-property">
+        <p>Estimated Progress</p>
+        <p>${this.progress}%</p>
+    </div>
+    </div>
+    `;
+    return html;
+  }
+
+  updateUi() {
+    this.initials = getInitials(this.name);
+    this.ui.innerHTML = this.getUiTemplate();
   }
 
   private addDummyToDo() {
@@ -142,10 +142,30 @@ export class Project implements IProject {
   }
 
   newToDo(iTodo: IToDo) {
+    if (this.checkToDoExist(iTodo)) return this.updateToDo(iTodo as ToDo);
     const todo = new ToDo(iTodo);
     this.todoList.push(todo);
     console.log(todo.taskId, " todo added successfully");
     return todo;
+  }
+
+  updateToDo(todo: ToDo) {
+    const existingTodo = this.getToDo(todo.taskId);
+    if (existingTodo) {
+      existingTodo.task = todo.task;
+      existingTodo.setStatus(todo.status);
+      existingTodo.setDeadline(todo.deadline);
+    }
+  }
+
+  checkToDoExist(iTodo: IToDo) {
+    const todoIds = this.todoList.map((todo) => {
+      return todo.taskId;
+    });
+    const id = iTodo.taskId ? iTodo.taskId : false;
+    if (!id) return false;
+    const isTodoExist = todoIds.includes(id);
+    return isTodoExist;
   }
 
   getToDoList() {
@@ -183,13 +203,13 @@ export class Project implements IProject {
     this.todoList = remaining;
   }
 
-  updateProject(project: Project) {
-    const keys = Object.keys(this);
-    //['cost', 'progress', 'todoList', 'name', 'description', 'status', 'role', 'date', 'initials', 'boxColor', 'id', 'ui']
-    for (const key of keys) {
-      if (project[key]) {
-        this[key] = project[key];
-      }
+  editProject(editedData: EProject) {
+    for (const key in editDummy) {
+      console.log(key, "current:", this[key], " edited:", editedData[key]);
+      const value = editedData[key] ? editedData[key] : this[key];
+      this[key] = value;
+      console.log(key, "result:", this[key]);
+      this.updateUi();
     }
   }
 }

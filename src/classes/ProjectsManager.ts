@@ -1,5 +1,5 @@
 import { ErrorManager } from "./ErrorManager";
-import { IProject, Project, EProject } from "./Project";
+import { IProject, Project } from "./Project";
 import { ToDo } from "./ToDo";
 import { correctDate } from "./CustomFunctions";
 
@@ -90,7 +90,10 @@ export class ProjectsManager {
   }
 
   initiateToDoList(project: Project, todoList: ToDo[]) {
-    project.todoList = todoList;
+    todoList.map((todo) => {
+      const { taskId, task, deadline, status } = todo;
+      project.newToDo({ task, deadline, status, taskId });
+    });
   }
 
   setTodoListUi(project: Project) {
@@ -112,17 +115,38 @@ export class ProjectsManager {
     const todo = list[lastIndex];
     container.prepend(todo.getUi());
   }
+  checkEditNameInUse(data: IProject) {
+    const projectNames = this.list.map((project) => {
+      return project.name;
+    });
+    const otherProjectNames = projectNames.filter((name) => {
+      return name !== this.activeProject.name;
+    });
+    const nameInUse = otherProjectNames.includes(data.name);
+    return nameInUse;
+  }
 
-  newProject(data: IProject) {
+  checkNameInUse(data: IProject) {
     const projectNames = this.list.map((project) => {
       return project.name;
     });
     const nameInUse = projectNames.includes(data.name);
+    return nameInUse;
+  }
 
-    if (nameInUse) {
-      throw new Error();
+  checkIdInUse(data: Project) {
+    const projectIds = this.list.map((project) => {
+      return project.id;
+    });
+    const idInUse = projectIds.includes(data.id);
+    return idInUse;
+  }
+
+  newProject(data: IProject) {
+    if (this.checkNameInUse(data)) {
+      //bu noktada geri dönmek yerine, id'ler kontrol edilmeli, id mevcut ise proje update edilecek, değil ise yeni
+      throw new Error("There is already a project with the same name!");
     }
-
     const project = new Project(data);
     this.ui.prepend(project.ui);
     this.list.push(project);
@@ -189,10 +213,29 @@ export class ProjectsManager {
         return;
       }
 
-      const projects: Project[] = JSON.parse(json as string);
+      const projects: Project[] = JSON.parse(json as string); //id'si olmayan bir projeyi JSON içinde oluşturup import etmeyi denemeliyim.
       for (const project of projects) {
         try {
-          this.newProject(project);
+          if (!this.checkIdInUse(project)) {
+            const newProject = this.newProject(project);
+            for (const key in project) {
+              console.log(
+                key,
+                " data:",
+                project[key],
+                " project:",
+                newProject[key]
+              );
+            }
+            if (project.todoList)
+              this.initiateToDoList(newProject, project.todoList);
+          } else {
+            console.log(project.id, "is updated");
+            const existingProject = this.getProject(project.id) as Project;
+            existingProject.editProject(project);
+            if (project.todoList)
+              this.initiateToDoList(existingProject, project.todoList);
+          }
         } catch (error) {
           alert(error);
         }
@@ -207,10 +250,6 @@ export class ProjectsManager {
       reader.readAsText(file);
     });
     input.click();
-  }
-
-  editProject(editted: EProject, current: Project) {
-    // Eski ve yeni projeyi karşılaştıracak bir algorima yazılmalı, yeni projedeki boş veriler eskiden temin edilecek, eğer eski ve yeni proje verisi çakışıyorsa yeni olan seçilecek!
-    console.log("editted:", editted, "current:", current);
+    console.log(this.list);
   }
 }
