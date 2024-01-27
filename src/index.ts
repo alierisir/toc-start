@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { IProject, Status, Role, EProject } from "./classes/Project";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
@@ -249,3 +250,44 @@ window.addEventListener("keydown", (e) => {
       projectsManager.activeProject.name
     );
 });
+
+//ThreeJS Viewer
+
+const viewerContainer = document.getElementById(
+  "viewer-container"
+) as HTMLElement;
+const containerDimensions = viewerContainer.getBoundingClientRect();
+const aspectRatio = containerDimensions.width / containerDimensions.height;
+
+//Create the scene
+
+const scene = new THREE.Scene();
+
+//Create the camera
+
+const camera = new THREE.PerspectiveCamera(75, aspectRatio);
+camera.position.z = 5;
+camera.position.y = 1;
+camera.position.x = 2;
+
+//Create the renderer
+
+const renderer = new THREE.WebGLRenderer();
+viewerContainer.append(renderer.domElement);
+renderer.setSize(containerDimensions.width, containerDimensions.height);
+
+//Create the object
+
+const boxGeometry = new THREE.BoxGeometry();
+const material = new THREE.MeshStandardMaterial();
+const cube = new THREE.Mesh(boxGeometry, material);
+
+//Create the lights
+
+const directionalLight = new THREE.DirectionalLight();
+const ambientLight = new THREE.AmbientLight();
+
+//Add to scene
+
+scene.add(cube, directionalLight, ambientLight);
+renderer.render(scene, camera);

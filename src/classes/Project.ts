@@ -132,13 +132,15 @@ export class Project implements IProject {
     this.ui.innerHTML = this.getUiTemplate();
   }
 
-  private addDummyToDo() {
-    const itodo = {
-      task: "test task, this is a dummy task created automatically deadline is 1 month from today",
-      deadline: monthsAfterToday(-1),
-    };
-    this.newToDo(itodo);
-    console.log("addDumyToDo() successfull");
+  addDummyToDo(qty: number = 1) {
+    for (let i = 0; i < qty; i++) {
+      const itodo = {
+        task: "test task, this is a dummy task created automatically deadline is 1 month from today",
+        deadline: monthsAfterToday(-1),
+      };
+      this.newToDo(itodo);
+      console.log(`${i + 1}. "addDumyToDo() successfull"`);
+    }
   }
 
   newToDo(iTodo: IToDo) {

@@ -16,6 +16,21 @@ export class ProjectsManager {
     this.todoContainer = this.detailsPage.querySelector(
       `[todo-list-container]`
     ) as HTMLElement;
+    this.openDummyProject(2);
+  }
+
+  openDummyProject(qty: number = 1) {
+    for (let i = 0; i < qty; i++) {
+      const project = this.newProject({
+        date: new Date(),
+        description: "default description",
+        status: "active",
+        role: "architect",
+        name: `default project ${i + 1}`,
+      });
+      project.addDummyToDo(3);
+      project.ui.click();
+    }
   }
 
   setPageDetails() {
