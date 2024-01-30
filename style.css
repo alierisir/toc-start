@@ -348,6 +348,13 @@ user-card:hover {
   user-select: none;
 }
 
+#viewer-container{
+  display: flex;
+  width: 1fr;
+  height: 100;
+  min-width:0;
+}
+
 .dashboard-card > * {
   padding: 15px 30px;
   font-size: var(--text);

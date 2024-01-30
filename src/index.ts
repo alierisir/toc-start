@@ -1,15 +1,11 @@
 import * as THREE from "three";
 import { IProject, Status, Role, EProject } from "./classes/Project";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
 import { IToDo, ToDoStatus } from "./classes/ToDo";
-import {
-  editDummy,
-  correctDate,
-  dateAfterFromPoint,
-  formatDate,
-} from "./classes/CustomFunctions";
+import { editDummy } from "./classes/CustomFunctions";
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];
@@ -256,8 +252,6 @@ window.addEventListener("keydown", (e) => {
 const viewerContainer = document.getElementById(
   "viewer-container"
 ) as HTMLElement;
-const containerDimensions = viewerContainer.getBoundingClientRect();
-const aspectRatio = containerDimensions.width / containerDimensions.height;
 
 //Create the scene
 
@@ -265,16 +259,25 @@ const scene = new THREE.Scene();
 
 //Create the camera
 
-const camera = new THREE.PerspectiveCamera(75, aspectRatio);
+const camera = new THREE.PerspectiveCamera(75);
 camera.position.z = 5;
 camera.position.y = 1;
 camera.position.x = 2;
 
 //Create the renderer
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 viewerContainer.append(renderer.domElement);
-renderer.setSize(containerDimensions.width, containerDimensions.height);
+
+resizeViewer();
+
+function resizeViewer() {
+  const containerDimensions = viewerContainer.getBoundingClientRect();
+  renderer.setSize(containerDimensions.width, containerDimensions.height);
+  const aspectRatio = containerDimensions.width / containerDimensions.height;
+  camera.aspect = aspectRatio;
+  camera.updateProjectionMatrix();
+}
 
 //Create the object
 
@@ -285,9 +288,19 @@ const cube = new THREE.Mesh(boxGeometry, material);
 //Create the lights
 
 const directionalLight = new THREE.DirectionalLight();
-const ambientLight = new THREE.AmbientLight();
+const ambientLight = new THREE.AmbientLight("white", 0.6);
 
 //Add to scene
 
 scene.add(cube, directionalLight, ambientLight);
-renderer.render(scene, camera);
+
+//Add controls
+const camCont = new OrbitControls(camera, renderer.domElement);
+
+function renderScreen() {
+  renderer.render(scene, camera);
+  requestAnimationFrame(renderScreen);
+}
+
+renderScreen();
+window.addEventListener("resize", resizeViewer);
