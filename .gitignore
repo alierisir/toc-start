@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 sample.html
+/assets/glTF
+/assets/Gear

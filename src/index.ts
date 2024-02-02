@@ -1,4 +1,8 @@
 import * as THREE from "three";
+import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
 import { IProject, Status, Role, EProject } from "./classes/Project";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { ProjectsManager } from "./classes/ProjectsManager";
@@ -270,6 +274,7 @@ const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 viewerContainer.append(renderer.domElement);
 
 resizeViewer();
+window.addEventListener("resize", resizeViewer);
 
 function resizeViewer() {
   const containerDimensions = viewerContainer.getBoundingClientRect();
@@ -288,19 +293,98 @@ const cube = new THREE.Mesh(boxGeometry, material);
 //Create the lights
 
 const directionalLight = new THREE.DirectionalLight();
-const ambientLight = new THREE.AmbientLight("white", 0.6);
+const ambientLight = new THREE.AmbientLight("white", 0.2);
 
 //Add to scene
 
-scene.add(cube, directionalLight, ambientLight);
+scene.add(directionalLight, ambientLight);
 
 //Add controls
 const camCont = new OrbitControls(camera, renderer.domElement);
+const dlHelper = new THREE.DirectionalLightHelper(directionalLight);
+
+const axes = new THREE.AxesHelper();
+const grid = new THREE.GridHelper();
+grid.material.transparent = true;
+grid.material.opacity = 0.4;
+grid.material.color = new THREE.Color("#00ffff");
+const gui = new GUI();
+
+scene.add(axes, grid);
+
+function lightFollowCube(light, object) {
+  light.target.position.x = object.position.x;
+  light.target.position.y = object.position.y;
+  light.target.position.z = object.position.z;
+}
+
+const objLoader = new OBJLoader();
+const mtlLoader = new MTLLoader();
+const gltfLoader = new GLTFLoader();
+
+let counter = 0;
+window.addEventListener("keydown", (event) => {
+  if (event.key === "s" && counter === 0) {
+    mtlLoader.load("../assets/Gear/Gear1.mtl", (materials) => {
+      materials.preload();
+      objLoader.setMaterials(materials);
+      objLoader.load("../assets/Gear/Gear1.obj", (mesh) => {
+        scene.add(mesh);
+        counter += 1;
+      });
+    });
+  }
+  if (event.key === "a") {
+    try {
+      scene.children[5].children[0].position.x += 1;
+    } catch (error) {}
+  }
+  if (event.key === "d") {
+    try {
+      scene.children[5].children[0].position.x -= 1;
+    } catch (error) {}
+  }
+  if (event.key === "g") {
+    gltfLoader.load("../assets/glTF/ABeautifulGame.gltf", (gltf) => {
+      scene.add(gltf.scene);
+      gltf.animations;
+    });
+  }
+  if (event.key === "j") {
+    gltfLoader.load("../assets/glTF/Sponza.gltf", (gltf) => {
+      scene.add(gltf.scene);
+      gltf.scene.scale.x = 1;
+      gltf.scene.scale.y = 1;
+      gltf.scene.scale.z = 1;
+      console.log(gltf.asset);
+    });
+  }
+});
 
 function renderScreen() {
+  dlHelper.update();
   renderer.render(scene, camera);
   requestAnimationFrame(renderScreen);
 }
 
 renderScreen();
-window.addEventListener("resize", resizeViewer);
+
+const dlControls = gui.addFolder("Directional Light");
+dlControls.add(directionalLight.position, "x", -20, 20, 0.5);
+dlControls.add(directionalLight.position, "y", -20, 20, 0.5);
+dlControls.add(directionalLight.position, "z", -20, 20, 0.5);
+dlControls.add(directionalLight, "visible");
+
+const spotLight = new THREE.SpotLight();
+spotLight.position.x = 15;
+spotLight.position.y = 15;
+spotLight.position.y = 15;
+
+const slControls = gui.addFolder("Spot Light");
+slControls.add(spotLight.position, "x", -20, 20, 0.5);
+slControls.add(spotLight.position, "y", -20, 20, 0.5);
+slControls.add(spotLight.position, "z", -20, 20, 0.5);
+slControls.add(spotLight, "visible");
+
+const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+scene.add(spotLight);
