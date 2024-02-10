@@ -280,7 +280,6 @@ user-card:hover {
   padding: 14px;
   font-size: var(--text-3xl);
   text-transform: uppercase;
-  width: 25px;
   display: flex;
   justify-content: center;
 }
@@ -371,7 +370,6 @@ user-card:hover {
   background-color: orangered;
   border-radius: 10rem;
   padding: 15px;
-  width: 25px;
   text-transform: uppercase;
   display: flex;
   justify-content: center;
@@ -465,11 +463,11 @@ user-card:hover {
 }
 
 .todo-header input {
-  height: 10px;
   border-radius: 1rem;
   background-color: var(--background-primary);
   padding: 10px;
   opacity: 0.8;
+  border: none;
 }
 
 .todo-header input:focus {

@@ -1,10 +1,6 @@
 import * as THREE from "three";
-import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
-import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
+import * as OBC from "openbim-components";
 import { IProject, Status, Role, EProject } from "./classes/Project";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
@@ -251,140 +247,57 @@ window.addEventListener("keydown", (e) => {
     );
 });
 
-//ThreeJS Viewer
+// //Open  Viewer
+
+const viewer = new OBC.Components();
+const sceneComponent = new OBC.SimpleScene(viewer);
+viewer.scene = sceneComponent;
+const scene = sceneComponent.get();
+sceneComponent.setup();
+scene.background = null;
 
 const viewerContainer = document.getElementById(
   "viewer-container"
 ) as HTMLElement;
+const rendererComponent = new OBC.PostproductionRenderer(
+  viewer,
+  viewerContainer
+);
+viewer.renderer = rendererComponent;
 
-//Create the scene
+const cameraComponent = new OBC.OrthoPerspectiveCamera(viewer);
+viewer.camera = cameraComponent;
 
-const scene = new THREE.Scene();
+const raycasterComponent = new OBC.SimpleRaycaster(viewer);
+viewer.raycaster = raycasterComponent;
 
-//Create the camera
-
-const camera = new THREE.PerspectiveCamera(75);
-camera.position.z = 5;
-camera.position.y = 1;
-camera.position.x = 2;
-
-//Create the renderer
-
-const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-viewerContainer.append(renderer.domElement);
-
-resizeViewer();
-window.addEventListener("resize", resizeViewer);
-
-function resizeViewer() {
-  const containerDimensions = viewerContainer.getBoundingClientRect();
-  renderer.setSize(containerDimensions.width, containerDimensions.height);
-  const aspectRatio = containerDimensions.width / containerDimensions.height;
-  camera.aspect = aspectRatio;
-  camera.updateProjectionMatrix();
-}
-
-//Create the object
-
-const boxGeometry = new THREE.BoxGeometry();
-const material = new THREE.MeshStandardMaterial();
-const cube = new THREE.Mesh(boxGeometry, material);
-
-//Create the lights
-
-const directionalLight = new THREE.DirectionalLight();
-const ambientLight = new THREE.AmbientLight("white", 0.2);
-
-//Add to scene
-
-scene.add(directionalLight, ambientLight);
-
-//Add controls
-const camCont = new OrbitControls(camera, renderer.domElement);
-const dlHelper = new THREE.DirectionalLightHelper(directionalLight);
-
-const axes = new THREE.AxesHelper();
-const grid = new THREE.GridHelper();
+const grid = new THREE.GridHelper(100, 100);
 grid.material.transparent = true;
 grid.material.opacity = 0.4;
 grid.material.color = new THREE.Color("#00ffff");
-const gui = new GUI();
+scene.add(grid);
 
-scene.add(axes, grid);
+viewer.init();
+cameraComponent.updateAspect();
+rendererComponent.postproduction.enabled = true;
 
-function lightFollowCube(light, object) {
-  light.target.position.x = object.position.x;
-  light.target.position.y = object.position.y;
-  light.target.position.z = object.position.z;
-}
+let fragments = new OBC.FragmentManager(viewer);
+let fragmentIfcLoader = new OBC.FragmentIfcLoader(viewer);
+fragmentIfcLoader.settings.wasm = {
+  path: "https://unpkg.com/web-ifc@0.0.43/",
+  absolute: true,
+};
 
-const objLoader = new OBJLoader();
-const mtlLoader = new MTLLoader();
-const gltfLoader = new GLTFLoader();
-
-let counter = 0;
-window.addEventListener("keydown", (event) => {
-  if (event.key === "s" && counter === 0) {
-    mtlLoader.load("../assets/Gear/Gear1.mtl", (materials) => {
-      materials.preload();
-      objLoader.setMaterials(materials);
-      objLoader.load("../assets/Gear/Gear1.obj", (mesh) => {
-        scene.add(mesh);
-        counter += 1;
-      });
-    });
-  }
-  if (event.key === "a") {
-    try {
-      scene.children[5].children[0].position.x += 1;
-    } catch (error) {}
-  }
-  if (event.key === "d") {
-    try {
-      scene.children[5].children[0].position.x -= 1;
-    } catch (error) {}
-  }
-  if (event.key === "g") {
-    gltfLoader.load("../assets/glTF/ABeautifulGame.gltf", (gltf) => {
-      scene.add(gltf.scene);
-      gltf.animations;
-    });
-  }
-  if (event.key === "j") {
-    gltfLoader.load("../assets/glTF/Sponza.gltf", (gltf) => {
-      scene.add(gltf.scene);
-      gltf.scene.scale.x = 1;
-      gltf.scene.scale.y = 1;
-      gltf.scene.scale.z = 1;
-      console.log(gltf.asset);
-    });
-  }
+fragmentIfcLoader.onIfcLoaded.add((model) => {
+  console.clear();
+  fragmentHighlighter.update();
+  console.log(model);
 });
 
-function renderScreen() {
-  dlHelper.update();
-  renderer.render(scene, camera);
-  requestAnimationFrame(renderScreen);
-}
+const fragmentHighlighter = new OBC.FragmentHighlighter(viewer);
+fragmentHighlighter.setup();
 
-renderScreen();
+const mainToolBar = new OBC.Toolbar(viewer);
 
-const dlControls = gui.addFolder("Directional Light");
-dlControls.add(directionalLight.position, "x", -20, 20, 0.5);
-dlControls.add(directionalLight.position, "y", -20, 20, 0.5);
-dlControls.add(directionalLight.position, "z", -20, 20, 0.5);
-dlControls.add(directionalLight, "visible");
-
-const spotLight = new THREE.SpotLight();
-spotLight.position.x = 15;
-spotLight.position.y = 15;
-spotLight.position.y = 15;
-
-const slControls = gui.addFolder("Spot Light");
-slControls.add(spotLight.position, "x", -20, 20, 0.5);
-slControls.add(spotLight.position, "y", -20, 20, 0.5);
-slControls.add(spotLight.position, "z", -20, 20, 0.5);
-slControls.add(spotLight, "visible");
-
-const spotLightHelper = new THREE.SpotLightHelper(spotLight);
-scene.add(spotLight);
+viewer.ui.addToolbar(mainToolBar);
+mainToolBar.addChild(fragmentIfcLoader.uiElement.get("main"));

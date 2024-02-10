@@ -118,7 +118,6 @@ export class ToDo implements IToDo {
     <p todo-list-functions="toggle-active"><span class="material-symbols-outlined">
         ${status_symbol}
     </span></p>
-    <p todo-id style="content-visibility:hidden">${this.taskId}</p>
     <p>${this.task}</p>
     <p>${year}-${month}-${day}</p>`;
     return template;
