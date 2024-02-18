@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://localhost:5173/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <script type="module" src="./TOC-Learning_files/client"></script>
+
+  <script type="module" src="./TOC-Learning_files/client"></script>
+
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./TOC-Learning_files/css2">
+    <link rel="stylesheet" href="./TOC-Learning_files/icon">
+    <link rel="stylesheet" href="./TOC-Learning_files/components.css">
+    <link rel="stylesheet" href="./TOC-Learning_files/style.css">
+    <title>TOC-Learning</title>
+<style type="text/css" id="operaUserStyle"></style><style type="text/css"></style></head>
+<body>
+    <dialog id="err-dialog">
+    </dialog>
+    <aside id="sidebar">
+        <img id="company-logo" src="./TOC-Learning_files/image1.svg" alt="company logo">
+        <ul id="nav-buttons">
+            <li id="nav-project"><span class="material-symbols-outlined">
+                store
+                </span>Projects</li>
+            <li id="nav-user"><span class="material-symbols-outlined">
+                person
+                </span>Users</li>
+        </ul>
+    </aside>
+    <main id="content">
+        <div id="projects-page" class="page" style="display: none;">
+            <dialog id="new-project-modal">
+                <form id="new-project-form" class="modal-container">
+                    <h2 class="modal-header"><span class="material-symbols-outlined">
+                        add_business
+                        </span>New Project</h2>
+                    <div class="project-properties">
+                        <label for="name"><span class="material-symbols-outlined">
+                            label
+                            </span>Name</label>
+                        <input type="text" name="name" id="name" placeholder="Name of the project" minlength="5" required="">
+                        <p class="modal-tips">TIP:Give it simple name</p>
+                    </div>
+                    <div class="project-properties">
+                        <label for="description"><span class="material-symbols-outlined">
+                            description
+                            </span>Description</label>
+                        <textarea name="description" id="description" cols="20" rows="5" placeholder="Describe your project (max:120 characters)" maxlength="120"></textarea>    
+                    </div>
+                    <div class="project-properties">
+                        <label for="status"><span class="material-symbols-outlined">
+                            pending_actions
+                            </span>Status</label>
+                        <select name="status" id="status">
+                            <option value="active" selected="">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="finished">Finished</option>
+                        </select>
+                    </div>
+                    <div class="project-properties">
+                        <label for="role"><span class="material-symbols-outlined">
+                            school
+                            </span>Role</label>
+                        <select name="role" id="role">
+                            <option value="architect" selected="">Architect</option>
+                            <option value="engineer">Engineer</option>
+                            <option value="developer">Developer</option>
+                        </select>
+                    </div>
+                    <div class="project-properties">
+                        <label for="date"><span class="material-symbols-outlined">
+                            event
+                            </span>Finishing Date</label>
+                        <input id="date-input" name="date" type="date">
+                    </div>
+                    <div class="button-section">
+                        <button id="form-cancel" type="button" class="cancel-btn"><span class="material-symbols-outlined">
+                            cancel
+                            </span>Cancel</button>
+                        <button type="submit" class="accept-btn"><span class="material-symbols-outlined">
+                            check_circle
+                            </span>Accept</button>
+                    </div>
+                </form>
+            </dialog>  
+            <header>
+                <h2>Projects</h2>
+                <div class="button-section">
+                    <button id="import-from-json">
+                        <span class="material-symbols-outlined">
+                            upload_2
+                            </span>
+                    Upload Projects</button>
+                    <button id="export-to-json">
+                        <span class="material-symbols-outlined">
+                            download_2
+                            </span>
+                    Download Projects</button>
+                    <button id="new-project-btn"><span class="material-symbols-outlined">
+                        add_business
+                        </span>New Project</button>
+                </div>
+            </header>
+            <div id="projects-list"><div class="project-card"><div class="card-header">
+    <p style="background-color:#45a3ad">d2</p>
+    <div>
+    <h2>default project 2</h2>
+    <p>default description</p>
+    </div>
+    </div>
+    <div class="card-content">
+    <div class="card-property">
+        <p>Status</p>
+        <p>active</p>
+    </div>
+    <div class="card-property">
+        <p>Role</p>
+        <p>architect</p>
+    </div>
+    <div class="card-property">
+        <p>Cost</p>
+        <p>$0</p>
+    </div>
+    <div class="card-property">
+        <p>Estimated Progress</p>
+        <p>0%</p>
+    </div>
+    </div>
+    </div><div class="project-card"><div class="card-header">
+    <p style="background-color:#ad5845">d1</p>
+    <div>
+    <h2>default project 1</h2>
+    <p>default description</p>
+    </div>
+    </div>
+    <div class="card-content">
+    <div class="card-property">
+        <p>Status</p>
+        <p>active</p>
+    </div>
+    <div class="card-property">
+        <p>Role</p>
+        <p>architect</p>
+    </div>
+    <div class="card-property">
+        <p>Cost</p>
+        <p>$0</p>
+    </div>
+    <div class="card-property">
+        <p>Estimated Progress</p>
+        <p>0%</p>
+    </div>
+    </div>
+    </div>
+               <!-- <div class="project-card">
+                    <div class="card-header">
+                        <p>HC</p>
+                        <div>
+                        <h2>Project Name</h2>
+                        <p >Project Description Lorem ipsum dolor sit amet.</p>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-property">
+                            <p>Status</p>
+                            <p>Active</p>
+                        </div>
+                        <div class="card-property">
+                            <p>Role</p>
+                            <p>Engineer</p>
+                        </div>
+                        <div class="card-property">
+                            <p>Cost</p>
+                            <p>20000TRY</p>
+                        </div>
+                        <div class="card-property">
+                            <p>Finishing Date</p>
+                            <p>26/12/2025</p>
+                        </div>
+                        <div class="card-property">
+                            <p>Estimated Progress</p>
+                            <p>80%</p>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+        <div id="project-details" class="page" style="display: flex;">
+            <dialog id="edit-project-modal" style="max-height: fit-content;">
+                <form id="edit-project-form" class="modal-container">
+                    <h2 class="modal-header"><span class="material-symbols-outlined">
+                        tune
+                        </span>Edit Project</h2>
+                    <div class="project-properties">
+                        <label for="edit-name"><span class="material-symbols-outlined">
+                            label
+                            </span>Edit Name</label>
+                        <input type="text" name="edit-name" id="edit-name" placeholder="Name of the project">
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-description"><span class="material-symbols-outlined">
+                            description
+                            </span>Edit Description</label>
+                        <textarea name="edit-description" id="edit-description" cols="20" rows="5" placeholder="Describe your project (max:120 characters)" maxlength="120"></textarea>    
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-status"><span class="material-symbols-outlined">
+                            pending_actions
+                            </span>Edit Status</label>
+                        <select name="edit-status" id="edit-status">
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="finished">Finished</option>
+                        </select>
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-role"><span class="material-symbols-outlined">
+                            school
+                            </span>Edit Role</label>
+                        <select name="edit-role" id="edit-role">
+                            <option value="architect">Architect</option>
+                            <option value="engineer">Engineer</option>
+                            <option value="developer">Developer</option>
+                        </select>
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-cost"><span class="material-symbols-outlined">
+                            payments
+                            </span>Edit Cost</label>
+                        <input type="number" name="edit-cost" id="edit-cost" placeholder="Cost of the project" min="0">
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-progress"><span class="material-symbols-outlined">
+                            donut_large
+                            </span>Edit Progress</label>
+                        <input type="number" name="edit-progress" id="edit-progress" placeholder="Progress of the project" min="0" max="100">
+                    </div>
+                    <div class="project-properties">
+                        <label for="edit-date"><span class="material-symbols-outlined">
+                            event
+                            </span>Edit Finishing Date</label>
+                        <input id="edit-date" name="edit-date" type="date">
+                    </div>
+                    <div class="button-section">
+                        <button id="edit-form-cancel" type="button" class="cancel-btn"><span class="material-symbols-outlined">
+                            cancel
+                            </span>Cancel</button>
+                        <button type="submit" class="accept-btn"><span class="material-symbols-outlined">
+                            check_circle
+                            </span>Accept</button>
+                    </div>
+                </form>
+            </dialog> 
+            <dialog id="new-todo-modal">
+                <form id="new-todo-form" class="modal-container">
+                    <h2 class="modal-header"><span class="material-symbols-outlined">
+                        assignment_add
+                        </span>New ToDo</h2>
+                    <div class="project-properties">
+                        <label for="todo-task"><span class="material-symbols-outlined">
+                            assignment
+                            </span>Task</label>
+                        <textarea required="" rows="5" cols="30" type="text" name="todo-task" id="todo-task" placeholder="Write the task to be done.(max. 270 characters)" maxlength="270"></textarea>
+                    </div>
+                    <div class="project-properties">
+                        <label for="todo-status"><span class="material-symbols-outlined">
+                            assignment_late
+                            </span>Status</label>
+                        <select name="todo-status" id="todo-status">
+                            <option value="active" selected="">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                    <div class="project-properties">
+                        <label for="todo-deadline"><span class="material-symbols-outlined">
+                            event
+                            </span>Deadline</label>
+                        <input id="todo-deadline" name="todo-deadline" type="date">
+                    </div>
+                    <div class="button-section">
+                        <button id="todo-cancel" type="button" class="cancel-btn"><span class="material-symbols-outlined">
+                            cancel
+                            </span>Cancel</button>
+                        <button type="submit" class="accept-btn"><span class="material-symbols-outlined">
+                            check_circle
+                            </span>Accept</button>
+                    </div>
+                </form>
+            </dialog>
+            <header>
+                <div>
+                    <h2 data-project-info="headName">default project 2</h2>
+                    <p data-project-info="headDescription">default description</p>
+                </div>
+            </header>
+            <div class="main-page-content">
+                <div id="details-container">
+                    <div class="dashboard-card">
+                        <div class="info-header">
+                            <p data-project-info="initials" style="background-color: rgb(69, 163, 173);">d2</p>
+                            <button project-info-btn="edit" id="p-edit">Edit</button>
+                        </div>
+                        <div class="info-title">
+                            <h3 data-project-info="name">default project 2</h3>
+                            <p data-project-info="description">default description</p>
+                        </div>
+                        <div class="info-property-field">
+                            <div class="info-properties">
+                                <p>Status</p>
+                                <p data-project-info="status">active</p>
+                            </div>
+                            <div class="info-properties">
+                                <p>Cost</p>
+                                <p data-project-info="cost">$0</p>
+                            </div>
+                            <div class="info-properties">
+                                <p>Role</p>
+                                <p data-project-info="role">architect</p>
+                            </div>
+                            <div class="info-properties">
+                                <p>Finish Date</p>
+                                <p data-project-info="date">2024-Feb-12</p>
+                            </div>
+                        </div>
+                        <div class="info-bar">
+                            <div data-project-info="progress" class="info-progress" style="width: 0%;">0%</div>
+                          </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="todo-header">
+                            <h3>To-Do</h3>
+                            <div>
+                                <button project-info-btn="todo-search"><span class="material-symbols-outlined">
+                                    search
+                                    </span></button>
+                                <input todo-search="" type="text" placeholder="Search task by name">
+                                <button project-info-btn="todo-add" todo-add=""><span class="material-symbols-outlined">
+                                    playlist_add
+                                    </span></button>
+                            </div>
+                        </div>
+                        <div todo-list-container="" class="todo-list"><div class="list-item todo-overdue">
+    <p todo-list-functions="toggle-active"><span class="material-symbols-outlined">
+        disabled_by_default
+    </span></p>
+    <p>test task, this is a dummy task created automatically deadline is 1 month from today</p>
+    <p>2024-Jan-12</p></div><div class="list-item todo-overdue">
+    <p todo-list-functions="toggle-active"><span class="material-symbols-outlined">
+        disabled_by_default
+    </span></p>
+    <p>test task, this is a dummy task created automatically deadline is 1 month from today</p>
+    <p>2024-Jan-12</p></div><div class="list-item todo-overdue">
+    <p todo-list-functions="toggle-active"><span class="material-symbols-outlined">
+        disabled_by_default
+    </span></p>
+    <p>test task, this is a dummy task created automatically deadline is 1 month from today</p>
+    <p>2024-Jan-12</p></div></div>
+                    </div>
+                </div>
+                <div id="viewer-container" style="min-width: 0; position: relative;"><canvas data-engine="three.js r152" width="500" height="767" style="display: block; width: 500px; height: 767px; touch-action: none; user-select: none;" data-camera-controls-version="1.38.1"></canvas><div style="overflow: hidden; position: absolute; top: 0px; pointer-events: none; width: 500px; height: 767px;"></div><div class="absolute flex gap-y-3 gap-x-3 pointer-events-none p-4 top-0 pt-4 flex-row w-full" id="top-toolbar-container" style="justify-content: center; align-items: center;"></div><div class="absolute flex gap-y-3 gap-x-3 pointer-events-none p-4 top-0 right-0 pr-4 flex-column h-full" id="right-toolbar-container" style="justify-content: center; align-items: center;"></div><div class="absolute flex gap-y-3 gap-x-3 pointer-events-none p-4 bottom-0 pb-4 flex-row w-full" id="bottom-toolbar-container" style="justify-content: center; align-items: center;"><div class="flex shadow-md w-fit h-fit gap-x-2 gap-y-2 p-2 text-white rounded pointer-events-auto backdrop-blur-xl bg-ifcjs-100 z-50" id="Vr0diVkTH3"><button class="relative flex gap-x-2 items-center bg-transparent text-white rounded-[10px] max-h-8 p-2 hover:cursor-pointer hover:bg-ifcjs-200 hover:text-black data-[active=true]:cursor-pointer data-[active=true]:bg-ifcjs-200 data-[active=true]:text-black disabled:cursor-default disabled:bg-gray-600 disabled:text-gray-400 pointer-events-auto transition-all fill-white hover:fill-black justify-start" id="e1gcUzJkY8">
+      <span style="display: none" id="custom-icon-e1gcUzJkY8" class="md-18"></span> 
+      <span style="display: unset;" id="icon-e1gcUzJkY8" class="material-icons md-18">upload_file</span> 
+      <span id="tooltip-e1gcUzJkY8" class="transition-opacity bg-ifcjs-100 text-sm text-gray-100 rounded-md absolute left-1/2 -translate-x-1/2 -translate-y-12 opacity-0 mx-auto p-4 w-max h-4 flex items-center pointer-events-none">Load IFC</span> 
+      <p id="label-e1gcUzJkY8" class="text-sm tracking-[1.25px] whitespace-nowrap hidden"></p>
+    <div class="flex shadow-md w-fit h-fit gap-x-2 gap-y-2 p-2 text-white rounded pointer-events-auto backdrop-blur-xl bg-ifcjs-100 z-50 hidden flex-col" id="tLSsqclKJK" data-popper-placement="top" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(1107px, -91px);"></div></button></div></div><div class="absolute flex gap-y-3 gap-x-3 pointer-events-none p-4 top-0 left-0 pl-4 flex-column h-full" id="left-toolbar-container" style="justify-content: center; align-items: center;"></div><div style="position: absolute;"><div class="flex shadow-md w-fit h-fit gap-x-2 gap-y-2 p-2 text-white rounded pointer-events-auto backdrop-blur-xl bg-ifcjs-100 z-50 hidden flex-col" id="kQ4CERqGW9" data-popper-placement="bottom-start" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(845px, 125px);"></div></div><div class="absolute flex flex-col backdrop-blur-xl shadow-md overflow-auto top-5 resize z-50 left-5 min-h-[80px] min-w-[150px] w-fit h-fit text-white bg-ifcjs-100 rounded-md" id="HOtAH8DrYB" style="width: 289px; height: 215px; background: black; opacity: 0.8; color: rgb(162, 255, 66);">
+      <div id="title-container-HOtAH8DrYB" class="z-10 flex justify-between items-center top-0 select-none cursor-move px-6 py-3 border-b-2 border-solid border-[#3A444E]">
+        <div class="flex flex-col">
+          <h3 id="title-HOtAH8DrYB">Model Groups</h3>
+          <p id="description-HOtAH8DrYB" class="text-base text-gray-400 hidden"></p>
+        </div>
+        <span id="close-HOtAH8DrYB" class="material-icons text-2xl ml-4 text-gray-400 z-20 hover:cursor-pointer hover:text-ifcjs-200">close</span>
+      </div>
+      <div class="flex flex-col gap-y-4 p-4 overflow-auto" id="WSovT29IIN" data-tooeen-slot="content"></div>
+    </div><div class="absolute flex flex-col backdrop-blur-xl shadow-md overflow-auto top-5 resize z-50 left-5 min-h-[80px] min-w-[150px] w-fit h-fit text-white bg-ifcjs-100 rounded-md hidden" id="EL87t5QscB" style="width: 340px; height: 400px; left: 70px; top: 100px;">
+      <div id="title-container-EL87t5QscB" class="z-10 flex justify-between items-center top-0 select-none cursor-move px-6 py-3 border-b-2 border-solid border-[#3A444E]">
+        <div class="flex flex-col">
+          <h3 id="title-EL87t5QscB">Models</h3>
+          <p id="description-EL87t5QscB" class="text-base text-gray-400 hidden"></p>
+        </div>
+        <span id="close-EL87t5QscB" class="material-icons text-2xl ml-4 text-gray-400 z-20 hover:cursor-pointer hover:text-ifcjs-200">close</span>
+      </div>
+      <div class="flex flex-col gap-y-4 p-4 overflow-x-hidden" id="mJniiGvpYk" data-tooeen-slot="content"></div>
+    </div><div class="absolute bottom-8 left-8 transition-transform hidden" id="UqzzQJ0ZbP" style="z-index: 9999; transform: translateY(10rem);">
+      <div id="toast-default-UqzzQJ0ZbP" class="flex items-center w-full max-w-xs p-4 text-gray-500 bg-ifcjs-200 rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
+        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-ifcjs-200 bg-ifcjs-300 rounded-full dark:bg-blue-800 dark:text-blue-200">
+          <span id="icon-UqzzQJ0ZbP" class="material-icons md-18">done</span>
+        </div>
+        <p id="message-UqzzQJ0ZbP" class="ml-3 text-sm font-normal">IFC model successfully loaded!</p>
+      </div>
+    </div></div>
+            </div>
+        </div>
+        <div id="users-page" class="page" style="display: none;">
+            <dialog id="new-user-modal">
+                <form class="modal-container">
+                    <h2 class="modal-header"><span class="material-symbols-outlined">
+                        person_add
+                        </span>New User</h2>
+                    <div class="project-properties">
+                        <label for="user-name"><span class="material-symbols-outlined">
+                            badge
+                            </span>Name</label>
+                        <input type="text" name="user-name" id="user-name" placeholder="User name" required="">
+                        <p class="modal-tips">TIP:John Doe</p>
+                    </div>
+                    <div class="project-properties">
+                        <label for="name"><span class="material-symbols-outlined">
+                            mail
+                            </span>E-mail</label>
+                        <input type="email" name="user-email" id="user-email" placeholder="Email address" required="">
+                        <p class="modal-tips">TIP:john.doe@example.com</p>
+                    </div>
+                    <div class="project-properties">
+                        <label for="role"><span class="material-symbols-outlined">
+                            school
+                            </span>Role</label>
+                        <select name="role" id="role">
+                            <option value="architect" selected="">Architect</option>
+                            <option value="engineer">Engineer</option>
+                            <option value="developer">Developer</option>
+                        </select>
+                    </div>
+                    <div class="project-properties">
+                        <label for="description"><span class="material-symbols-outlined">
+                            store
+                            </span>Project</label>
+                        <textarea name="description" id="description" cols="20" rows="2" placeholder="Project name or ID (max:60 characters)" maxlength="60"></textarea>    
+                    </div>
+                    <div class="project-properties">
+                        <label for="user-supervisor"><span class="material-symbols-outlined">
+                            badge
+                            </span>Supervisor</label>
+                        <input type="text" name="user-supervisor" id="user-supervisor" placeholder="Your supervisor" required="">
+                        <p class="modal-tips">TIP:John Doe</p>
+                    </div>
+                    <div class="button-section">
+                        <button class="cancel-btn"><span class="material-symbols-outlined">
+                            cancel
+                            </span>Cancel</button>
+                        <button class="accept-btn"><span class="material-symbols-outlined">
+                            check_circle
+                            </span>Accept</button>
+                    </div>
+                </form>
+            </dialog>  
+            <header>
+                <h2>Users</h2>
+                <div>
+                    <button id="new-user-btn"><span class="material-symbols-outlined">
+                        person_add
+                        </span>New User</button>
+                </div>
+            </header>
+            <div id="users-list">
+                <ul class="bold-text">
+                    <li class="w20 center">Name</li>
+                    <li class="w20 center">Role</li>
+                    <li class="w20 center">Project</li>
+                    <li class="w20 center">Contact</li>
+                    <li class="w20 center">Supervisor</li>
+                </ul>
+                <ul class="user-row">
+                    <li class="w20 center">Ali Erişir</li>
+                    <li class="w20 center">Engineer</li>
+                    <li class="w20 center">TC-Solar</li>
+                    <li class="w20 center">alierisir@gmail.com</li>
+                    <li class="w20 center">Soyhan Sineoğlu</li>
+                </ul>
+                <ul class="user-row">
+                    <li class="w20 center">Cansu Tüfekci</li>
+                    <li class="w20 center">Developer</li>
+                    <li class="w20 center">Universal-ph3</li>
+                    <li class="w20 center">cc.tufekci@gmail.com</li>
+                    <li class="w20 center">Özgün Koçyiğit</li>
+                </ul>
+            </div>
+        </div>                     
+    </main>
+    <script type="module" src="./TOC-Learning_files/index.ts"></script>
+
+</body></html>

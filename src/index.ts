@@ -1,6 +1,9 @@
 import * as THREE from "three";
+import { Color } from "three";
+import { IfcProperties } from "bim-fragment";
 import * as OBC from "openbim-components";
 import { IProject, Status, Role, EProject } from "./classes/Project";
+import { FragmentsGroup } from "bim-fragment";
 import { ProjectsManager } from "./classes/ProjectsManager";
 import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
@@ -248,7 +251,7 @@ window.addEventListener("keydown", (e) => {
 });
 
 // //Open  Viewer
-
+console.clear();
 const viewer = new OBC.Components();
 const sceneComponent = new OBC.SimpleScene(viewer);
 viewer.scene = sceneComponent;
@@ -275,29 +278,219 @@ const grid = new THREE.GridHelper(100, 100);
 grid.material.transparent = true;
 grid.material.opacity = 0.4;
 grid.material.color = new THREE.Color("#00ffff");
+grid.visible = false;
 scene.add(grid);
 
 viewer.init();
 cameraComponent.updateAspect();
 rendererComponent.postproduction.enabled = true;
 
-let fragments = new OBC.FragmentManager(viewer);
+const fragmentManager = new OBC.FragmentManager(viewer);
+
+function exportFragments(model: FragmentsGroup) {
+  const fragmentBinary = fragmentManager.export(model);
+  const blob = new Blob([fragmentBinary]);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${model.name.replace(".ifc", "")}.frag`;
+  link.click();
+  URL.revokeObjectURL(url);
+  const json = JSON.stringify(model.properties, null, 2);
+  const propBlob = new Blob([json], { type: "application/json" });
+  const propUrl = URL.createObjectURL(propBlob);
+  const propLink = document.createElement("a");
+  propLink.href = propUrl;
+  propLink.download = `${model.name.replace(".ifc", "")}.json`;
+  propLink.click();
+  URL.revokeObjectURL(propUrl);
+}
+
+const fragmentHighlighter = new OBC.FragmentHighlighter(viewer);
+fragmentHighlighter.setup();
+
+const propertiesProcessor = new OBC.IfcPropertiesProcessor(viewer);
+fragmentHighlighter.events.select.onClear.add(() => {
+  propertiesProcessor.cleanPropertiesList();
+});
+
+const classifier = new OBC.FragmentClassifier(viewer);
+const classifierWindow = new OBC.FloatingWindow(viewer);
+viewer.ui.add(classifierWindow);
+classifierWindow.title = "Model Groups";
+classifierWindow.visible = false;
+
 let fragmentIfcLoader = new OBC.FragmentIfcLoader(viewer);
 fragmentIfcLoader.settings.wasm = {
   path: "https://unpkg.com/web-ifc@0.0.43/",
   absolute: true,
 };
 
-fragmentIfcLoader.onIfcLoaded.add((model) => {
-  console.clear();
-  fragmentHighlighter.update();
-  console.log(model);
+async function createModelTree() {
+  const fragmentTree = new OBC.FragmentTree(viewer);
+  await fragmentTree.init();
+  await fragmentTree.update(["model", "storeys", "entities"]);
+  fragmentTree.onHovered.add((fragmentMap) => {
+    fragmentHighlighter.highlightByID("hover", fragmentMap);
+  });
+  fragmentTree.onSelected.add((fragmentMap) => {
+    fragmentHighlighter.highlightByID("select", fragmentMap);
+  });
+  const tree = fragmentTree.get().uiElement.get("tree");
+  return tree;
+}
+
+const culler = new OBC.ScreenCuller(viewer);
+cameraComponent.controls.addEventListener("sleep", () => {
+  culler.needsUpdate = true;
 });
 
-const fragmentHighlighter = new OBC.FragmentHighlighter(viewer);
-fragmentHighlighter.setup();
+async function onModelLoad(model: FragmentsGroup) {
+  fragmentHighlighter.update();
+  for (const fragment of model.items) {
+    culler.add(fragment.mesh);
+  }
+  culler.needsUpdate = true;
+
+  try {
+    classifier.byEntity(model);
+    classifier.byStorey(model);
+    classifier.byModel(model.name, model);
+    const tree = await createModelTree();
+    await classifierWindow.slots.content.dispose(true);
+    // Individual buttons for toggle model visibility
+    //const modelBtn = new OBC.Button(viewer);
+    //modelBtn.materialIcon = "view_in_ar";
+    //makeToggleBtn(modelBtn, model);
+    classifierWindow.addChild(tree);
+
+    propertiesProcessor.process(model);
+    fragmentHighlighter.events.select.onHighlight.add((fragmentMap) => {
+      const expressID = [...Object.values(fragmentMap)[0]][0];
+      propertiesProcessor.renderProperties(model, Number(expressID));
+    });
+  } catch (error) {
+    console.warn("properties couldn't be found.");
+  }
+}
+
+fragmentIfcLoader.onIfcLoaded.add(async (model) => {
+  exportFragments(model);
+  onModelLoad(model);
+});
+
+fragmentManager.onFragmentsLoaded.add(async (model) => {
+  importFromJSON(model);
+  if (!fragmentManager.baseCoordinationModel) {
+    fragmentManager.baseCoordinationModel = fragmentManager.groups[0].uuid;
+  }
+});
 
 const mainToolBar = new OBC.Toolbar(viewer);
-
 viewer.ui.addToolbar(mainToolBar);
-mainToolBar.addChild(fragmentIfcLoader.uiElement.get("main"));
+mainToolBar.addChild(
+  fragmentIfcLoader.uiElement.get("main"),
+  propertiesProcessor.uiElement.get("main"),
+  fragmentManager.uiElement.get("main")
+);
+
+const classifierWindowBtn = new OBC.Button(viewer);
+classifierWindowBtn.materialIcon = "account_tree";
+classifierWindowBtn.tooltip = "Tree View";
+
+const gridBtn = new OBC.Button(viewer);
+gridBtn.materialIcon = "grid_4x4";
+gridBtn.tooltip = "Toggle Grid";
+
+const importFragmentBtn = new OBC.Button(viewer);
+importFragmentBtn.materialIcon = "upload";
+importFragmentBtn.tooltip = "Upload Fragment";
+
+importFragmentBtn.onClick.add(() => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".frag";
+  const reader = new FileReader();
+  reader.addEventListener("load", async () => {
+    const binary = reader.result;
+    if (!(binary instanceof ArrayBuffer)) {
+      return;
+    }
+    const fragmentBinary = new Uint8Array(binary);
+    await fragmentManager.load(fragmentBinary);
+  });
+
+  input.addEventListener("change", () => {
+    const fileList = input.files;
+    if (!fileList) {
+      return;
+    }
+    const file = fileList[0];
+    reader.readAsArrayBuffer(file);
+  });
+  input.click();
+});
+
+mainToolBar.addChild(importFragmentBtn);
+
+//custom function for CSS and  misc.
+
+function makeToggleBtn(btn: OBC.Button, elem: any) {
+  btn.onClick.add(() => {
+    elem.visible ? (elem.visible = false) : (elem.visible = true);
+  });
+  mainToolBar.addChild(btn);
+}
+
+function styleItUp(domElement: any) {
+  domElement.style.background = "#000022";
+  domElement.style.opacity = "0.7";
+  domElement.style.color = "#54beff";
+}
+
+//custom function for CSS and  misc.
+
+//make ui elements styled as i wish
+
+styleItUp(propertiesProcessor.uiElement.get("propertiesWindow").domElement);
+styleItUp(fragmentManager.uiElement.get("window").domElement);
+styleItUp(classifierWindow.domElement);
+styleItUp(mainToolBar.domElement);
+
+//make ui elements styled as i wish
+
+//changing default highlight materials
+//const myColor = new Color(0.33, 0.33, 1);
+//[...Object.values(fragmentHighlighter.highlightMats)][0][0].color= myColor;
+//changing default highlight materials
+
+makeToggleBtn(gridBtn, grid);
+makeToggleBtn(classifierWindowBtn, classifierWindow);
+
+//JSON import function
+
+function importFromJSON(model: FragmentsGroup) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    const json = reader.result;
+    if (!json) return;
+    model.properties = JSON.parse(json as string);
+    onModelLoad(model);
+  });
+  input.addEventListener("change", () => {
+    const fileList = input.files;
+    if (!fileList) {
+      return;
+    }
+    const file = fileList[0];
+    reader.readAsText(file);
+  });
+  input.click();
+}
+
+addEventListener("keydown", (e) => {
+  if (e.key === "m") console.log(fragmentManager);
+});
