@@ -9,6 +9,7 @@ import { ErrorManager } from "./classes/ErrorManager";
 import { ISingleError } from "./classes/SingleError";
 import { IToDo, ToDoStatus } from "./classes/ToDo";
 import { editDummy } from "./classes/CustomFunctions";
+import { TodoCreator } from "./bim-components/ToDoCreator";
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];
@@ -380,18 +381,27 @@ fragmentIfcLoader.onIfcLoaded.add(async (model) => {
 });
 
 fragmentManager.onFragmentsLoaded.add(async (model) => {
-  importFromJSON(model);
+  await importFromJSON(model);
+  console.log(model);
+  for (const item of model.items) {
+    if (item.id !== "0389b443-0c9d-41bd-be7c-d8c1be895ea3") {
+      console.log(item.blocks.count);
+    }
+  }
   if (!fragmentManager.baseCoordinationModel) {
     fragmentManager.baseCoordinationModel = fragmentManager.groups[0].uuid;
   }
 });
+
+const todoCreator = new TodoCreator(viewer);
 
 const mainToolBar = new OBC.Toolbar(viewer);
 viewer.ui.addToolbar(mainToolBar);
 mainToolBar.addChild(
   fragmentIfcLoader.uiElement.get("main"),
   propertiesProcessor.uiElement.get("main"),
-  fragmentManager.uiElement.get("main")
+  fragmentManager.uiElement.get("main"),
+  todoCreator.uiElement.get("activationButton")
 );
 
 const classifierWindowBtn = new OBC.Button(viewer);
@@ -442,7 +452,7 @@ function makeToggleBtn(btn: OBC.Button, elem: any) {
   mainToolBar.addChild(btn);
 }
 
-function styleItUp(domElement: any) {
+export function styleItUp(domElement: any) {
   domElement.style.background = "#000022";
   domElement.style.opacity = "0.7";
   domElement.style.color = "#54beff";
@@ -456,12 +466,16 @@ styleItUp(propertiesProcessor.uiElement.get("propertiesWindow").domElement);
 styleItUp(fragmentManager.uiElement.get("window").domElement);
 styleItUp(classifierWindow.domElement);
 styleItUp(mainToolBar.domElement);
+styleItUp(todoCreator.uiElement.get("todoList").domElement);
 
 //make ui elements styled as i wish
 
 //changing default highlight materials
 //const myColor = new Color(0.33, 0.33, 1);
-//[...Object.values(fragmentHighlighter.highlightMats)][0][0].color= myColor;
+//const [colorObj] = [
+//  ...Object.values(fragmentHighlighter.highlightMats),
+//] as unknown as THREE.Material[];
+//colorObj[0].color = myColor;
 //changing default highlight materials
 
 makeToggleBtn(gridBtn, grid);
@@ -469,16 +483,16 @@ makeToggleBtn(classifierWindowBtn, classifierWindow);
 
 //JSON import function
 
-function importFromJSON(model: FragmentsGroup) {
+async function importFromJSON(model: FragmentsGroup) {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "application/json";
   const reader = new FileReader();
-  reader.addEventListener("load", () => {
+  reader.addEventListener("load", async () => {
     const json = reader.result;
     if (!json) return;
     model.properties = JSON.parse(json as string);
-    onModelLoad(model);
+    await onModelLoad(model);
   });
   input.addEventListener("change", () => {
     const fileList = input.files;

@@ -42,7 +42,7 @@
 
 body {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 250px 1fr;
   grid-template-areas: "sidebar content";
   height: 100vh;
   background-color: var(--background-primary);
@@ -318,12 +318,12 @@ user-card:hover {
 
 #project-details > .main-page-content {
   display: grid;
-  grid-template-columns: 475px 1fr;
+  grid-template-columns: 400px 1fr;
   grid-template-areas: "details-container viewer-container";
   height: 100%;
   color: var(--textcolor-secondary);
-  padding: 20px 40px;
-  gap: 30px;
+  padding: 10px 25px;
+  gap: 15px;
 }
 
 #details-container > *,
@@ -347,11 +347,11 @@ user-card:hover {
   user-select: none;
 }
 
-#viewer-container{
+#viewer-container {
   display: flex;
   width: 1fr;
   height: 100;
-  min-width:0;
+  min-width: 0;
 }
 
 .dashboard-card > * {
