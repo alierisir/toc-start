@@ -16,6 +16,14 @@ export class ProjectsManager {
     this.todoContainer = this.detailsPage.querySelector(
       `[todo-list-container]`
     ) as HTMLElement;
+    const project = this.newProject({
+      name: "Default Project",
+      description: "This is just a default app project",
+      status: "pending",
+      role: "architect",
+      date: new Date(),
+    });
+    project.ui.click();
   }
 
   setPageDetails() {
@@ -67,7 +75,6 @@ export class ProjectsManager {
     //Search Bar Function
     const searchBar = page.querySelector(`[todo-search]`);
     if (searchBar && searchBar instanceof HTMLInputElement) {
-      console.log(searchBar);
       searchBar.addEventListener("change", () => {
         const todoTasks = project.getToDoList().map((todo) => {
           return [todo.task, todo.taskId];
