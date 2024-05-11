@@ -14,6 +14,8 @@ import {
   dateAfterFromPoint,
   formatDate,
 } from "./classes/CustomFunctions";
+import { TodoCreator } from "./bim-components/TodoCreator";
+import { cameraPosition } from "three/examples/jsm/nodes/Nodes.js";
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];
@@ -353,7 +355,12 @@ ifcLoader.settings.wasm = {
   path: "https://unpkg.com/web-ifc@0.0.43/",
 };
 
-toolbar.addChild(ifcLoader.uiElement.get("main"));
+const loaderBtn = new OBC.Button(viewer);
+loaderBtn.tooltip = "Load File";
+loaderBtn.materialIcon = "input";
+loaderBtn.addChild(ifcLoader.uiElement.get("main"));
+
+toolbar.addChild(loaderBtn);
 
 const setupDepthTest = () => {
   const selectMat = highlighter.highlightMats.select
@@ -464,7 +471,7 @@ const loadFragment = () => {
   input.click();
 };
 
-toolbar.addChild(fragmentLoadBtn);
+loaderBtn.addChild(fragmentLoadBtn);
 
 createWindowBtn({
   floatWindow: classifierWindow,
@@ -516,3 +523,8 @@ ifcLoader.onIfcLoaded.add(async (model) => {
 fragmentManager.onFragmentsLoaded.add((model) => {
   importFromJson(model);
 });
+
+const todoCreator = new TodoCreator(viewer);
+await todoCreator.setup();
+
+toolbar.addChild(todoCreator.uiElement.get("activationButton"));
