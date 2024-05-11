@@ -523,6 +523,14 @@ user-card:hover {
   opacity: 1;
 }
 
+.todo-list-item {
+  opacity: 0.8;
+}
+
+.todo-list-item:hover {
+  opacity: 1;
+}
+
 /* User Page Styles */
 #users-list {
   display: flex;
