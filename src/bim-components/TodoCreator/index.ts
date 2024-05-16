@@ -114,6 +114,14 @@ export class TodoCreator
       await todoCard.dispose();
     });
 
+    const copyButton = new OBC.Button(this._components);
+    copyButton.materialIcon = "content_copy";
+
+    todoCard.slots.actionButtons.addChild(copyButton);
+    copyButton.onClick.add(async () => {
+      await this.addTodo(todo.description, todo.priority);
+    });
+
     const todoList = this.uiElement.get("todoList");
 
     todoCard.onCardClick.add(() => {

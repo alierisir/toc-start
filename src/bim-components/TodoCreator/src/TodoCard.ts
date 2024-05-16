@@ -30,7 +30,7 @@ export class TodoCard extends OBC.SimpleUIComponent {
           <p id="description">TASK GOES HERE</p>
         </div>
       </div>
-      <div data-tooeen-slot="actionButtons"></div>
+      <div data-tooeen-slot="actionButtons" style="display:flex" ></div>
     </div>`;
     super(components, template);
     this.get().addEventListener("click", () => {
@@ -38,5 +38,6 @@ export class TodoCard extends OBC.SimpleUIComponent {
     });
 
     this.setSlot("actionButtons", new OBC.SimpleUIComponent(this._components));
+    this.slots.actionButtons.domElement.style.display = "flex";
   }
 }

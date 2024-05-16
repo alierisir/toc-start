@@ -1,7 +1,5 @@
 import * as OBC from "openbim-components";
 import { FragmentsGroup } from "bim-fragment";
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import { IProject, Status, Role, EProject } from "./classes/Project";
 import { ProjectsManager } from "./classes/ProjectsManager";
@@ -15,7 +13,7 @@ import {
   formatDate,
 } from "./classes/CustomFunctions";
 import { TodoCreator } from "./bim-components/TodoCreator";
-import { cameraPosition } from "three/examples/jsm/nodes/Nodes.js";
+import { SimpleQto } from "./bim-components/SimpleQto";
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];
@@ -325,15 +323,27 @@ const toolbar = new OBC.Toolbar(viewer, {
 
 viewer.ui.addToolbar(toolbar);
 
-const obcBtn = new OBC.Button(viewer, {
+const toggleViewBtn = new OBC.Button(viewer, {
   materialIconName: "visibility",
   tooltip: "Toggle View",
 });
 
-toolbar.addChild(obcBtn);
+const toggleGridBtn = new OBC.Button(viewer, {
+  materialIconName: "grid_4x4",
+  tooltip: "Toggle Grid",
+});
 
-obcBtn.onClick.add(() => {
+const simpleGrid = new OBC.SimpleGrid(viewer);
+simpleGrid.visible = false;
+
+toggleGridBtn.onClick.add(() => {
+  toggleGridBtn.active = !toggleGridBtn.active;
+  simpleGrid.visible = toggleGridBtn.active;
+});
+
+toggleViewBtn.onClick.add(() => {
   cameraComponent.toggleProjection();
+  toggleViewBtn.active = !toggleViewBtn.active;
 });
 
 const cubeMap = new OBC.CubeMap(viewer);
@@ -352,15 +362,12 @@ highlighter.events.select.onClear.add(() => {
 const ifcLoader = new OBC.FragmentIfcLoader(viewer);
 ifcLoader.settings.wasm = {
   absolute: true,
-  path: "https://unpkg.com/web-ifc@0.0.43/",
+  path: "https://unpkg.com/web-ifc@0.0.44/",
 };
 
 const loaderBtn = new OBC.Button(viewer);
 loaderBtn.tooltip = "Load File";
 loaderBtn.materialIcon = "input";
-loaderBtn.addChild(ifcLoader.uiElement.get("main"));
-
-toolbar.addChild(loaderBtn);
 
 const setupDepthTest = () => {
   const selectMat = highlighter.highlightMats.select
@@ -391,10 +398,14 @@ const createWindowBtn = ({
   windowBtn.materialIcon = materialIconName;
   windowBtn.tooltip = tooltip;
   windowBtn.onClick.add(() => {
-    floatWindow.visible
-      ? (floatWindow.visible = false)
-      : (floatWindow.visible = true);
+    windowBtn.active = !windowBtn.active;
+    floatWindow.visible = windowBtn.active;
   });
+
+  floatWindow.onHidden.add(() => {
+    windowBtn.active = false;
+  });
+
   bar.addChild(windowBtn);
 };
 
@@ -402,7 +413,7 @@ const createModelTree = async () => {
   const fragmentTree = new OBC.FragmentTree(viewer);
   await fragmentTree.init();
   await fragmentTree.update(["model", "storeys", "entities"]);
-  setupDepthTest();
+  //setupDepthTest();
   fragmentTree.onHovered.add((fragmentMap) => {
     highlighter.highlightByID("hover", fragmentMap);
   });
@@ -471,16 +482,6 @@ const loadFragment = () => {
   input.click();
 };
 
-loaderBtn.addChild(fragmentLoadBtn);
-
-createWindowBtn({
-  floatWindow: classifierWindow,
-  materialIconName: "account_tree",
-  tooltip: "Model Groups",
-});
-
-toolbar.addChild(ifcPropertiesProcessor.uiElement.get("main"));
-
 const getExpressID = (fragmentMap: OBC.FragmentIdMap) => {
   return Number([...Object.values(fragmentMap)[0]][0]);
 };
@@ -530,4 +531,36 @@ todoCreator.onProjectCreated.add((todo) => {
   console.log(todo);
 });
 
+const qtoManager = new SimpleQto(viewer);
+await qtoManager.setup();
+
+const propsFinder = new OBC.IfcPropertiesFinder(viewer);
+await propsFinder.init();
+
+const addTooltip = (btn: OBC.Button, str: string) => {
+  btn.tooltip = str;
+};
+
+propsFinder.onFound.add(async (fragmentIdMap) => {
+  await highlighter.highlightByID("select", fragmentIdMap);
+});
+
+addTooltip(propsFinder.uiElement.get("main"), "Find Properties");
+addTooltip(qtoManager.uiElement.get("activationBtn"), "Summary");
+
+toolbar.addChild(toggleGridBtn, toggleViewBtn);
+toolbar.addChild(loaderBtn);
+loaderBtn.addChild(ifcLoader.uiElement.get("main"));
+loaderBtn.addChild(fragmentLoadBtn);
+
+createWindowBtn({
+  floatWindow: classifierWindow,
+  materialIconName: "account_tree",
+  tooltip: "Model Groups",
+});
+
+toolbar.addChild(ifcPropertiesProcessor.uiElement.get("main"));
+toolbar.addChild(propsFinder.uiElement.get("main"));
+
 toolbar.addChild(todoCreator.uiElement.get("activationButton"));
+toolbar.addChild(qtoManager.uiElement.get("activationBtn"));
