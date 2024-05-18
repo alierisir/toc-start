@@ -62,7 +62,11 @@ export class TodoCreator
   updateList() {
     const updated: ToDo[] = [];
     this._list.map((item) => {
-      if (item.enabled) updated.push(item);
+      if (item.enabled) {
+        updated.push(item);
+      } else {
+        console.log(`Task:${item.id} is removed from the list.`);
+      }
     });
     this._list = updated;
   }
@@ -70,18 +74,14 @@ export class TodoCreator
   async addTodo(description: string, priority: TodoPriority) {
     if (!this.enabled) return console.warn("ToDo Creator is disabled!");
     const todo = new ToDo(this._components, description, priority);
-
+    const todoCard = todo.card;
+    //Store Date
     const list = this.get();
     list.push(todo);
-    console.log(list);
-
-    console.log(todo);
-
-    const todoCard = todo.card;
-
+    //Store UI
     const todoList = this.uiElement.get("todoList");
-
     todoList.addChild(todoCard);
+    //Load event
     this.onProjectCreated.trigger(todo);
   }
 
