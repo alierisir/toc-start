@@ -1,17 +1,6 @@
+import { ToDo, TodoPriority } from "./src/ToDo";
 import * as OBC from "openbim-components";
-import { TodoCard } from "./src/TodoCard";
 import * as THREE from "three";
-
-type TodoPriority = "Low" | "Normal" | "High";
-
-interface ToDo {
-  id: string;
-  description: string;
-  date: Date;
-  fragmentMap: OBC.FragmentIdMap;
-  camera: { position: THREE.Vector3; target: THREE.Vector3 };
-  priority: TodoPriority;
-}
 
 export class TodoCreator
   extends OBC.Component<ToDo[]>
@@ -70,73 +59,28 @@ export class TodoCreator
     return todo;
   }
 
+  updateList() {
+    const updated: ToDo[] = [];
+    this._list.map((item) => {
+      if (item.enabled) updated.push(item);
+    });
+    this._list = updated;
+  }
+
   async addTodo(description: string, priority: TodoPriority) {
     if (!this.enabled) return console.warn("ToDo Creator is disabled!");
-    //Get camera and target positions
-    const camera = this._components.camera;
-    if (!(camera instanceof OBC.OrthoPerspectiveCamera)) {
-      throw new Error(
-        "ToDo creator needs an orthoperspective camera in order to work!"
-      );
-    }
-    const position = new THREE.Vector3();
-    camera.controls.getPosition(position);
-    const target = new THREE.Vector3();
-    camera.controls.getTarget(target);
-
-    const highlighter = await this._components.tools.get(
-      OBC.FragmentHighlighter
-    );
-
-    const todo: ToDo = {
-      id: OBC.generateIfcGUID(),
-      description,
-      date: new Date(),
-      fragmentMap: highlighter.selection.select,
-      camera: { position, target },
-      priority,
-    };
+    const todo = new ToDo(this._components, description, priority);
 
     const list = this.get();
     list.push(todo);
     console.log(list);
 
-    const todoCard = new TodoCard(this._components);
-    todoCard.description = todo.description;
-    todoCard.date = todo.date;
+    console.log(todo);
 
-    const deleteButton = new OBC.Button(this._components);
-    deleteButton.materialIcon = "delete";
-
-    todoCard.slots.actionButtons.addChild(deleteButton);
-    deleteButton.onClick.add(async () => {
-      this.deleteTodo(todo);
-      await todoCard.dispose();
-    });
-
-    const copyButton = new OBC.Button(this._components);
-    copyButton.materialIcon = "content_copy";
-
-    todoCard.slots.actionButtons.addChild(copyButton);
-    copyButton.onClick.add(async () => {
-      await this.addTodo(todo.description, todo.priority);
-    });
+    const todoCard = todo.card;
 
     const todoList = this.uiElement.get("todoList");
 
-    todoCard.onCardClick.add(() => {
-      if (Object.keys(todo.fragmentMap).length === 0) return;
-      highlighter.highlightByID("select", todo.fragmentMap);
-      camera.controls.setLookAt(
-        todo.camera.position.x,
-        todo.camera.position.y,
-        todo.camera.position.z,
-        todo.camera.target.x,
-        todo.camera.target.y,
-        todo.camera.target.z,
-        true
-      );
-    });
     todoList.addChild(todoCard);
     this.onProjectCreated.trigger(todo);
   }

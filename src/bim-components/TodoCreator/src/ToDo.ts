@@ -1,71 +1,105 @@
-import { TodoCard } from "./TodoCard";
 import * as OBC from "openbim-components";
 import { generateUUID } from "three/src/math/MathUtils.js";
 import * as THREE from "three";
+import { TodoCard } from "./TodoCard";
+import { TodoCreator } from "..";
 
-type TodoPriority = "Low" | "Normal" | "High";
+export type TodoPriority = "Low" | "Normal" | "High";
 
-interface IToDo {
-  id: string;
-  description: string;
-  date: Date;
-  fragmentMap: OBC.FragmentIdMap;
-  camera: { position: THREE.Vector3; target: THREE.Vector3 };
-  priority: TodoPriority;
-}
-
-export class ToDo
-  extends OBC.Component<ToDo>
-  implements OBC.UI, OBC.Disposable
-{
+export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
   enabled: boolean = true;
-  task: IToDo | {};
   private _components: OBC.Components;
-  uiElement: OBC.UIElement<{
-    card: TodoCard;
-  }>;
+  //Own Properties
+  id: string = generateUUID();
+  description: string;
+  date: Date = new Date();
+  priority: TodoPriority;
+  camera: { position: THREE.Vector3; target: THREE.Vector3 } = {
+    position: new THREE.Vector3(),
+    target: new THREE.Vector3(),
+  };
+  fragmentMap: OBC.FragmentIdMap;
+  card: TodoCard;
 
-  async dispose() {
-    this.uiElement.dispose();
-    this.enabled = false;
-    this.task = {};
-  }
-
-  get() {
-    return this;
-  }
-  constructor(components: OBC.Components) {
+  constructor(
+    components: OBC.Components,
+    description: string,
+    priority: TodoPriority
+  ) {
     super(components);
     this._components = components;
+    this.description = description;
+    this.priority = priority;
+    this.setup();
+    this.createCard();
   }
 
-  async createTask(description: string, priority: TodoPriority) {
-    const { position, target } = this.getCameraProps();
+  private async setup() {
     const highlighter = await this._components.tools.get(
       OBC.FragmentHighlighter
     );
-    const task: IToDo = {
-      description,
-      priority,
-      id: generateUUID(),
-      camera: { position, target },
-      date: new Date(),
-      fragmentMap: highlighter.selection.select,
-    };
-    this.task = task;
+    const camera = this._components.camera;
+    if (!(camera instanceof OBC.OrthoPerspectiveCamera))
+      return console.warn("OrthoPerspective Camera is not found!");
+    const position = new THREE.Vector3();
+    const target = new THREE.Vector3();
+    camera.controls.getPosition(position);
+    camera.controls.getTarget(target);
+    this.camera.position.x = position.x;
+    this.camera.position.y = position.y;
+    this.camera.position.z = position.z;
+    this.camera.target.x = target.x;
+    this.camera.target.y = target.y;
+    this.camera.target.z = target.z;
+    this.fragmentMap = highlighter.selection.select;
   }
 
-  getCameraProps() {
+  async createCard() {
+    const todoCard = new TodoCard(this._components);
+    this.card = todoCard;
+    this.card.description = this.description;
+    this.card.date = this.date;
+
+    const highlighter = await this._components.tools.get(
+      OBC.FragmentHighlighter
+    );
+
     const camera = this._components.camera;
-    if (!(camera instanceof OBC.OrthoPerspectiveCamera)) {
-      throw new Error(
-        "ToDo creator needs an orthoperspective camera in order to work!"
+    if (!(camera instanceof OBC.OrthoPerspectiveCamera))
+      return console.warn(
+        "This operation requires an active OrthoPerspective Camera"
       );
-    }
-    const position = new THREE.Vector3();
-    camera.controls.getPosition(position);
-    const target = new THREE.Vector3();
-    camera.controls.getTarget(target);
-    return { position, target };
+
+    this.card.onCardClick.add(async () => {
+      camera.controls.setLookAt(
+        this.camera.position.x,
+        this.camera.position.y,
+        this.camera.position.z,
+        this.camera.target.x,
+        this.camera.target.y,
+        this.camera.target.z,
+        true
+      );
+      await highlighter.highlightByID("select", this.fragmentMap);
+    });
+
+    const deleteButton = new OBC.Button(this._components);
+    deleteButton.materialIcon = "delete";
+
+    this.card.slots.actionButtons.addChild(deleteButton);
+    deleteButton.onClick.add(async () => {
+      await this.dispose();
+    });
+  }
+
+  get(): ToDo {
+    return this;
+  }
+  async dispose() {
+    const creator = await this._components.tools.get(TodoCreator);
+    this.card.enabled = false;
+    await this.card.dispose();
+    this.enabled = false;
+    creator.updateList();
   }
 }

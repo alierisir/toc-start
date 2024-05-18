@@ -528,7 +528,7 @@ fragmentManager.onFragmentsLoaded.add((model) => {
 const todoCreator = new TodoCreator(viewer);
 await todoCreator.setup();
 todoCreator.onProjectCreated.add((todo) => {
-  console.log(todo);
+  console.log(todo, todo.card);
 });
 
 const qtoManager = new SimpleQto(viewer);

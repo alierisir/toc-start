@@ -1,6 +1,7 @@
 import * as OBC from "openbim-components";
 
 export class TodoCard extends OBC.SimpleUIComponent {
+  onCardDeleted = new OBC.Event<string>();
   onCardClick = new OBC.Event();
   slots: {
     actionButtons: OBC.SimpleUIComponent;
@@ -36,7 +37,6 @@ export class TodoCard extends OBC.SimpleUIComponent {
     this.get().addEventListener("click", () => {
       this.onCardClick.trigger();
     });
-
     this.setSlot("actionButtons", new OBC.SimpleUIComponent(this._components));
     this.slots.actionButtons.domElement.style.display = "flex";
   }
