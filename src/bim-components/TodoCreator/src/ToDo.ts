@@ -71,16 +71,20 @@ export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
       );
 
     this.card.onCardClick.add(async () => {
-      camera.controls.setLookAt(
-        this.camera.position.x,
-        this.camera.position.y,
-        this.camera.position.z,
-        this.camera.target.x,
-        this.camera.target.y,
-        this.camera.target.z,
-        true
-      );
-      await highlighter.highlightByID("select", this.fragmentMap);
+      try {
+        camera.controls.setLookAt(
+          this.camera.position.x,
+          this.camera.position.y,
+          this.camera.position.z,
+          this.camera.target.x,
+          this.camera.target.y,
+          this.camera.target.z,
+          true
+        );
+        await highlighter.highlightByID("select", this.fragmentMap);
+      } catch (error) {
+        console.log("nothing is selected");
+      }
     });
 
     const deleteButton = new OBC.Button(this._components);
