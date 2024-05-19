@@ -1,0 +1,35 @@
+<div
+  class="todo-list-item"
+  style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 10px;
+  "
+>
+  <div
+    style="display: flex; justify-content: space-between; align-items: center"
+  >
+    <p
+      id="materialIcon"
+      todo-list-functions="toggle-active"
+      style="padding: 5px 15px 5px 5px"
+    >
+      <span class="material-symbols-outlined"> handyman </span>
+    </p>
+    <div>
+      <div
+        style="opacity: 0.6; font-size: 0.7rem; display: flex; column-gap: 15px"
+      >
+        <p id="date">DATE GOES HERE</p>
+        <p id="priority" style="font-style: italic">PRIORITY GOES HERE</p>
+      </div>
+      <p id="description">TASK GOES HERE</p>
+    </div>
+    <p id="priority" style="font-style: italic">PRIORITY GOES HERE</p>
+  </div>
+  <div data-tooeen-slot="actionButtons" style="display: flex"></div>
+</div>

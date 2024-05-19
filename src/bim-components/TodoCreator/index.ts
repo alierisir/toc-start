@@ -53,10 +53,7 @@ export class TodoCreator
   }
 
   getTodo(id: string) {
-    const todo = this._list.map((todo) => {
-      return todo.id === id ? todo : null;
-    });
-    return todo;
+    return this.get().find((todo) => todo.id === id);
   }
 
   updateList() {
@@ -109,10 +106,29 @@ export class TodoCreator
 
     const todoListToolbar = new OBC.SimpleUIComponent(this._components);
     todoList.addChild(todoListToolbar);
+    todoListToolbar.get().style.display = "flex";
+    todoListToolbar.get().style.alignItems = "center";
+    todoListToolbar.get().style.columnGap = "15px";
 
     const colorizeBtn = new OBC.Button(this._components);
     colorizeBtn.materialIcon = "format_color_fill";
     todoListToolbar.addChild(colorizeBtn);
+
+    const searchText = new OBC.TextInput(this._components);
+    searchText.label = "";
+    searchText.domElement.addEventListener("input", () => {
+      const foundTodos = this.get().filter((todo) =>
+        todo.description.toLowerCase().includes(searchText.value.toLowerCase())
+      );
+      this.get().map((todo) => {
+        todo.card.visible = false;
+      });
+      foundTodos.map((foundTodo) => {
+        foundTodo.card.visible = true;
+      });
+    });
+
+    todoListToolbar.addChild(searchText);
 
     const highlighter = await this._components.tools.get(
       OBC.FragmentHighlighter

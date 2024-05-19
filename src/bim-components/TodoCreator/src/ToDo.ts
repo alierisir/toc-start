@@ -59,6 +59,7 @@ export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
     this.card = todoCard;
     this.card.description = this.description;
     this.card.date = this.date;
+    this.card.priority = this.priority;
 
     const highlighter = await this._components.tools.get(
       OBC.FragmentHighlighter
@@ -71,6 +72,7 @@ export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
       );
 
     this.card.onCardClick.add(async () => {
+      await camera.fit();
       try {
         await highlighter.highlightByID("select", this.fragmentMap);
       } catch (error) {

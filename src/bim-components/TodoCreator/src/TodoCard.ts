@@ -7,6 +7,19 @@ export class TodoCard extends OBC.SimpleUIComponent {
     actionButtons: OBC.SimpleUIComponent;
   };
 
+  set priority(value: string) {
+    const priorityElement = this.getInnerElement(
+      "priority"
+    ) as HTMLParagraphElement;
+    priorityElement.textContent = value;
+  }
+
+  set visible(value: boolean) {
+    value
+      ? (this.get().style.display = "flex")
+      : (this.get().style.display = "none");
+  }
+
   set description(value: string) {
     const descriptionElement = this.getInnerElement(
       "description"
@@ -27,7 +40,10 @@ export class TodoCard extends OBC.SimpleUIComponent {
           </span>
         </p>
         <div>
-          <p style="opacity:0.6;font-size:0.7rem" id="date">DATE GOES HERE</p>
+          <div style="opacity: 0.6; font-size: 0.7rem; display: flex; column-gap: 15px">
+            <p id="date">DATE GOES HERE</p>
+            <p id="priority">PRIORITY GOES HERE</p>
+          </div>
           <p id="description">TASK GOES HERE</p>
         </div>
       </div>

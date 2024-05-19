@@ -134,7 +134,6 @@ export class SimpleQto
   }
 
   async sumQuantitiesV2(fragmentIdMap: OBC.FragmentIdMap) {
-    console.time("Quantities V2");
     const fragmentManager = await this._components.tools.get(
       OBC.FragmentManager
     );
@@ -195,7 +194,6 @@ export class SimpleQto
       }
     }
     this.createTree();
-    console.timeEnd("Quantities V2");
   }
 
   createTree() {
