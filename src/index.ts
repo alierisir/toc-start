@@ -247,14 +247,6 @@ editForm.addEventListener("submit", (e) => {
   }
 });
 
-window.addEventListener("keydown", (e) => {
-  if (e.key === "a" || e.key === "A")
-    console.log(
-      projectsManager.activeProject.id,
-      projectsManager.activeProject.name
-    );
-});
-
 //OPEN VIEWER
 
 const viewer = new OBC.Components();

@@ -202,7 +202,7 @@ export class SimpleQto
     const qtoList = this.uiElement.get("qtoList");
     for (const key of Object.keys(this._qtoResult)) {
       const query = new QtoQuery(this._components);
-      query.title = key;
+      query.setName = key;
       query.domElement.style.padding = "5px 0";
       query.domElement.style.fontSize = "20px";
       qtoList.addChild(query);
@@ -215,7 +215,7 @@ export class SimpleQto
         );
         detailElement.domElement.style.padding = "0 10px";
         detailElement.domElement.style.fontSize = "16px";
-        query.slots.details.addChild(detailElement);
+        query.slots.qtoName.addChild(detailElement);
       }
     }
   }
