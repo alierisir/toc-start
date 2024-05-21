@@ -1,5 +1,8 @@
 import * as OBC from "openbim-components";
 import { FragmentsGroup } from "bim-fragment";
+import * as React from "react";
+import * as ReactDOM from "react-dom/client";
+import Sidebar from "./react-components/Sidebar";
 
 import { IProject, Status, Role, EProject } from "./classes/Project";
 import { ProjectsManager } from "./classes/ProjectsManager";
@@ -14,6 +17,10 @@ import {
 } from "./classes/CustomFunctions";
 import { TodoCreator } from "./bim-components/TodoCreator";
 import { SimpleQto } from "./bim-components/SimpleQto";
+
+const rootElement = document.getElementById("app") as HTMLDivElement;
+const appRoot = ReactDOM.createRoot(rootElement);
+appRoot.render(<Sidebar />);
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];

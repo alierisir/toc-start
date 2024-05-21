@@ -23,7 +23,6 @@ export class ProjectsManager {
       role: "architect",
       date: new Date(),
     });
-    project.ui.click();
   }
 
   setPageDetails() {
