@@ -198,4 +198,20 @@ export class TodoCreator
   get(): ToDo[] {
     return this._list;
   }
+
+  get fragmentQty() {
+    const mapped = this.get().map((todo) => {
+      const id = todo.id;
+      const fragments = todo.fragmentMap;
+      const item = {};
+      let count = 0;
+      for (const value of Object.values(fragments)) {
+        count += value.size;
+      }
+      item[id] = count;
+      return item;
+    });
+    console.log(mapped);
+    return mapped;
+  }
 }

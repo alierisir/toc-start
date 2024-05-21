@@ -523,6 +523,13 @@ todoCreator.onProjectCreated.add((todo) => {
   console.log(`Task:${todo.id} is successfully added to list`);
 });
 
+window.addEventListener("keydown", (e) => {
+  if (!(e.key === "a" || e.key === "A")) return;
+  console.log("getting fragment qtys..");
+  todoCreator.fragmentQty;
+  console.log("end");
+});
+
 const qtoManager = new SimpleQto(viewer);
 await qtoManager.setup();
 
