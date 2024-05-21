@@ -280,7 +280,6 @@ user-card:hover {
   padding: 14px;
   font-size: var(--text-3xl);
   text-transform: uppercase;
-  width: 25px;
   display: flex;
   justify-content: center;
 }
@@ -368,7 +367,6 @@ user-card:hover {
   background-color: orangered;
   border-radius: 10rem;
   padding: 15px;
-  width: 25px;
   text-transform: uppercase;
   display: flex;
   justify-content: center;
@@ -520,6 +518,14 @@ user-card:hover {
 }
 
 .list-item:hover {
+  opacity: 1;
+}
+
+.todo-list-item {
+  opacity: 0.8;
+}
+
+.todo-list-item:hover {
   opacity: 1;
 }
 
