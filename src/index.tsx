@@ -17,10 +17,16 @@ import {
 } from "./classes/CustomFunctions";
 import { TodoCreator } from "./bim-components/TodoCreator";
 import { SimpleQto } from "./bim-components/SimpleQto";
+import ProjectsPage from "./react-components/ProjectsPage";
 
 const rootElement = document.getElementById("app") as HTMLDivElement;
 const appRoot = ReactDOM.createRoot(rootElement);
-appRoot.render(<Sidebar />);
+appRoot.render(
+  <>
+    <Sidebar />
+    <ProjectsPage />
+  </>
+);
 
 //Page navigations
 const pageIds = ["projects-page", "users-page", "project-details"];
