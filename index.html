@@ -1,185 +1,26 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <script type="module" src="/@vite/client"></script>
+  <head>
+    <script type="module" src="/@vite/client"></script>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="/components.css">
-    <link rel="stylesheet" href="/style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <link rel="stylesheet" href="/components.css" />
+    <link rel="stylesheet" href="/style.css" />
     <title>TOC-Learning</title>
-</head>
-<body>
+  </head>
+  <body>
     <div id="app"></div>
-    <dialog id="err-dialog">
-    </dialog>
-    <main id="content">
-        <div id="project-details" class="page" style="display:none">
-            <dialog id="edit-project-modal" style="max-height: fit-content;">
-                <form id="edit-project-form" class="modal-container">
-                    <h2 class="modal-header"><span class="material-symbols-outlined">
-                        tune
-                        </span>Edit Project</h2>
-                    <div class="project-properties">
-                        <label for="edit-name"><span class="material-symbols-outlined">
-                            label
-                            </span>Edit Name</label>
-                        <input type="text" name="edit-name" id="edit-name" placeholder="Name of the project">
-                    </div>
-                    <div class="project-properties">
-                        <label for="edit-description"><span class="material-symbols-outlined">
-                            description
-                            </span>Edit Description</label>
-                        <textarea name="edit-description" id="edit-description" cols="20" rows="5" placeholder="Describe your project (max:120 characters)" maxlength="120"></textarea>    
-                    </div>
-                    <div class="project-properties">
-                        <label for="edit-status"><span class="material-symbols-outlined">
-                            pending_actions
-                            </span>Edit Status</label>
-                        <select name="edit-status" id="edit-status">
-                            <option value="active" >Active</option>
-                            <option value="pending">Pending</option>
-                            <option value="finished">Finished</option>
-                        </select>
-                    </div>
-                    <div class="project-properties">
-                        <label for="edit-role"><span class="material-symbols-outlined">
-                            school
-                            </span>Edit Role</label>
-                        <select name="edit-role" id="edit-role">
-                            <option value="architect" >Architect</option>
-                            <option value="engineer">Engineer</option>
-                            <option value="developer">Developer</option>
-                        </select>
-                    </div>
-                    <div class="project-properties">
-                        <label for="edit-cost"><span class="material-symbols-outlined">
-                            payments
-                            </span>Edit Cost</label>
-                        <input type="number" name="edit-cost" id="edit-cost" placeholder="Cost of the project" min="0">
-                    </div>
-                    <div class="project-properties">
-                        <label for="edit-progress"><span class="material-symbols-outlined">
-                            donut_large
-                            </span>Edit Progress</label>
-                        <input type="number" name="edit-progress" id="edit-progress" placeholder="Progress of the project" min="0" max="100">
-                    </div>
-                    <div class="project-properties">
-                        <label for="edit-date"><span class="material-symbols-outlined">
-                            event
-                            </span>Edit Finishing Date</label>
-                        <input id="edit-date" name="edit-date" type="date"></label>
-                    </div>
-                    <div class="button-section">
-                        <button id="edit-form-cancel" type="button" class="cancel-btn"><span class="material-symbols-outlined">
-                            cancel
-                            </span>Cancel</button>
-                        <button type="submit" class="accept-btn"><span class="material-symbols-outlined">
-                            check_circle
-                            </span>Accept</button>
-                    </div>
-                </form>
-            </dialog> 
-            <dialog id="new-todo-modal">
-                <form id="new-todo-form" class="modal-container">
-                    <h2 class="modal-header"><span class="material-symbols-outlined">
-                        assignment_add
-                        </span>New ToDo</h2>
-                    <div class="project-properties">
-                        <label for="todo-task"><span class="material-symbols-outlined">
-                            assignment
-                            </span>Task</label>
-                        <textarea required rows="5" cols="30" type="text" name="todo-task" id="todo-task" placeholder="Write the task to be done.(max. 270 characters)" maxlength="270"></textarea>
-                    </div>
-                    <div class="project-properties">
-                        <label for="todo-status"><span class="material-symbols-outlined">
-                            assignment_late
-                            </span>Status</label>
-                        <select name="todo-status" id="todo-status">
-                            <option value="active" selected>Active</option>
-                            <option value="completed">Completed</option>
-                            <option value="overdue">Overdue</option>
-                        </select>
-                    </div>
-                    <div class="project-properties">
-                        <label for="todo-deadline"><span class="material-symbols-outlined">
-                            event
-                            </span>Deadline</label>
-                        <input id="todo-deadline" name="todo-deadline" type="date"></label>
-                    </div>
-                    <div class="button-section">
-                        <button id="todo-cancel" type="button" class="cancel-btn"><span class="material-symbols-outlined">
-                            cancel
-                            </span>Cancel</button>
-                        <button type="submit" class="accept-btn"><span class="material-symbols-outlined">
-                            check_circle
-                            </span>Accept</button>
-                    </div>
-                </form>
-            </dialog>
-            <header>
-                <div>
-                    <h2 data-project-info="headName">Sample Project</h2>
-                    <p data-project-info="headDescription">Project description Lorem ipsum dolor sit amet.</p>
-                </div>
-            </header>
-            <div class="main-page-content">
-                <div id="details-container">
-                    <div class="dashboard-card">
-                        <div class="info-header">
-                            <p data-project-info="initials">SP</p>
-                            <button project-info-btn="edit" id="p-edit">Edit</button>
-                        </div>
-                        <div class="info-title">
-                            <h3 data-project-info="name">Sample Project</h3>
-                            <p data-project-info="description">Lorem ipsum dolor sit amet.</p>
-                        </div>
-                        <div class="info-property-field">
-                            <div class="info-properties">
-                                <p>Status</p>
-                                <p data-project-info="status">Active</p>
-                            </div>
-                            <div class="info-properties">
-                                <p>Cost</p>
-                                <p data-project-info="cost">20000TRY</p>
-                            </div>
-                            <div class="info-properties">
-                                <p>Role</p>
-                                <p data-project-info="role">Engineer</p>
-                            </div>
-                            <div class="info-properties">
-                                <p>Finish Date</p>
-                                <p data-project-info="date">2024-02-15</p>
-                            </div>
-                        </div>
-                        <div class="info-bar">
-                            <div data-project-info="progress" class="info-progress">80%</div>
-                          </div>
-                    </div>
-                    <div class="dashboard-card">
-                        <div class="todo-header">
-                            <h3>To-Do</h3>
-                            <div>
-                                <button project-info-btn="todo-search" ><span class="material-symbols-outlined">
-                                    search
-                                    </span></button>
-                                <input todo-search type="text" placeholder="Search task by name">
-                                <button project-info-btn="todo-add" todo-add><span class="material-symbols-outlined">
-                                    playlist_add
-                                    </span></button>
-                            </div>
-                        </div>
-                        <div todo-list-container class="todo-list">
-                        </div>
-                    </div>
-                </div>
-                <div id="viewer-container" class="dashboard-card" style="min-width: 0; position: relative;"></div>
-            </div>
-        </div>                  
-    </main>
+    <dialog id="err-dialog"></dialog>
+    <main id="content"></main>
     <script type="module" src="/src/index.tsx"></script>
-</body>
+  </body>
 </html>

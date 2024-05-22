@@ -1,9 +1,32 @@
 import React from "react";
-import { IProject, Role, Status } from "../classes/Project";
+import * as Router from "react-router-dom";
+import { Project, IProject, Role, Status } from "../classes/Project";
 import { ProjectsManager } from "../classes/ProjectsManager";
+import ProjectCard from "./ProjectCard";
 
 const ProjectsPage = () => {
-  const projectsManager = new ProjectsManager();
+  const [projectsManager] = React.useState(new ProjectsManager());
+  const [projects, setProjects] = React.useState<Project[]>(
+    projectsManager.list
+  );
+  projectsManager.onProjectCreated = (project) => {
+    setProjects([...projectsManager.list]);
+  };
+  projectsManager.onProjectDeleted = () => {
+    setProjects([...projectsManager.list]);
+  };
+
+  React.useEffect(() => {
+    console.log("Projects State Updated:", projects);
+  }, [projects]);
+
+  const projectCards = projects.map((project) => {
+    return (
+      <Router.Link to="/details" key={`details-${project.id}`}>
+        <ProjectCard project={project} key={project.id} />
+      </Router.Link>
+    );
+  });
 
   const onNewProjectClicked = () => {
     const modal = document.getElementById(
@@ -160,7 +183,7 @@ const ProjectsPage = () => {
           </button>
         </div>
       </header>
-      <div id="projects-list"></div>
+      <div id="projects-list">{projectCards}</div>
     </div>
   );
 };

@@ -2,23 +2,36 @@ import * as OBC from "openbim-components";
 import { FragmentsGroup } from "bim-fragment";
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
+import * as Router from "react-router-dom";
 import Sidebar from "./react-components/Sidebar";
 import { TodoCreator } from "./bim-components/TodoCreator";
 import { SimpleQto } from "./bim-components/SimpleQto";
 import ProjectsPage from "./react-components/ProjectsPage";
+import ProjectDetailsPage from "./react-components/ProjectDetailsPage";
 
 const rootElement = document.getElementById("app") as HTMLDivElement;
 const appRoot = ReactDOM.createRoot(rootElement);
 appRoot.render(
   <>
-    <Sidebar />
-    <ProjectsPage />
+    <Router.BrowserRouter>
+      <Sidebar />
+      <Router.Routes>
+        <Router.Route path="/" element={<ProjectsPage />} />
+        <Router.Route path="/details" element={<ProjectDetailsPage />} />
+        <Router.Route
+          path="/users"
+          element={"Users Page Will be Implemented"}
+        />
+      </Router.Routes>
+    </Router.BrowserRouter>
   </>
 );
 
 const projectsListUi = document.getElementById("projects-list") as HTMLElement;
 
 //OPEN VIEWER
+
+/** OPEN VIEWER Commended out
 
 const viewer = new OBC.Components();
 
@@ -327,3 +340,5 @@ toolbar.addChild(propsFinder.uiElement.get("main"));
 
 toolbar.addChild(todoCreator.uiElement.get("activationButton"));
 toolbar.addChild(qtoManager.uiElement.get("activationBtn"));
+
+*/
