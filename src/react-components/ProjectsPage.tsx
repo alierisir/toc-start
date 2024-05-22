@@ -1,10 +1,67 @@
 import React from "react";
+import { IProject, Role, Status } from "../classes/Project";
+import { ProjectsManager } from "../classes/ProjectsManager";
 
 const ProjectsPage = () => {
+  const projectsManager = new ProjectsManager();
+
+  const onNewProjectClicked = () => {
+    const modal = document.getElementById(
+      "new-project-modal"
+    ) as HTMLDialogElement;
+    modal.showModal();
+  };
+
+  const onFormCancel = () => {
+    const projectForm = document.getElementById(
+      "new-project-form"
+    ) as HTMLFormElement;
+    const modal = document.getElementById(
+      "new-project-modal"
+    ) as HTMLDialogElement;
+    projectForm.reset();
+    modal.close();
+  };
+
+  const onFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const projectForm = document.getElementById(
+      "new-project-form"
+    ) as HTMLFormElement;
+    const formData = new FormData(projectForm);
+    const projectData: IProject = {
+      name: formData.get("name") as string,
+      description: formData.get("description") as string,
+      status: formData.get("status") as Status,
+      role: formData.get("role") as Role,
+      date: new Date(formData.get("date") as string),
+    };
+    try {
+      projectsManager.newProject(projectData);
+      onFormCancel();
+    } catch (e) {
+      console.log("An Error Occured: ", e);
+    }
+  };
+
+  const onImportClicked = () => {
+    projectsManager.importFromJSON();
+  };
+
+  const onExportClicked = () => {
+    projectsManager.exportToJSON();
+  };
+
   return (
     <div id="projects-page" className="page">
       <dialog id="new-project-modal">
-        <form id="new-project-form" className="modal-container">
+        <form
+          onSubmit={(e) => {
+            onFormSubmit(e);
+          }}
+          id="new-project-form"
+          className="modal-container"
+        >
           <h2 className="modal-header">
             <span className="material-symbols-outlined">add_business</span>New
             Project
@@ -71,7 +128,12 @@ const ProjectsPage = () => {
             <input id="date-input" name="date" type="date" />
           </div>
           <div className="button-section">
-            <button id="form-cancel" type="button" className="cancel-btn">
+            <button
+              id="form-cancel"
+              type="button"
+              className="cancel-btn"
+              onClick={onFormCancel}
+            >
               <span className="material-symbols-outlined">cancel</span>Cancel
             </button>
             <button type="submit" className="accept-btn">
@@ -84,15 +146,15 @@ const ProjectsPage = () => {
       <header>
         <h2>Projects</h2>
         <div className="button-section">
-          <button id="import-from-json">
+          <button id="import-from-json" onClick={onImportClicked}>
             <span className="material-symbols-outlined">upload_2</span>
             Upload Projects
           </button>
-          <button id="export-to-json">
+          <button id="export-to-json" onClick={onExportClicked}>
             <span className="material-symbols-outlined">download_2</span>
             Download Projects
           </button>
-          <button id="new-project-btn">
+          <button id="new-project-btn" onClick={onNewProjectClicked}>
             <span className="material-symbols-outlined">add_business</span>New
             Project
           </button>

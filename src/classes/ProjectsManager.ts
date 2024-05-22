@@ -1,21 +1,10 @@
-import { ErrorManager } from "./ErrorManager";
 import { IProject, Project } from "./Project";
-import { ToDo } from "./ToDo";
 import { correctDate } from "./CustomFunctions";
 
 export class ProjectsManager {
   list: Project[] = [];
-  ui: HTMLElement;
-  detailsPage: HTMLElement;
-  todoContainer: HTMLElement;
-  activeProject: Project;
 
-  constructor(container: HTMLElement, page: HTMLElement) {
-    this.ui = container;
-    this.detailsPage = page;
-    this.todoContainer = this.detailsPage.querySelector(
-      `[todo-list-container]`
-    ) as HTMLElement;
+  constructor() {
     const project = this.newProject({
       name: "Default Project",
       description: "This is just a default app project",
@@ -25,9 +14,8 @@ export class ProjectsManager {
     });
   }
 
-  setPageDetails() {
-    const page = this.detailsPage;
-    const project = this.activeProject;
+  private setPageDetails(project: Project) {
+    const page = document.getElementById("project-details") as HTMLElement;
     const pageInfoDummy = {
       name: "name",
       description: "description",
@@ -69,67 +57,20 @@ export class ProjectsManager {
         pageInfo[key].textContent = `${year}-${month}-${day}`;
       }
     }
-    this.setTodoListUi(project);
-
-    //Search Bar Function
-    const searchBar = page.querySelector(`[todo-search]`);
-    if (searchBar && searchBar instanceof HTMLInputElement) {
-      searchBar.addEventListener("change", () => {
-        const todoTasks = project.getToDoList().map((todo) => {
-          return [todo.task, todo.taskId];
-        });
-        console.log(todoTasks);
-      });
-    }
   }
 
   setPage(project: Project) {
     const card = project.ui;
     card.addEventListener("click", () => {
-      this.activeProject = project;
-      const page = this.ui.parentElement as HTMLElement;
-      const details = this.detailsPage;
-      page.style.display = "none";
-      details.style.display = "flex";
-      this.setPageDetails();
+      const projectsPage = document.getElementById("projects-page");
+      const detailsPage = document.getElementById("project-details");
+      if (!(projectsPage && detailsPage)) {
+        return;
+      }
+      projectsPage.style.display = "none";
+      detailsPage.style.display = "flex";
+      this.setPageDetails(project);
     });
-  }
-
-  initiateToDoList(project: Project, todoList: ToDo[]) {
-    todoList.map((todo) => {
-      const { taskId, task, deadline, status } = todo;
-      project.newToDo({ task, deadline, status, taskId });
-    });
-  }
-
-  setTodoListUi(project: Project) {
-    const container = this.todoContainer;
-    container.innerHTML = "";
-    const list = project.getToDoList();
-    for (const todo of list) {
-      console.log(todo);
-      container.prepend(todo.getUi());
-    }
-  }
-
-  updateToDoList() {
-    const project = this.activeProject;
-    const container = this.todoContainer;
-    console.log(project.getToDoList());
-    const list = project.getToDoList();
-    const lastIndex = list.length - 1;
-    const todo = list[lastIndex];
-    container.prepend(todo.getUi());
-  }
-  checkEditNameInUse(data: IProject) {
-    const projectNames = this.list.map((project) => {
-      return project.name;
-    });
-    const otherProjectNames = projectNames.filter((name) => {
-      return name !== this.activeProject.name;
-    });
-    const nameInUse = otherProjectNames.includes(data.name);
-    return nameInUse;
   }
 
   checkNameInUse(data: IProject) {
@@ -154,12 +95,9 @@ export class ProjectsManager {
       throw new Error("There is already a project with the same name!");
     }
     const project = new Project(data);
-    this.ui.prepend(project.ui);
+    this.setPage(project);
     this.list.push(project);
 
-    //add event listener to project ui
-    this.setPage(project);
-    //here
     return project;
   }
 
@@ -198,13 +136,12 @@ export class ProjectsManager {
 
   exportToJSON(fileName: string = "projects") {
     const json = JSON.stringify(this.list, null, 2);
-    console.log(json);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    link.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
     URL.revokeObjectURL(url);
   }
 
@@ -218,44 +155,20 @@ export class ProjectsManager {
       if (!json) {
         return;
       }
-
-      const projects: Project[] = JSON.parse(json as string); //id'si olmayan bir projeyi JSON içinde oluşturup import etmeyi denemeliyim.
+      const projects: IProject[] = JSON.parse(json as string);
       for (const project of projects) {
         try {
-          if (!this.checkIdInUse(project)) {
-            const newProject = this.newProject(project);
-            for (const key in project) {
-              console.log(
-                key,
-                " data:",
-                project[key],
-                " project:",
-                newProject[key]
-              );
-            }
-            if (project.todoList)
-              this.initiateToDoList(newProject, project.todoList);
-          } else {
-            console.log(project.id, "is updated");
-            const existingProject = this.getProject(project.id) as Project;
-            existingProject.editProject(project);
-            if (project.todoList)
-              this.initiateToDoList(existingProject, project.todoList);
-          }
-        } catch (error) {
-          alert(error);
-        }
+          this.newProject(project);
+        } catch (error) {}
       }
     });
     input.addEventListener("change", () => {
-      const fileList = input.files;
-      if (!fileList) {
+      const filesList = input.files;
+      if (!filesList) {
         return;
       }
-      const file = fileList[0];
-      reader.readAsText(file);
+      reader.readAsText(filesList[0]);
     });
     input.click();
-    console.log(this.list);
   }
 }
