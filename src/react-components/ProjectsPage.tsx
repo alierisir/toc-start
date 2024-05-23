@@ -4,8 +4,11 @@ import { Project, IProject, Role, Status } from "../classes/Project";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import ProjectCard from "./ProjectCard";
 
-const ProjectsPage = () => {
-  const [projectsManager] = React.useState(new ProjectsManager());
+interface Props {
+  manager: ProjectsManager;
+}
+
+const ProjectsPage = ({ manager: projectsManager }: Props) => {
   const [projects, setProjects] = React.useState<Project[]>(
     projectsManager.list
   );
@@ -22,8 +25,8 @@ const ProjectsPage = () => {
 
   const projectCards = projects.map((project) => {
     return (
-      <Router.Link to="/details" key={`details-${project.id}`}>
-        <ProjectCard project={project} key={project.id} />
+      <Router.Link to={`/details/${project.id}`} key={project.id}>
+        <ProjectCard project={project} />
       </Router.Link>
     );
   });

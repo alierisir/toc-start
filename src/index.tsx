@@ -8,7 +8,9 @@ import { TodoCreator } from "./bim-components/TodoCreator";
 import { SimpleQto } from "./bim-components/SimpleQto";
 import ProjectsPage from "./react-components/ProjectsPage";
 import ProjectDetailsPage from "./react-components/ProjectDetailsPage";
+import { ProjectsManager } from "./classes/ProjectsManager";
 
+const projectsManager = new ProjectsManager();
 const rootElement = document.getElementById("app") as HTMLDivElement;
 const appRoot = ReactDOM.createRoot(rootElement);
 appRoot.render(
@@ -16,8 +18,14 @@ appRoot.render(
     <Router.BrowserRouter>
       <Sidebar />
       <Router.Routes>
-        <Router.Route path="/" element={<ProjectsPage />} />
-        <Router.Route path="/details" element={<ProjectDetailsPage />} />
+        <Router.Route
+          path="/"
+          element={<ProjectsPage manager={projectsManager} />}
+        />
+        <Router.Route
+          path="/details/:id"
+          element={<ProjectDetailsPage manager={projectsManager} />}
+        />
         <Router.Route
           path="/users"
           element={"Users Page Will be Implemented"}

@@ -1,7 +1,18 @@
 import React from "react";
+import * as Router from "react-router-dom";
 import { Project } from "../classes/Project";
+import { ProjectsManager } from "../classes/ProjectsManager";
 
-const ProjectDetailsPage = () => {
+interface Props {
+  manager: ProjectsManager;
+}
+
+const ProjectDetailsPage = ({ manager: projectsManager }: Props) => {
+  const { id } = Router.useParams<{ id: string }>();
+  if (!id) return <>{console.log(id, "project not found!")}</>;
+  const project = projectsManager.getProject(id);
+  if (!(project instanceof Project))
+    return <>{console.log(project, "not valid")}</>;
   return (
     <div id="project-details" className="page">
       <dialog id="edit-project-modal" style={{ maxHeight: "fit-content" }}>
@@ -154,44 +165,53 @@ const ProjectDetailsPage = () => {
       </dialog>
       <header>
         <div>
-          <h2 data-project-info="headName">{"Sample Project"}</h2>
-          <p data-project-info="headDescription">{"Sample Description"}</p>
+          <h2 data-project-info="headName">{project.name}</h2>
+          <p data-project-info="headDescription">{project.description}</p>
         </div>
       </header>
       <div className="main-page-content">
         <div id="details-container">
           <div className="dashboard-card">
             <div className="info-header">
-              <p data-project-info="initials">{"SP"}</p>
+              <p
+                data-project-info="initials"
+                style={{ backgroundColor: project.boxColor }}
+              >
+                {project.initials}
+              </p>
               <button project-info-btn="edit" id="p-edit">
                 Edit
               </button>
             </div>
             <div className="info-title">
-              <h3 data-project-info="name">{"Sample Project"}</h3>
-              <p data-project-info="description">{"Sample Description"}</p>
+              <h3 data-project-info="name">{project.name}</h3>
+              <p data-project-info="description">{project.description}</p>
             </div>
             <div className="info-property-field">
               <div className="info-properties">
                 <p>Status</p>
-                <p data-project-info="status">{"Pending"}</p>
+                <p data-project-info="status">{project.status}</p>
               </div>
               <div className="info-properties">
                 <p>Cost</p>
-                <p data-project-info="cost">{0}</p>
+                <p data-project-info="cost">{project.cost}</p>
               </div>
               <div className="info-properties">
                 <p>Role</p>
-                <p data-project-info="role">{"Developer"}</p>
+                <p data-project-info="role">{project.role}</p>
               </div>
               <div className="info-properties">
                 <p>Finish Date</p>
-                <p data-project-info="date">{"N/A"}</p>
+                <p data-project-info="date">{project.date.toDateString()}</p>
               </div>
             </div>
             <div className="info-bar">
-              <div data-project-info="progress" className="info-progress">
-                {"0%"}
+              <div
+                data-project-info="progress"
+                className="info-progress"
+                style={{ width: `${project.progress}%` }}
+              >
+                {project.progress}%
               </div>
             </div>
           </div>
