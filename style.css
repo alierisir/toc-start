@@ -460,10 +460,8 @@ user-card:hover {
 }
 
 .todo-header input {
-  color: var(--background-secondary);
-  height: 2rem;
+  border:1px dashed var(--background-primary);
   border-radius: 0.5rem;
-  background-color: var(--background-primary);
   padding: 10px;
   opacity: 0.8;
 }
@@ -471,6 +469,20 @@ user-card:hover {
 .todo-header input:focus {
   opacity: 1;
 }
+
+.search-bar-component {
+  color: var(--background-primary);
+  background: var(--background-secondary);
+  border-radius: 0.5rem;
+  padding: 10px;
+  opacity: 0.8;
+  border:1px dashed var(--background-secondary);
+}
+
+.search-bar-component:focus {
+  opacity: 1;
+}
+
 
 .todo-list {
   display: flex;

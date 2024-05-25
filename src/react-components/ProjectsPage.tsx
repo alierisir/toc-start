@@ -3,6 +3,7 @@ import * as Router from "react-router-dom";
 import { Project, IProject, Role, Status } from "../classes/Project";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import ProjectCard from "./ProjectCard";
+import SearchBar from "./SearchBar";
 
 interface Props {
   manager: ProjectsManager;
@@ -76,6 +77,11 @@ const ProjectsPage = ({ manager: projectsManager }: Props) => {
 
   const onExportClicked = () => {
     projectsManager.exportToJSON();
+  };
+
+  const onChangeValue = (value: string) => {
+    const filtered = projectsManager.filterProjects(value);
+    setProjects([...filtered]);
   };
 
   return (
@@ -171,6 +177,7 @@ const ProjectsPage = ({ manager: projectsManager }: Props) => {
       </dialog>
       <header>
         <h2>Projects</h2>
+        <SearchBar onChange={onChangeValue} />
         <div className="button-section">
           <button id="import-from-json" onClick={onImportClicked}>
             <span className="material-symbols-outlined">upload_2</span>

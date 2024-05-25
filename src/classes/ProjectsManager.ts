@@ -17,6 +17,13 @@ export class ProjectsManager {
     });
   }
 
+  filterProjects(value: string) {
+    const filtered = this.list.filter((project) => {
+      return project.name.toLowerCase().includes(value.toLowerCase());
+    });
+    return filtered;
+  }
+
   private setPageDetails(project: Project) {
     const page = document.getElementById("project-details") as HTMLElement;
     const pageInfoDummy = {
