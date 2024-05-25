@@ -209,10 +209,8 @@ export class Project implements IProject {
 
   editProject(editedData: EProject) {
     for (const key in editDummy) {
-      console.log(key, "current:", this[key], " edited:", editedData[key]);
       const value = editedData[key] ? editedData[key] : this[key];
       this[key] = value;
-      console.log(key, "result:", this[key]);
       this.updateUi();
     }
   }
