@@ -63,6 +63,18 @@ const ToDoComponent = ({ project }: Props) => {
     }
   };
 
+  const searchInput = () => {
+    const searchElement = document.getElementById(
+      "search-input"
+    ) as HTMLInputElement;
+    const searchText = searchElement.value;
+    const filtered = project.todoList.filter((todo) =>
+      todo.task.toLowerCase().includes(searchText.toLowerCase())
+    );
+    console.log("Project todos:", project.todoList);
+    setTodoList([...filtered]);
+  };
+
   return (
     <div className="dashboard-card">
       <dialog id="new-todo-modal">
@@ -133,7 +145,13 @@ const ToDoComponent = ({ project }: Props) => {
           <button project-info-btn="todo-search">
             <span className="material-symbols-outlined">search</span>
           </button>
-          <input todo-search="" type="text" placeholder="Search task by name" />
+          <input
+            id="search-input"
+            todo-search=""
+            type="text"
+            placeholder="Search task by name"
+            onInput={searchInput}
+          />
           <button
             onClick={onNewTodoClicked}
             project-info-btn="todo-add"

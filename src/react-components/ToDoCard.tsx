@@ -1,6 +1,7 @@
 import React from "react";
 import { ToDo, ToDoStatus } from "../classes/ToDo";
 import { Project } from "../classes/Project";
+import { monthsAfterToday } from "../classes/CustomFunctions";
 
 interface Props {
   project: Project;
@@ -27,13 +28,20 @@ const ToDoCard = ({ todo, project }: Props) => {
 
   const onDelayClicked = () => {
     project.changeToActive(todo.taskId);
-    //bu kısıma odaklan, overdue task active olurken tarihi değişmelidir!!!!!!
+    todo.setDeadline(monthsAfterToday(1));
     setTodoStatus(todo.getStatus());
+  };
+
+  const onDeleteClicked = () => {
+    project.removeToDo(todo.taskId);
   };
 
   return (
     <div className={`list-item todo-${todoStatus}`}>
-      <p todo-list-functions="toggle-active">
+      <p
+        todo-list-functions="toggle-active"
+        style={{ display: "flex", alignItems: "center" }}
+      >
         <span
           className="material-symbols-outlined"
           onClick={onCheckClicked}
@@ -50,10 +58,20 @@ const ToDoCard = ({ todo, project }: Props) => {
         </span>
       </p>
       <p>{task}</p>
-      <p>
+      <p
+        style={{
+          display: "flex",
+          alignItems: "center",
+          columnGap: "5px",
+          fontSize: ".6rem",
+        }}
+      >
         {deadline instanceof Date
           ? deadline.toDateString()
           : new Date(deadline).toDateString()}
+        <span className="material-symbols-outlined" onClick={onDeleteClicked}>
+          delete
+        </span>
       </p>
     </div>
   );

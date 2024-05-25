@@ -486,6 +486,9 @@ user-card:hover {
 .todo-completed {
   background-color: #70ff4c;
   font-size: var(--text-s);
+}
+
+.todo-completed p:nth-child(2){
   text-decoration: line-through;
 }
 
@@ -509,11 +512,11 @@ user-card:hover {
   opacity: 0.8;
 }
 
-.list-item > :first-child {
+.list-item  span {
   opacity: 0.5;
 }
 
-.list-item > :first-child:hover {
+.list-item  span:hover {
   scale: 1.2;
   opacity: 1;
 }
