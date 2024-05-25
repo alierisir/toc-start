@@ -1,5 +1,6 @@
 import { IProject, Project } from "./Project";
 import { correctDate } from "./CustomFunctions";
+import { ToDo } from "./ToDo";
 
 export class ProjectsManager {
   list: Project[] = [];
@@ -137,6 +138,13 @@ export class ProjectsManager {
     return totalCost;
   }
 
+  initiateToDoList(project: Project, todoList: ToDo[]) {
+    todoList.map((todo) => {
+      const { taskId, task, deadline, status } = todo;
+      project.newToDo({ task, deadline, status, taskId });
+    });
+  }
+
   exportToJSON(fileName: string = "projects") {
     const json = JSON.stringify(this.list, null, 2);
     const blob = new Blob([json], { type: "application/json" });
@@ -158,20 +166,44 @@ export class ProjectsManager {
       if (!json) {
         return;
       }
-      const projects: IProject[] = JSON.parse(json as string);
+
+      const projects: Project[] = JSON.parse(json as string); //id'si olmayan bir projeyi JSON içinde oluşturup import etmeyi denemeliyim.
       for (const project of projects) {
         try {
-          this.newProject(project);
-        } catch (error) {}
+          if (!this.checkIdInUse(project)) {
+            const newProject = this.newProject(project);
+            for (const key in project) {
+              console.log(
+                key,
+                " data:",
+                project[key],
+                " project:",
+                newProject[key]
+              );
+            }
+            if (project.todoList)
+              this.initiateToDoList(newProject, project.todoList);
+          } else {
+            console.log(project.id, "is updated");
+            const existingProject = this.getProject(project.id) as Project;
+            existingProject.editProject(project);
+            if (project.todoList)
+              this.initiateToDoList(existingProject, project.todoList);
+          }
+        } catch (error) {
+          alert(error);
+        }
       }
     });
     input.addEventListener("change", () => {
-      const filesList = input.files;
-      if (!filesList) {
+      const fileList = input.files;
+      if (!fileList) {
         return;
       }
-      reader.readAsText(filesList[0]);
+      const file = fileList[0];
+      reader.readAsText(file);
     });
     input.click();
+    console.log(this.list);
   }
 }

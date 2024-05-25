@@ -2,6 +2,7 @@ import React from "react";
 import * as Router from "react-router-dom";
 import { Project } from "../classes/Project";
 import { ProjectsManager } from "../classes/ProjectsManager";
+import ToDoComponent from "./ToDoComponent";
 
 interface Props {
   manager: ProjectsManager;
@@ -112,57 +113,6 @@ const ProjectDetailsPage = ({ manager: projectsManager }: Props) => {
           </div>
         </form>
       </dialog>
-      <dialog id="new-todo-modal">
-        <form id="new-todo-form" className="modal-container">
-          <h2 className="modal-header">
-            <span className="material-symbols-outlined">assignment_add</span>New
-            ToDo
-          </h2>
-          <div className="project-properties">
-            <label htmlFor="todo-task">
-              <span className="material-symbols-outlined">assignment</span>Task
-            </label>
-            <textarea
-              required={true}
-              rows={5}
-              cols={30}
-              name="todo-task"
-              id="todo-task"
-              placeholder="Write the task to be done.(max. 270 characters)"
-              maxLength={270}
-              defaultValue={""}
-            />
-          </div>
-          <div className="project-properties">
-            <label htmlFor="todo-status">
-              <span className="material-symbols-outlined">assignment_late</span>
-              Status
-            </label>
-            <select name="todo-status" id="todo-status">
-              <option value="active" defaultValue={"active"}>
-                Active
-              </option>
-              <option value="completed">Completed</option>
-              <option value="overdue">Overdue</option>
-            </select>
-          </div>
-          <div className="project-properties">
-            <label htmlFor="todo-deadline">
-              <span className="material-symbols-outlined">event</span>Deadline
-            </label>
-            <input id="todo-deadline" name="todo-deadline" type="date" />
-          </div>
-          <div className="button-section">
-            <button id="todo-cancel" type="button" className="cancel-btn">
-              <span className="material-symbols-outlined">cancel</span>Cancel
-            </button>
-            <button type="submit" className="accept-btn">
-              <span className="material-symbols-outlined">check_circle</span>
-              Accept
-            </button>
-          </div>
-        </form>
-      </dialog>
       <header>
         <div>
           <h2 data-project-info="headName">{project.name}</h2>
@@ -194,7 +144,7 @@ const ProjectDetailsPage = ({ manager: projectsManager }: Props) => {
               </div>
               <div className="info-properties">
                 <p>Cost</p>
-                <p data-project-info="cost">{project.cost}</p>
+                <p data-project-info="cost">${project.cost}</p>
               </div>
               <div className="info-properties">
                 <p>Role</p>
@@ -215,27 +165,7 @@ const ProjectDetailsPage = ({ manager: projectsManager }: Props) => {
               </div>
             </div>
           </div>
-          <div className="dashboard-card">
-            <div className="todo-header">
-              <h3>To-Do</h3>
-              <div>
-                <button project-info-btn="todo-search">
-                  <span className="material-symbols-outlined">search</span>
-                </button>
-                <input
-                  todo-search=""
-                  type="text"
-                  placeholder="Search task by name"
-                />
-                <button project-info-btn="todo-add" todo-add="">
-                  <span className="material-symbols-outlined">
-                    playlist_add
-                  </span>
-                </button>
-              </div>
-            </div>
-            <div todo-list-container="" className="todo-list"></div>
-          </div>
+          <ToDoComponent project={project} />
         </div>
         <div
           id="viewer-container"

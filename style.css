@@ -318,7 +318,7 @@ user-card:hover {
 
 #project-details > .main-page-content {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 450px 1fr;
   grid-template-areas: "details-container viewer-container";
   height: 100%;
   color: var(--textcolor-secondary);
@@ -460,8 +460,9 @@ user-card:hover {
 }
 
 .todo-header input {
-  height: 10px;
-  border-radius: 1rem;
+  color: var(--background-secondary);
+  height: 2rem;
+  border-radius: 0.5rem;
   background-color: var(--background-primary);
   padding: 10px;
   opacity: 0.8;

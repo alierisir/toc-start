@@ -24,6 +24,7 @@ export class ToDo implements IToDo {
   status: ToDoStatus = "active";
   taskId: string;
   ui: HTMLElement;
+  onStatusChange = (status: ToDoStatus) => {};
 
   constructor(data: IToDo) {
     this.taskId = data.taskId ? data.taskId : uuid4();
@@ -92,6 +93,7 @@ export class ToDo implements IToDo {
   setStatus(status: ToDoStatus) {
     this.status = status;
     this.updateUi();
+    this.onStatusChange(this.status);
   }
 
   setUi() {

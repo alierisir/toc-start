@@ -41,6 +41,8 @@ export class Project implements IProject {
   initials: string;
   boxColor: string;
   todoList: ToDo[] = [];
+  onTodoCreated = (todo: ToDo) => {};
+  onTodoRemoved = () => {};
 
   constructor(data: IProject) {
     //Project Data definitions
@@ -146,6 +148,7 @@ export class Project implements IProject {
     const todo = new ToDo(iTodo);
     this.todoList.push(todo);
     console.log(todo.taskId, " todo added successfully");
+    this.onTodoCreated(todo);
     return todo;
   }
 
@@ -201,6 +204,7 @@ export class Project implements IProject {
     todo.ui.remove();
     const remaining = this.todoList.filter((todo) => todo.taskId !== id);
     this.todoList = remaining;
+    this.onTodoRemoved();
   }
 
   editProject(editedData: EProject) {

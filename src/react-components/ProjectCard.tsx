@@ -26,7 +26,7 @@ const ProjectCard = ({ project }: Props) => {
         </div>
         <div className="card-property">
           <p>Cost</p>
-          <p>{project.cost}</p>
+          <p>${project.cost}</p>
         </div>
         <div className="card-property">
           <p>Estimated Progress</p>
