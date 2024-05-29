@@ -1,4 +1,5 @@
 import { Project } from "./Project";
+import * as THREE from "three";
 
 interface IBasicDate {
   day: string;
@@ -153,3 +154,82 @@ console.log("custom-functions! - test area start");
 //write code to check here;
 
 console.log("custom-functions! - test area end");
+
+export const createCube = (
+  size: number,
+  color:
+    | "black"
+    | "white"
+    | "red"
+    | "blue"
+    | "green"
+    | "cyan"
+    | "purple"
+    | "yellow",
+  offset?: number,
+  parent?: THREE.Mesh
+) => {
+  const geometry = new THREE.SphereGeometry(size, 16, 16);
+  const material = new THREE.MeshBasicMaterial({
+    color: new THREE.Color(color),
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  if (offset) {
+    parent?.add(mesh);
+    mesh.position.setX(offset);
+  }
+  return mesh;
+};
+
+interface RotateProps {
+  mesh: THREE.Mesh;
+  xradius: number;
+  yradius?: number;
+  zradius?: number;
+  degree?: number;
+  increment?: number;
+  coshift?: number;
+  sishift?: number;
+  mode: "orbit" | "cospring" | "reversed" | "sispring" | "sorbit";
+}
+
+export const rotateAround = ({
+  mesh,
+  xradius,
+  yradius,
+  zradius,
+  degree = 180 / Math.PI,
+  increment = 0.1,
+  mode,
+  coshift = 1,
+  sishift = 1,
+}: RotateProps) => {
+  const modes = {
+    orbit: {
+      x: Math.cos((increment * degree) / coshift),
+      z: Math.sin((increment * degree) / sishift),
+    },
+    sorbit: {
+      x: Math.cos(Math.exp(increment * degree) / coshift),
+      z: Math.sin(Math.exp(increment * degree) / sishift),
+    },
+    cospring: {
+      x: Math.cos((increment * degree) / coshift),
+      z: Math.cos((increment * degree) / sishift),
+    },
+    sispring: {
+      x: Math.sin((increment * degree) / coshift),
+      z: Math.sin((increment * degree) / sishift),
+    },
+    reversed: {
+      x: Math.cos((increment * degree) / coshift),
+      z: -Math.sin((increment * degree) / sishift),
+    },
+  };
+  zradius ? zradius : (zradius = xradius);
+
+  const { x, z } = modes[mode];
+
+  mesh.position.x = xradius * x;
+  mesh.position.z = zradius * z;
+};

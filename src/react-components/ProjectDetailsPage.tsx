@@ -4,6 +4,7 @@ import { EProject, Project, Role, Status } from "../classes/Project";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import ToDoComponent from "./ToDoComponent";
 import { instance } from "three/examples/jsm/nodes/Nodes.js";
+import IFCViewer from "./IFCViewer";
 
 interface Props {
   manager: ProjectsManager;
@@ -64,6 +65,10 @@ const ProjectDetailsPage = ({ manager: projectsManager }: Props) => {
     form.reset();
     setProjectData(project);
   };
+
+  React.useEffect(() => {
+    setProjectData(projectData);
+  }, [projectData]);
 
   return (
     <div id="project-details" className="page">
@@ -249,11 +254,7 @@ const ProjectDetailsPage = ({ manager: projectsManager }: Props) => {
           </div>
           <ToDoComponent project={projectData} />
         </div>
-        <div
-          id="viewer-container"
-          className="dashboard-card"
-          style={{ minWidth: 0, position: "relative" }}
-        />
+        <IFCViewer />
       </div>
     </div>
   );

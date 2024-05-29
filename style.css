@@ -282,6 +282,8 @@ user-card:hover {
   text-transform: uppercase;
   display: flex;
   justify-content: center;
+  width: 60px;
+  height: 60px;
 }
 
 .card-header > div > h2 {
@@ -323,7 +325,7 @@ user-card:hover {
   height: 100%;
   color: var(--textcolor-secondary);
   padding: 10px 15px;
-  gap: 5px;
+  gap: 15px;
 }
 
 #details-container > *,
@@ -343,7 +345,6 @@ user-card:hover {
 }
 
 .dashboard-card {
-  padding: 15px 0;
   user-select: none;
 }
 
@@ -365,11 +366,13 @@ user-card:hover {
 .info-header p {
   font-size: var(--text-3xl);
   background-color: orangered;
-  border-radius: 10rem;
+  border-radius: 50%;
   padding: 15px;
   text-transform: uppercase;
   display: flex;
   justify-content: center;
+  width: 60px;
+  height: 60px;
 }
 
 .info-header button {
@@ -411,6 +414,7 @@ user-card:hover {
 
 .info-bar {
   margin: 10px 30px;
+  margin-bottom:25px;
   padding: 0;
   background-color: #354248;
   height: 30px;
@@ -435,6 +439,7 @@ user-card:hover {
 }
 
 .todo-header {
+  padding: 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
