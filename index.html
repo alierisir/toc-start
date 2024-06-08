@@ -13,127 +13,12 @@
     <title>TOC-Learning</title>
 </head>
 <body>
+    <div id="app"></div>
     <dialog id="err-dialog">
     </dialog>
-    <aside id="sidebar">
-        <img id="company-logo" src="/assets/image1.svg" alt="company logo">
-        <ul id="nav-buttons">
-            <li id="nav-project"><span class="material-symbols-outlined">
-                store
-                </span>Projects</li>
-            <li id="nav-user"><span class="material-symbols-outlined">
-                person
-                </span>Users</li>
-        </ul>
-    </aside>
+    
     <main id="content">
-        <div id="projects-page" class="page">
-            <dialog id="new-project-modal">
-                <form id="new-project-form" class="modal-container">
-                    <h2 class="modal-header"><span class="material-symbols-outlined">
-                        add_business
-                        </span>New Project</h2>
-                    <div class="project-properties">
-                        <label for="name"><span class="material-symbols-outlined">
-                            label
-                            </span>Name</label>
-                        <input type="text" name="name" id="name" placeholder="Name of the project" minlength="5" required>
-                        <p class="modal-tips">TIP:Give it simple name</p>
-                    </div>
-                    <div class="project-properties">
-                        <label for="description"><span class="material-symbols-outlined">
-                            description
-                            </span>Description</label>
-                        <textarea name="description" id="description" cols="20" rows="5" placeholder="Describe your project (max:120 characters)" maxlength="120"></textarea>    
-                    </div>
-                    <div class="project-properties">
-                        <label for="status"><span class="material-symbols-outlined">
-                            pending_actions
-                            </span>Status</label>
-                        <select name="status" id="status">
-                            <option value="active" selected>Active</option>
-                            <option value="pending">Pending</option>
-                            <option value="finished">Finished</option>
-                        </select>
-                    </div>
-                    <div class="project-properties">
-                        <label for="role"><span class="material-symbols-outlined">
-                            school
-                            </span>Role</label>
-                        <select name="role" id="role">
-                            <option value="architect" selected>Architect</option>
-                            <option value="engineer">Engineer</option>
-                            <option value="developer">Developer</option>
-                        </select>
-                    </div>
-                    <div class="project-properties">
-                        <label for="date"><span class="material-symbols-outlined">
-                            event
-                            </span>Finishing Date</label>
-                        <input id="date-input" name="date" type="date"></label>
-                    </div>
-                    <div class="button-section">
-                        <button id="form-cancel" type="button" class="cancel-btn"><span class="material-symbols-outlined">
-                            cancel
-                            </span>Cancel</button>
-                        <button type="submit" class="accept-btn"><span class="material-symbols-outlined">
-                            check_circle
-                            </span>Accept</button>
-                    </div>
-                </form>
-            </dialog>  
-            <header>
-                <h2>Projects</h2>
-                <div class="button-section">
-                    <button id="import-from-json">
-                        <span class="material-symbols-outlined">
-                            upload_2
-                            </span>
-                    Upload Projects</button>
-                    <button id="export-to-json">
-                        <span class="material-symbols-outlined">
-                            download_2
-                            </span>
-                    Download Projects</button>
-                    <button id="new-project-btn"><span class="material-symbols-outlined">
-                        add_business
-                        </span>New Project</button>
-                </div>
-            </header>
-            <div id="projects-list">
-               <!-- <div class="project-card">
-                    <div class="card-header">
-                        <p>HC</p>
-                        <div>
-                        <h2>Project Name</h2>
-                        <p >Project Description Lorem ipsum dolor sit amet.</p>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-property">
-                            <p>Status</p>
-                            <p>Active</p>
-                        </div>
-                        <div class="card-property">
-                            <p>Role</p>
-                            <p>Engineer</p>
-                        </div>
-                        <div class="card-property">
-                            <p>Cost</p>
-                            <p>20000TRY</p>
-                        </div>
-                        <div class="card-property">
-                            <p>Finishing Date</p>
-                            <p>26/12/2025</p>
-                        </div>
-                        <div class="card-property">
-                            <p>Estimated Progress</p>
-                            <p>80%</p>
-                        </div>
-                    </div>
-                </div> -->
-            </div>
-        </div>
+        
         <div id="project-details" class="page" style="display:none">
             <dialog id="edit-project-modal" style="max-height: fit-content;">
                 <form id="edit-project-form" class="modal-container">
@@ -382,6 +267,6 @@
             </div>
         </div>                     
     </main>
-    <script type="module" src="/src/index.ts"></script>
+    <script type="module" src="/src/index.tsx"></script>
 </body>
 </html>
