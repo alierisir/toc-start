@@ -1,28 +1,51 @@
 import React from "react";
 import { ProjectsManager } from "../classes/ProjectsManager";
-import { IProject, Role, Status } from "../classes/Project";
+import { IProject, Project, Role, Status } from "../classes/Project";
+import ProjectCard from "./ProjectCard";
+import * as Router from "react-router-dom";
 
-const ProjectsPage = () => {
-  const projectsManager = new ProjectsManager();
+interface Props {
+  projectsManager: ProjectsManager;
+}
+
+const ProjectsPage = ({ projectsManager }: Props) => {
+  const [list, setList] = React.useState<Project[]>(projectsManager.list);
+
+  projectsManager.onProjectCreated = () => {
+    setList([...projectsManager.list]);
+  };
+  projectsManager.onProjectDeleted = () => {
+    setList([...projectsManager.list]);
+  };
+
+  React.useEffect(() => {
+    console.log("List is updated", list);
+  }, [list]);
+
+  const listProjects = () => {
+    return list.map((project) => {
+      return (
+        <Router.Link to={`/project/${project.id}`} key={project.id + "link"}>
+          <ProjectCard project={project} />
+        </Router.Link>
+      );
+    });
+  };
+
   const onNewProjectClicked = () => {
-    const modal = document.getElementById(
-      "new-project-modal"
-    ) as HTMLDialogElement;
+    const modal = document.getElementById("new-project-modal") as HTMLDialogElement;
     modal.showModal();
   };
+
   const onCancelClicked = () => {
-    const modal = document.getElementById(
-      "new-project-modal"
-    ) as HTMLDialogElement;
+    const modal = document.getElementById("new-project-modal") as HTMLDialogElement;
     modal.close();
     const form = document.getElementById("new-project-form") as HTMLFormElement;
     form.reset();
   };
 
   const onFormSubmitted = (e: React.FormEvent) => {
-    const projectForm = document.getElementById(
-      "new-project-form"
-    ) as HTMLFormElement;
+    const projectForm = document.getElementById("new-project-form") as HTMLFormElement;
     e.preventDefault();
     const formData = new FormData(projectForm);
     const projectData: IProject = {
@@ -33,8 +56,7 @@ const ProjectsPage = () => {
       date: new Date(formData.get("date") as string),
     };
     try {
-      const project = projectsManager.newProject(projectData);
-      console.log(project);
+      projectsManager.newProject(projectData);
       onCancelClicked();
     } catch (e) {
       throw new Error(`Error adding new project: ${e}`);
@@ -60,21 +82,13 @@ const ProjectsPage = () => {
           }}
         >
           <h2 className="modal-header">
-            <span className="material-symbols-outlined">add_business</span>New
-            Project
+            <span className="material-symbols-outlined">add_business</span>New Project
           </h2>
           <div className="project-properties">
             <label htmlFor="name">
               <span className="material-symbols-outlined">label</span>Name
             </label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              placeholder="Name of the project"
-              minLength={5}
-              required={true}
-            />
+            <input type="text" name="name" id="name" placeholder="Name of the project" minLength={5} required={true} />
             <p className="modal-tips">TIP:Give it simple name</p>
           </div>
           <div className="project-properties">
@@ -119,18 +133,12 @@ const ProjectsPage = () => {
           </div>
           <div className="project-properties">
             <label htmlFor="date">
-              <span className="material-symbols-outlined">event</span>Finishing
-              Date
+              <span className="material-symbols-outlined">event</span>Finishing Date
             </label>
             <input id="date-input" name="date" type="date" />
           </div>
           <div className="button-section">
-            <button
-              id="form-cancel"
-              type="button"
-              className="cancel-btn"
-              onClick={onCancelClicked}
-            >
+            <button id="form-cancel" type="button" className="cancel-btn" onClick={onCancelClicked}>
               <span className="material-symbols-outlined">cancel</span>Cancel
             </button>
             <button type="submit" className="accept-btn">
@@ -152,12 +160,11 @@ const ProjectsPage = () => {
             Download Projects
           </button>
           <button id="new-project-btn" onClick={onNewProjectClicked}>
-            <span className="material-symbols-outlined">add_business</span>New
-            Project
+            <span className="material-symbols-outlined">add_business</span>New Project
           </button>
         </div>
       </header>
-      <div id="projects-list"></div>
+      <div id="projects-list">{listProjects()}</div>
     </div>
   );
 };

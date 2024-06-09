@@ -1,10 +1,10 @@
-import { ErrorManager } from "./ErrorManager";
 import { IProject, Project } from "./Project";
 import { ToDo } from "./ToDo";
-import { correctDate } from "./CustomFunctions";
 
 export class ProjectsManager {
   list: Project[] = [];
+  onProjectCreated = (project: Project) => {};
+  onProjectDeleted = () => {};
 
   constructor() {
     const project = this.newProject({
@@ -54,6 +54,7 @@ export class ProjectsManager {
     }
     const project = new Project(data);
     this.list.push(project);
+    this.onProjectCreated(project);
     return project;
   }
 
@@ -81,6 +82,7 @@ export class ProjectsManager {
       return project.id !== id;
     });
     this.list = remaining;
+    this.onProjectDeleted();
   }
 
   getTotalCost() {
