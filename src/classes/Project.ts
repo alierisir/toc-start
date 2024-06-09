@@ -21,6 +21,7 @@ export interface IProject {
 }
 
 export interface EProject extends IProject {
+  initials: string;
   cost: number;
   progress: number;
 }
@@ -42,20 +43,14 @@ export class Project implements IProject {
   boxColor: string;
   todoList: ToDo[] = [];
 
+  //Events
+  onChange = (project: Project) => {};
+  onNewTodo = (todo: ToDo) => {};
+  onDeleteTodo = () => {};
+
   constructor(data: IProject) {
     //Project Data definitions
-    const keys = [
-      "id",
-      "name",
-      "description",
-      "status",
-      "role",
-      "date",
-      "cost",
-      "progress",
-      "initials",
-      "boxColor",
-    ];
+    const keys = ["id", "name", "description", "status", "role", "date", "cost", "progress", "initials", "boxColor"];
     for (const key of keys) {
       this[key] = data[key];
       if (key === "id") {
@@ -69,15 +64,12 @@ export class Project implements IProject {
       }
     }
     if (data.date.toString() === "Invalid Date") {
-      console.log(
-        "There is no date input, project finish date is set to 6 months from today by default."
-      );
+      console.log("There is no date input, project finish date is set to 6 months from today by default.");
       this.date = monthsAfterToday(6);
     } else {
       this.date = basicToNativeDate(correctDate(data.date));
     }
     this.setInitialsBox();
-    this.setUi();
   }
 
   setInitialsBox() {
@@ -86,15 +78,6 @@ export class Project implements IProject {
     }
     this.initials = getInitials(this.name);
     this.boxColor = getRandomColor();
-  }
-
-  setUi() {
-    if (this.ui) {
-      return;
-    }
-    this.ui = document.createElement("div");
-    this.ui.innerHTML = this.getUiTemplate();
-    this.ui.className = "project-card";
   }
 
   private getUiTemplate() {
@@ -146,6 +129,7 @@ export class Project implements IProject {
     const todo = new ToDo(iTodo);
     this.todoList.push(todo);
     console.log(todo.taskId, " todo added successfully");
+    this.onNewTodo(todo);
     return todo;
   }
 
@@ -205,11 +189,9 @@ export class Project implements IProject {
 
   editProject(editedData: EProject) {
     for (const key in editDummy) {
-      console.log(key, "current:", this[key], " edited:", editedData[key]);
       const value = editedData[key] ? editedData[key] : this[key];
       this[key] = value;
-      console.log(key, "result:", this[key]);
-      this.updateUi();
     }
+    this.onChange(this);
   }
 }
