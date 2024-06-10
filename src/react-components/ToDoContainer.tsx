@@ -3,6 +3,7 @@ import ToDoCard from "./ToDoCard";
 import { Project } from "../classes/Project";
 import { IToDo, ToDoStatus } from "../classes/ToDo";
 import * as CF from "../classes/CustomFunctions";
+import SearchBox from "./SearchBox";
 
 interface Props {
   project: Project;
@@ -21,16 +22,15 @@ const ToDoContainer = ({ project }: Props) => {
     setList([...project.getToDoList()]);
   };
 
-  const createTodoList = () =>
-    list.map((todo) => (
-      <ToDoCard
-        key={todo.taskId}
-        todo={todo}
-        onDeleteClick={() => {
-          onDeleteTodo(todo.taskId);
-        }}
-      />
-    ));
+  const todoList = list.map((todo) => (
+    <ToDoCard
+      key={todo.taskId}
+      todo={todo}
+      onDeleteClick={() => {
+        onDeleteTodo(todo.taskId);
+      }}
+    />
+  ));
 
   const onNewTodoClick = () => {
     const modal = document.getElementById("new-todo-modal") as HTMLDialogElement;
@@ -61,6 +61,10 @@ const ToDoContainer = ({ project }: Props) => {
       project.newToDo(itodo);
       onCancelClick();
     } catch (error) {}
+  };
+
+  project.onFilterTodo = (filtered) => {
+    setList([...filtered]);
   };
   return (
     <div className="dashboard-card">
@@ -122,17 +126,14 @@ const ToDoContainer = ({ project }: Props) => {
       <div className="todo-header">
         <h3>To-Do</h3>
         <div>
-          <button project-info-btn="todo-search">
-            <span className="material-symbols-outlined">search</span>
-          </button>
-          <input todo-search="" type="text" placeholder="Search task by name" />
+          <SearchBox items="tasks" onChange={(value) => project.filterTodo(value)} />
           <button project-info-btn="todo-add" todo-add="" onClick={onNewTodoClick}>
             <span className="material-symbols-outlined">playlist_add</span>
           </button>
         </div>
       </div>
       <div todo-list-container="" className="todo-list">
-        {createTodoList()}
+        {todoList.length === 0 ? <>ToDo was not found!</> : todoList}
       </div>
     </div>
   );

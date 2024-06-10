@@ -3,6 +3,7 @@ import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
 import * as Router from "react-router-dom";
+import SearchBox from "./SearchBox";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -22,14 +23,16 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     console.log("List is updated", list);
   }, [list]);
 
-  const listProjects = () => {
-    return list.map((project) => {
-      return (
-        <Router.Link to={`/project/${project.id}`} key={project.id + "link"}>
-          <ProjectCard project={project} />
-        </Router.Link>
-      );
-    });
+  const listProjects = list.map((project) => {
+    return (
+      <Router.Link to={`/project/${project.id}`} key={project.id + "link"}>
+        <ProjectCard project={project} />
+      </Router.Link>
+    );
+  });
+
+  projectsManager.onListFiltered = (filtered) => {
+    setList([...filtered]);
   };
 
   const onNewProjectClicked = () => {
@@ -150,6 +153,7 @@ const ProjectsPage = ({ projectsManager }: Props) => {
       </dialog>
       <header>
         <h2>Projects</h2>
+        <SearchBox items="projects" onChange={(value) => projectsManager.filterProjects(value)} />
         <div className="button-section">
           <button id="import-from-json" onClick={onImport}>
             <span className="material-symbols-outlined">upload_2</span>
@@ -164,7 +168,7 @@ const ProjectsPage = ({ projectsManager }: Props) => {
           </button>
         </div>
       </header>
-      <div id="projects-list">{listProjects()}</div>
+      <div id="projects-list">{listProjects.length === 0 ? <>Project was not found!</> : listProjects}</div>
     </div>
   );
 };

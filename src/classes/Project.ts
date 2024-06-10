@@ -47,6 +47,7 @@ export class Project implements IProject {
   onChange = (project: Project) => {};
   onNewTodo = (todo: ToDo) => {};
   onDeleteTodo = () => {};
+  onFilterTodo = (filtered: ToDo[]) => {};
 
   constructor(data: IProject) {
     //Project Data definitions
@@ -70,6 +71,11 @@ export class Project implements IProject {
       this.date = basicToNativeDate(correctDate(data.date));
     }
     this.setInitialsBox();
+  }
+
+  filterTodo(value: string) {
+    const filtered = this.getToDoList().filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
+    this.onFilterTodo(filtered);
   }
 
   setInitialsBox() {

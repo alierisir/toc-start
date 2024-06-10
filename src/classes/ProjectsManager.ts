@@ -5,6 +5,7 @@ export class ProjectsManager {
   list: Project[] = [];
   onProjectCreated = (project: Project) => {};
   onProjectDeleted = () => {};
+  onListFiltered = (filtered: Project[]) => {};
 
   constructor() {
     const project = this.newProject({
@@ -14,6 +15,13 @@ export class ProjectsManager {
       role: "architect",
       date: new Date(),
     });
+  }
+
+  filterProjects(value: string) {
+    const filtered = this.list.filter((project) => {
+      return project.name.toLowerCase().includes(value.toLowerCase());
+    });
+    this.onListFiltered(filtered);
   }
 
   initiateToDoList(project: Project, todoList: ToDo[]) {
@@ -121,22 +129,14 @@ export class ProjectsManager {
           if (!this.checkIdInUse(project)) {
             const newProject = this.newProject(project);
             for (const key in project) {
-              console.log(
-                key,
-                " data:",
-                project[key],
-                " project:",
-                newProject[key]
-              );
+              console.log(key, " data:", project[key], " project:", newProject[key]);
             }
-            if (project.todoList)
-              this.initiateToDoList(newProject, project.todoList);
+            if (project.todoList) this.initiateToDoList(newProject, project.todoList);
           } else {
             console.log(project.id, "is updated");
             const existingProject = this.getProject(project.id) as Project;
             existingProject.editProject(project);
-            if (project.todoList)
-              this.initiateToDoList(existingProject, project.todoList);
+            if (project.todoList) this.initiateToDoList(existingProject, project.todoList);
           }
         } catch (error) {
           alert(error);
