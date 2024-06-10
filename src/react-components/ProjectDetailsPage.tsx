@@ -4,6 +4,7 @@ import { ProjectsManager } from "../classes/ProjectsManager";
 import DetailsCard from "./DetailsCard";
 import DetailsHeader from "./DetailsHeader";
 import ToDoContainer from "./ToDoContainer";
+import IFCViewer from "./IFCViewer";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -22,7 +23,7 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
           <DetailsCard project={project} />
           <ToDoContainer project={project} />
         </div>
-        <div id="viewer-container" className="dashboard-card" style={{ minWidth: 0, position: "relative" }} />
+        <IFCViewer />
       </div>
     </div>
   );
