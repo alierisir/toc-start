@@ -1,13 +1,28 @@
-import React from "react";
+import React, { Children, ReactNode } from "react";
 import * as OBC from "openbim-components";
 import { FragmentsGroup } from "bim-fragment";
 import { TodoCreator } from "../bim-components/TodoCreator";
 import { SimpleQto } from "../bim-components/SimpleQto";
 
+interface IViewerContext {
+  viewer: OBC.Components | null;
+  setViewer: (viewer: OBC.Components | null) => void;
+}
+
+export const ViewerContext = React.createContext<IViewerContext>({ viewer: null, setViewer: () => {} });
+
+export const ViewerProvider = ({ children }) => {
+  const [viewer, setViewer] = React.useState<OBC.Components | null>(null);
+  return <ViewerContext.Provider value={{ viewer, setViewer }}>{children}</ViewerContext.Provider>;
+};
+
 const IFCViewer = () => {
+  const { setViewer } = React.useContext(ViewerContext);
+
   let viewer: OBC.Components;
-  const setViewer = async () => {
+  const createViewer = async () => {
     viewer = new OBC.Components();
+    setViewer(viewer);
 
     const sceneComponent = new OBC.SimpleScene(viewer);
     sceneComponent.setup();
@@ -313,10 +328,11 @@ const IFCViewer = () => {
   };
 
   React.useEffect(() => {
-    setViewer();
+    createViewer();
     console.log("viewer created");
     return () => {
       viewer.dispose();
+      setViewer(null);
       console.log("viewer disposed");
     };
   }, []);

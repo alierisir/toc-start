@@ -19,9 +19,7 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     setList([...projectsManager.list]);
   };
 
-  React.useEffect(() => {
-    console.log("List is updated", list);
-  }, [list]);
+  React.useEffect(() => {}, [list]);
 
   const listProjects = list.map((project) => {
     return (
