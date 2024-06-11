@@ -1,8 +1,9 @@
 import React from "react";
+import * as Router from "react-router-dom";
+import * as Firestore from "firebase/firestore";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
-import * as Router from "react-router-dom";
 import SearchBox from "./SearchBox";
 
 interface Props {
@@ -19,7 +20,7 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     setList([...projectsManager.list]);
   };
 
-  React.useEffect(() => {}, [list]);
+  React.useEffect(() => {}, []);
 
   const listProjects = list.map((project) => {
     return (

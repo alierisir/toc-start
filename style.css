@@ -352,6 +352,10 @@ user-card:hover {
   font-size: var(--text);
 }
 
+#viewer-container {
+  padding: 0;
+}
+
 #viewer-container canvas {
   padding: 0;
 }
