@@ -85,7 +85,6 @@ export class ProjectsManager {
     if (!project) {
       return;
     }
-    project.ui.remove();
     const remaining = this.list.filter((project) => {
       return project.id !== id;
     });
@@ -102,7 +101,7 @@ export class ProjectsManager {
 
   exportToJSON(fileName: string = "projects") {
     const json = JSON.stringify(this.list, null, 2);
-    console.log(json);
+    //console.log(json);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -129,11 +128,11 @@ export class ProjectsManager {
           if (!this.checkIdInUse(project)) {
             const newProject = this.newProject(project);
             for (const key in project) {
-              console.log(key, " data:", project[key], " project:", newProject[key]);
+              //console.log(key, " data:", project[key], " project:", newProject[key]);
             }
             if (project.todoList) this.initiateToDoList(newProject, project.todoList);
           } else {
-            console.log(project.id, "is updated");
+            //console.log(project.id, "is updated");
             const existingProject = this.getProject(project.id) as Project;
             existingProject.editProject(project);
             if (project.todoList) this.initiateToDoList(existingProject, project.todoList);
@@ -152,6 +151,6 @@ export class ProjectsManager {
       reader.readAsText(file);
     });
     input.click();
-    console.log(this.list);
+    //console.log(this.list);
   }
 }
