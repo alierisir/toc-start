@@ -1,8 +1,4 @@
-import {
-  monthsAfterToday,
-  correctDate,
-  dateAfterFromPoint,
-} from "./CustomFunctions";
+import { monthsAfterToday, correctDate, dateAfterFromPoint } from "./CustomFunctions";
 import { v4 as uuid4 } from "uuid";
 
 export type ToDoStatus = "active" | "completed" | "overdue";
@@ -16,8 +12,7 @@ export interface IToDo {
 
 export class ToDo implements IToDo {
   //satisfy IToDo
-  task: string =
-    "this is a blank task created by default.Deadline is set to 1 month from today.";
+  task: string = "this is a blank task created by default.Deadline is set to 1 month from today.";
   deadline: Date = monthsAfterToday(1);
 
   //class internals
@@ -31,9 +26,7 @@ export class ToDo implements IToDo {
     this.deadline = data.deadline;
     if (data.deadline.toString() === "Invalid Date") {
       this.deadline = dateAfterFromPoint(new Date(), 0, 0, 14);
-      console.log(
-        "There is no deadline selected for this task. Deadline is set to 14 days from today by default."
-      );
+      console.log("There is no deadline selected for this task. Deadline is set to 14 days from today by default.");
     }
     this.status = data.status ? data.status : "active";
     console.log("1", this.status);
@@ -57,9 +50,7 @@ export class ToDo implements IToDo {
       return this.status;
     }
     if (this.deadline >= today && this.status === "overdue") {
-      console.log(
-        "There is still time for the task to be completed, changing status to 'active'."
-      );
+      console.log("There is still time for the task to be completed, changing status to 'active'.");
       this.setStatus("active");
       return this.status;
     }
@@ -134,7 +125,7 @@ export class ToDo implements IToDo {
     console.log("updateUi() successfull");
   }
 
-  private toggleStatus(status: ToDoStatus) {
+  toggleStatus(status: ToDoStatus) {
     if (status === "active") return this.setStatus("completed");
     if (status === "completed") {
       if (this.deadline < new Date()) {

@@ -40,7 +40,7 @@
   padding: 0;
 }
 
-body {
+#app {
   display: grid;
   grid-template-columns: 200px 1fr;
   grid-template-areas: "sidebar content";
@@ -460,7 +460,6 @@ user-card:hover {
 }
 
 .todo-header input {
-  height: 10px;
   border-radius: 1rem;
   background-color: var(--background-primary);
   padding: 10px;
@@ -496,11 +495,10 @@ user-card:hover {
 
 .todo-list > * {
   display: flex;
-  gap: 20px;
   align-items: center;
   color: var(--textcolor-primary);
   padding: 15px;
-  border-radius: 10px;
+  border-radius: 5px;
   justify-content: space-between;
 }
 
@@ -515,6 +513,17 @@ user-card:hover {
 .list-item > :first-child:hover {
   scale: 1.2;
   opacity: 1;
+  cursor: pointer;
+}
+
+.list-item > :last-child {
+  opacity: 0.5;
+}
+
+.list-item > :last-child:hover {
+  scale: 1.2;
+  opacity: 1;
+  cursor: pointer;
 }
 
 .list-item:hover {
@@ -527,6 +536,10 @@ user-card:hover {
 
 .todo-list-item:hover {
   opacity: 1;
+}
+
+.todo-list-item > p {
+  padding: 2px;
 }
 
 /* User Page Styles */
