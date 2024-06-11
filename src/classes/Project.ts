@@ -47,15 +47,14 @@ export class Project implements IProject {
   onNewTodo = (todo: ToDo) => {};
   onDeleteTodo = () => {};
   onFilterTodo = (filtered: ToDo[]) => {};
+  onProjectUpdated = (project: Project) => {};
 
-  constructor(data: IProject) {
+  constructor(data: IProject, id = uuid4()) {
     //Project Data definitions
-    const keys = ["id", "name", "description", "status", "role", "date", "cost", "progress", "initials", "boxColor"];
+    const keys = ["name", "description", "status", "role", "date", "cost", "progress", "initials", "boxColor"];
+    this.id = id;
     for (const key of keys) {
       this[key] = data[key];
-      if (key === "id") {
-        this[key] = data[key] ? data[key] : uuid4();
-      }
       if (key === "cost") {
         this[key] = data[key] ? data[key] : 0;
       }
@@ -155,5 +154,13 @@ export class Project implements IProject {
       this[key] = value;
     }
     this.onChange(this);
+  }
+
+  updateProject(data: IProject | EProject) {
+    for (const key in data) {
+      this[key] = data[key] ? data[key] : this[key];
+    }
+    this.onProjectUpdated(this);
+    return this;
   }
 }

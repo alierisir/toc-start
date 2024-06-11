@@ -5,6 +5,7 @@ import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
 import SearchBox from "./SearchBox";
+import { firebaseDB } from "../firebase";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -20,7 +21,29 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     setList([...projectsManager.list]);
   };
 
-  React.useEffect(() => {}, []);
+  const getFirebaseProjects = async () => {
+    const projectsCollection = Firestore.collection(firebaseDB, "/projects") as Firestore.CollectionReference<IProject>;
+    const firebaseProjects = await Firestore.getDocs(projectsCollection);
+    for (const doc of firebaseProjects.docs) {
+      const data = doc.data();
+      const projectTemplate: IProject = {
+        ...data,
+        date: (data.date as unknown as Firestore.Timestamp).toDate(),
+      };
+      try {
+        projectsManager.newProject(projectTemplate, doc.id);
+      } catch (error) {
+        const project = projectsManager.getProject(doc.id);
+        if (!(project instanceof Project)) return;
+        console.log("Project is being updated", project);
+        project.updateProject(projectTemplate);
+        console.log("UpdateCompleted", project);
+      }
+    }
+  };
+  React.useEffect(() => {
+    getFirebaseProjects();
+  }, []);
 
   const listProjects = list.map((project) => {
     return (
