@@ -1,15 +1,18 @@
 import React from "react";
 import * as Router from "react-router-dom";
 import * as Firestore from "firebase/firestore";
+import { firebaseDB } from "../firebase";
+import { getCollection } from "../firebase";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
 import SearchBox from "./SearchBox";
-import { firebaseDB } from "../firebase";
 
 interface Props {
   projectsManager: ProjectsManager;
 }
+
+const projectsCollection = getCollection<IProject>("/projects");
 
 const ProjectsPage = ({ projectsManager }: Props) => {
   const [list, setList] = React.useState<Project[]>(projectsManager.list);
@@ -22,7 +25,6 @@ const ProjectsPage = ({ projectsManager }: Props) => {
   };
 
   const getFirebaseProjects = async () => {
-    const projectsCollection = Firestore.collection(firebaseDB, "/projects") as Firestore.CollectionReference<IProject>;
     const firebaseProjects = await Firestore.getDocs(projectsCollection);
     for (const doc of firebaseProjects.docs) {
       const data = doc.data();
@@ -35,9 +37,7 @@ const ProjectsPage = ({ projectsManager }: Props) => {
       } catch (error) {
         const project = projectsManager.getProject(doc.id);
         if (!(project instanceof Project)) return;
-        console.log("Project is being updated", project);
         project.updateProject(projectTemplate);
-        console.log("UpdateCompleted", project);
       }
     }
   };
@@ -69,19 +69,24 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     form.reset();
   };
 
-  const onFormSubmitted = (e: React.FormEvent) => {
+  const onFormSubmitted = async (e: React.FormEvent) => {
     const projectForm = document.getElementById("new-project-form") as HTMLFormElement;
     e.preventDefault();
     const formData = new FormData(projectForm);
+    const date =
+      new Date(formData.get("date") as string).toDateString() === "Invalid Date"
+        ? new Date()
+        : new Date(formData.get("date") as string);
     const projectData: IProject = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       status: formData.get("status") as Status,
       role: formData.get("role") as Role,
-      date: new Date(formData.get("date") as string),
+      date,
     };
     try {
-      projectsManager.newProject(projectData);
+      const doc = await Firestore.addDoc(projectsCollection, projectData);
+      projectsManager.newProject(projectData, doc.id);
       onCancelClicked();
     } catch (e) {
       throw new Error(`Error adding new project: ${e}`);
