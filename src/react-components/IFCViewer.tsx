@@ -104,6 +104,9 @@ const IFCViewer = () => {
       toggleViewBtn.active = !toggleViewBtn.active;
     });
 
+    simpleGrid.visible = true;
+    toggleGridBtn.active = true;
+
     const cubeMap = new OBC.CubeMap(viewer);
 
     const classifier = new OBC.FragmentClassifier(viewer);

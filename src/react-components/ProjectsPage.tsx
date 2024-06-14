@@ -20,9 +20,6 @@ const ProjectsPage = ({ projectsManager }: Props) => {
   projectsManager.onProjectCreated = () => {
     setList([...projectsManager.list]);
   };
-  projectsManager.onProjectDeleted = () => {
-    setList([...projectsManager.list]);
-  };
 
   const getFirebaseProjects = async () => {
     const firebaseProjects = await Firestore.getDocs(projectsCollection);

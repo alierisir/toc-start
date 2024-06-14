@@ -4,7 +4,7 @@ import { ToDo } from "./ToDo";
 export class ProjectsManager {
   list: Project[] = [];
   onProjectCreated = (project: Project) => {};
-  onProjectDeleted = () => {};
+  onProjectDeleted = (id: string) => {};
   onListFiltered = (filtered: Project[]) => {};
 
   filterProjects(value: string) {
@@ -79,7 +79,7 @@ export class ProjectsManager {
       return project.id !== id;
     });
     this.list = remaining;
-    this.onProjectDeleted();
+    this.onProjectDeleted(id);
   }
 
   getTotalCost() {
