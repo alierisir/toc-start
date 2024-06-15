@@ -1,5 +1,5 @@
 import React from "react";
-import { EProject, Project, Role, Status } from "../classes/Project";
+import { IProject, Project, Role, Status } from "../classes/Project";
 import * as CF from "../classes/CustomFunctions";
 
 interface Props {
@@ -33,8 +33,7 @@ const DetailsCard = ({ project }: Props) => {
       new Date(formData.get("edit-date") as string).toDateString() === "Invalid Date"
         ? project.date
         : new Date(formData.get("edit-date") as string);
-    const editedProject: EProject = {
-      initials: CF.getInitials(formData.get("edit-name") as string),
+    const editedProject: IProject = {
       name: formData.get("edit-name") as string,
       description: formData.get("edit-description") as string,
       cost: Number(formData.get("edit-cost")),

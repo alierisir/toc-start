@@ -18,12 +18,10 @@ export interface IProject {
   status: Status;
   role: Role;
   date: Date;
-}
-
-export interface EProject extends IProject {
-  initials: string;
-  cost: number;
-  progress: number;
+  cost?: number;
+  progress?: number;
+  boxColor?: string;
+  todoList?: ToDo[];
 }
 
 export class Project implements IProject {
@@ -33,21 +31,21 @@ export class Project implements IProject {
   status: Status;
   role: Role;
   date: Date;
-
-  //Class internals
   cost: number = 0;
   progress: number = 0;
+
+  //Class internals
   id: string;
   initials: string;
   boxColor: string = getRandomColor();
   todoList: ToDo[] = [];
 
   //Events
-  onChange = (project: Project) => {};
+  onChange = (edit: IProject) => {};
   onNewTodo = (todo: ToDo) => {};
   onDeleteTodo = () => {};
   onFilterTodo = (filtered: ToDo[]) => {};
-  onProjectUpdated = (project: Project) => {};
+  onProjectUpdated = (update: IProject) => {};
 
   constructor(data: IProject, id = uuid4()) {
     //Project Data definitions
@@ -134,19 +132,23 @@ export class Project implements IProject {
     this.todoList = remaining;
   }
 
-  editProject(editedData: EProject) {
-    for (const key in editDummy) {
-      const value = editedData[key] ? editedData[key] : this[key];
+  editProject(data: IProject) {
+    for (const key in data) {
+      console.log(this.name, ":", key, "editing...");
+      const value = data[key] ? data[key] : this[key];
       this[key] = value;
     }
-    this.onChange(this);
+    this.initials = getInitials(this.name);
+    this.onChange(data);
   }
 
-  updateProject(data: IProject | EProject) {
+  updateProject(data: IProject) {
     for (const key in data) {
+      console.log(this.name, ":", key, "updating");
       this[key] = data[key] ? data[key] : this[key];
     }
-    this.onProjectUpdated(this);
+    this.initials = getInitials(this.name);
+    this.onProjectUpdated(data);
     return this;
   }
 }

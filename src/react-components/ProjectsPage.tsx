@@ -1,7 +1,7 @@
 import React from "react";
 import * as Router from "react-router-dom";
 import * as Firestore from "firebase/firestore";
-import { firebaseDB } from "../firebase";
+import { firebaseDB, updateCollection } from "../firebase";
 import { getCollection } from "../firebase";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
@@ -36,6 +36,8 @@ const ProjectsPage = ({ projectsManager }: Props) => {
         const project = projectsManager.getProject(doc.id);
         if (!(project instanceof Project)) return;
         project.updateProject(projectTemplate);
+        await updateCollection<Partial<IProject>>("projects", doc.id, projectTemplate);
+        console.log(doc.id, " project updated...");
       }
     }
   };
@@ -84,10 +86,14 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     };
     try {
       const doc = await Firestore.addDoc(projectsCollection, projectData);
-      projectsManager.newProject(projectData, doc.id);
+      const project = projectsManager.newProject(projectData, doc.id);
+      project.onChange = async (data) => {
+        await updateCollection<Partial<IProject>>("projects", doc.id, data);
+        console.log(doc.id, " project updated...");
+      };
       onCancelClicked();
     } catch (e) {
-      throw new Error(`Error adding new project: ${e}`);
+      console.warn(e);
     }
   };
 
