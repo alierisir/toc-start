@@ -39,7 +39,7 @@ export class Project implements IProject {
   progress: number = 0;
   id: string;
   initials: string;
-  boxColor: string;
+  boxColor: string = getRandomColor();
   todoList: ToDo[] = [];
 
   //Events
@@ -51,25 +51,11 @@ export class Project implements IProject {
 
   constructor(data: IProject, id = uuid4()) {
     //Project Data definitions
-    const keys = ["name", "description", "status", "role", "date", "cost", "progress", "initials", "boxColor"];
     this.id = id;
-    for (const key of keys) {
+    for (const key in data) {
       this[key] = data[key];
-      if (key === "cost") {
-        this[key] = data[key] ? data[key] : 0;
-      }
-      if (key === "progress") {
-        this[key] = data[key] ? data[key] : 0;
-      }
-    }
-    if (data.date.toString() === "Invalid Date") {
-      //console.log("There is no date input, project finish date is set to 6 months from today by default.");
-      this.date = monthsAfterToday(6);
-    } else {
-      this.date = basicToNativeDate(correctDate(data.date));
     }
     this.initials = getInitials(this.name);
-    this.boxColor = getRandomColor();
   }
 
   filterTodo(value: string) {

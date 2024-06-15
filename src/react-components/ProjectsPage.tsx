@@ -7,6 +7,7 @@ import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
 import SearchBox from "./SearchBox";
+import { monthsAfterToday } from "../classes/CustomFunctions";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -72,7 +73,7 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     const formData = new FormData(projectForm);
     const date =
       new Date(formData.get("date") as string).toDateString() === "Invalid Date"
-        ? new Date()
+        ? monthsAfterToday(6)
         : new Date(formData.get("date") as string);
     const projectData: IProject = {
       name: formData.get("name") as string,
