@@ -1,16 +1,28 @@
 import React from "react";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import * as CF from "../classes/CustomFunctions";
+import { ProjectsManager } from "../classes/ProjectsManager";
+import { updateCollection } from "../firebase";
+import * as Router from "react-router-dom";
 
 interface Props {
-  project: Project;
+  projectsManager: ProjectsManager;
+  id: string;
 }
 
-const DetailsCard = ({ project }: Props) => {
+const DetailsCard = ({ projectsManager, id }: Props) => {
+  const project = projectsManager.getProject(id);
+  if (!(project instanceof Project)) return <>Project not found</>;
   const [data, setData] = React.useState(project);
 
-  project.onChange = () => {
-    setData(project);
+  const navigateTo = Router.useNavigate();
+
+  projectsManager.onProjectEdited = async (data) => {
+    const edited = projectsManager.getProject(id);
+    if (!(edited instanceof Project)) return;
+    setData(edited);
+    await updateCollection<Partial<IProject>>("projects", id, data);
+    navigateTo("/");
   };
 
   const onEditClick = () => {
@@ -44,7 +56,7 @@ const DetailsCard = ({ project }: Props) => {
     };
     try {
       console.log("DATE:", editedProject.date.toString());
-      project.editProject(editedProject);
+      projectsManager.editProject(id, editedProject);
       onCancelClick();
     } catch (error) {
       console.log(error);

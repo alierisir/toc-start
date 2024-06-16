@@ -41,11 +41,9 @@ export class Project implements IProject {
   todoList: ToDo[] = [];
 
   //Events
-  onChange = (edit: IProject) => {};
   onNewTodo = (todo: ToDo) => {};
   onDeleteTodo = () => {};
   onFilterTodo = (filtered: ToDo[]) => {};
-  onProjectUpdated = (update: IProject) => {};
 
   constructor(data: IProject, id = uuid4()) {
     //Project Data definitions
@@ -132,23 +130,20 @@ export class Project implements IProject {
     this.todoList = remaining;
   }
 
-  editProject(data: IProject) {
+  edit(data: IProject) {
     for (const key in data) {
       console.log(this.name, ":", key, "editing...");
       const value = data[key] ? data[key] : this[key];
       this[key] = value;
     }
     this.initials = getInitials(this.name);
-    this.onChange(data);
   }
 
-  updateProject(data: IProject) {
+  update(data: IProject) {
     for (const key in data) {
       console.log(this.name, ":", key, "updating");
       this[key] = data[key] ? data[key] : this[key];
     }
     this.initials = getInitials(this.name);
-    this.onProjectUpdated(data);
-    return this;
   }
 }

@@ -35,7 +35,7 @@ const ProjectsPage = ({ projectsManager }: Props) => {
       } catch (error) {
         const project = projectsManager.getProject(doc.id);
         if (!(project instanceof Project)) return;
-        project.updateProject(projectTemplate);
+        projectsManager.updateProject(doc.id, projectTemplate);
         await updateCollection<Partial<IProject>>("projects", doc.id, projectTemplate);
         console.log(doc.id, " project updated...");
       }
@@ -84,13 +84,10 @@ const ProjectsPage = ({ projectsManager }: Props) => {
       role: formData.get("role") as Role,
       date,
     };
+
     try {
       const doc = await Firestore.addDoc(projectsCollection, projectData);
       const project = projectsManager.newProject(projectData, doc.id);
-      project.onChange = async (data) => {
-        await updateCollection<Partial<IProject>>("projects", doc.id, data);
-        console.log(doc.id, " project updated...");
-      };
       onCancelClicked();
     } catch (e) {
       console.warn(e);

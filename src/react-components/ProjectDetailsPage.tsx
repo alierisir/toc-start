@@ -33,7 +33,7 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
       <DetailsHeader project={project} deleteProject={onDeleteProject} />
       <div className="main-page-content">
         <div id="details-container">
-          <DetailsCard project={project} />
+          <DetailsCard projectsManager={projectsManager} id={routeParams.id} />
           <ToDoContainer project={project} />
         </div>
         <IFCViewer />

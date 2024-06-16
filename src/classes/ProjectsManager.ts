@@ -5,6 +5,8 @@ export class ProjectsManager {
   list: Project[] = [];
   onProjectCreated = (project: Project) => {};
   onProjectDeleted = (id: string) => {};
+  onProjectEdited = (data: IProject) => {};
+  onProjectUpdated = (data: IProject) => {};
   onListFiltered = (filtered: Project[]) => {};
 
   filterProjects(value: string) {
@@ -70,6 +72,20 @@ export class ProjectsManager {
     if (project) return this.getProject(project.id);
   }
 
+  updateProject(id: string, data: IProject) {
+    const project = this.getProject(id);
+    if (!(project instanceof Project)) return;
+    project.update(data);
+    this.onProjectUpdated(data);
+  }
+
+  editProject(id: string, data: IProject) {
+    const project = this.getProject(id);
+    if (!(project instanceof Project)) return;
+    project.edit(data);
+    this.onProjectEdited(data);
+  }
+
   deleteProject(id: string) {
     const project = this.getProject(id);
     if (!project) {
@@ -124,7 +140,7 @@ export class ProjectsManager {
           } else {
             //console.log(project.id, "is updated");
             const existingProject = this.getProject(project.id) as Project;
-            existingProject.editProject(project);
+            existingProject.edit(project);
             if (project.todoList) this.initiateToDoList(existingProject, project.todoList);
           }
         } catch (error) {
