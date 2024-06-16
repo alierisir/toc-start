@@ -46,13 +46,15 @@ const DetailsCard = ({ projectsManager, id }: Props) => {
         ? project.date
         : new Date(formData.get("edit-date") as string);
     const editedProject: IProject = {
-      name: formData.get("edit-name") as string,
-      description: formData.get("edit-description") as string,
-      cost: Number(formData.get("edit-cost")),
-      progress: Number(formData.get("edit-progress")),
+      name: formData.get("edit-name") ? (formData.get("edit-name") as string) : project.name,
+      description: formData.get("edit-description")
+        ? (formData.get("edit-description") as string)
+        : project.description,
+      cost: formData.get("edit-cost") ? Number(formData.get("edit-cost")) : project.cost,
+      progress: formData.get("edit-progress") ? Number(formData.get("edit-progress")) : project.progress,
       date,
-      role: formData.get("edit-role") as Role,
-      status: formData.get("edit-status") as Status,
+      role: formData.get("edit-role") ? (formData.get("edit-role") as Role) : project.role,
+      status: formData.get("edit-status") ? (formData.get("edit-status") as Status) : project.status,
     };
     try {
       console.log("DATE:", editedProject.date.toString());
