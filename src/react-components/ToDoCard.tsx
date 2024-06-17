@@ -1,7 +1,8 @@
 import React from "react";
 import { Project } from "../classes/Project";
 import { correctDate } from "../classes/CustomFunctions";
-import { ToDo } from "../classes/ToDo";
+import { IToDo, ToDo } from "../classes/ToDo";
+import { updateCollection } from "../firebase";
 
 interface Props {
   todo: ToDo;
@@ -17,10 +18,15 @@ const ToDoCard = ({ todo, onDeleteClick }: Props) => {
   };
   const status_symbol = symbols[status];
 
-  const onCheckboxClicked = () => {
+  const onCheckboxClicked = async () => {
     todo.toggleStatus(status);
     const updatedStatus = todo.getStatus();
     setStatus(updatedStatus);
+    const data = {
+      status: todo.getStatus(),
+      deadline: todo.deadline,
+    };
+    await updateCollection<Partial<IToDo>>("todos", todo.taskId, data);
   };
 
   return (
