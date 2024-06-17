@@ -1,32 +1,35 @@
-import { monthsAfterToday, correctDate, dateAfterFromPoint } from "./CustomFunctions";
+import {
+  monthsAfterToday,
+  correctDate,
+  dateAfterFromPoint,
+} from "./CustomFunctions";
 import { v4 as uuid4 } from "uuid";
+import * as Firestore from "firebase/firestore";
 
 export type ToDoStatus = "active" | "completed" | "overdue";
 
 export interface IToDo {
   task: string;
-  status?: ToDoStatus;
+  status: ToDoStatus;
   deadline: Date;
-  taskId?: string;
+  projectId: string;
 }
 
 export class ToDo implements IToDo {
   //satisfy IToDo
-  task: string = "this is a blank task created by default.Deadline is set to 1 month from today.";
-  deadline: Date = monthsAfterToday(1);
-
-  //class internals
+  task: string =
+    "this is a blank task created by default.Deadline is set to 1 month from today.";
+  deadline: Date;
+  projectId: string;
   status: ToDoStatus = "active";
+  //class internal
   taskId: string;
 
-  constructor(data: IToDo) {
-    this.taskId = data.taskId ? data.taskId : uuid4();
+  constructor(data: IToDo, id: string = uuid4()) {
+    this.taskId = id;
+    this.projectId = data.projectId;
     this.task = data.task;
     this.deadline = data.deadline;
-    if (data.deadline.toString() === "Invalid Date") {
-      this.deadline = dateAfterFromPoint(new Date(), 0, 0, 14);
-      //console.log("There is no deadline selected for this task. Deadline is set to 14 days from today by default.");
-    }
     this.status = data.status ? data.status : "active";
     this.checkStatus();
   }

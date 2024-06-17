@@ -1,19 +1,54 @@
 import React from "react";
 import ToDoCard from "./ToDoCard";
 import { Project } from "../classes/Project";
-import { IToDo, ToDoStatus } from "../classes/ToDo";
+import { ToDo, IToDo, ToDoStatus } from "../classes/ToDo";
 import * as CF from "../classes/CustomFunctions";
 import SearchBox from "./SearchBox";
+import { getCollection, updateCollection } from "../firebase";
+import * as Firestore from "firebase/firestore";
 
 interface Props {
   project: Project;
 }
 
+const todosCollection = getCollection<IToDo>("/todos");
+
 const ToDoContainer = ({ project }: Props) => {
   const [list, setList] = React.useState(project.getToDoList());
 
+  const getFirebaseTodos = async (projectId: string) => {
+    const firebaseTodos = await Firestore.getDocs(todosCollection);
+    //console.log("firebaseTodos", firebaseTodos);
+    for (const doc of firebaseTodos.docs) {
+      //console.log("doc", doc);
+      const data = doc.data();
+      //console.log("data", data);
+      if (!(data.projectId === projectId)) continue;
+      const todoTemplate: IToDo = {
+        ...data,
+        deadline: (data.deadline as unknown as Firestore.Timestamp).toDate(),
+      };
+      //console.log("todoTemplate", todoTemplate);
+      try {
+        const todo = project.newToDo(todoTemplate, doc.id);
+        //console.log("todo", todo);
+      } catch (error) {
+        const todo = project.getToDo(doc.id);
+        if (!(todo instanceof ToDo)) return;
+        project.updateToDo(doc.id, todoTemplate);
+        await updateCollection<Partial<IToDo>>("todos", doc.id, todoTemplate);
+        //console.log(doc.id, " todo updated...");
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    getFirebaseTodos(project.id);
+    console.log(project.getToDoList());
+  }, []);
+
   project.onNewTodo = (todo) => {
-    console.log(todo);
+    //console.log(todo);
     setList([...project.getToDoList()]);
   };
 
@@ -33,34 +68,43 @@ const ToDoContainer = ({ project }: Props) => {
   ));
 
   const onNewTodoClick = () => {
-    const modal = document.getElementById("new-todo-modal") as HTMLDialogElement;
+    const modal = document.getElementById(
+      "new-todo-modal"
+    ) as HTMLDialogElement;
     modal.showModal();
   };
 
   const onCancelClick = () => {
-    const modal = document.getElementById("new-todo-modal") as HTMLDialogElement;
+    const modal = document.getElementById(
+      "new-todo-modal"
+    ) as HTMLDialogElement;
     modal.close();
     const form = document.getElementById("new-todo-form") as HTMLFormElement;
     form.reset();
   };
 
-  const onFormSubmit = (e: React.FormEvent) => {
+  const onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = document.getElementById("new-todo-form") as HTMLFormElement;
     const formData = new FormData(form);
     const deadline =
-      new Date(formData.get("todo-deadline") as string).toDateString() === "Invalid Date"
+      new Date(formData.get("todo-deadline") as string).toDateString() ===
+      "Invalid Date"
         ? CF.monthsAfterToday(1)
         : new Date(formData.get("todo-deadline") as string);
     const itodo: IToDo = {
       task: formData.get("todo-task") as string,
       deadline,
       status: formData.get("todo-status") as ToDoStatus,
+      projectId: project.id,
     };
     try {
-      project.newToDo(itodo);
+      const doc = await Firestore.addDoc(todosCollection, itodo);
+      project.newToDo(itodo, doc.id);
       onCancelClick();
-    } catch (error) {}
+    } catch (error) {
+      console.warn(e);
+    }
   };
 
   project.onFilterTodo = (filtered) => {
@@ -77,7 +121,8 @@ const ToDoContainer = ({ project }: Props) => {
           }}
         >
           <h2 className="modal-header">
-            <span className="material-symbols-outlined">assignment_add</span>New ToDo
+            <span className="material-symbols-outlined">assignment_add</span>New
+            ToDo
           </h2>
           <div className="project-properties">
             <label htmlFor="todo-task">
@@ -114,11 +159,17 @@ const ToDoContainer = ({ project }: Props) => {
             <input id="todo-deadline" name="todo-deadline" type="date" />
           </div>
           <div className="button-section">
-            <button id="todo-cancel" type="button" className="cancel-btn" onClick={onCancelClick}>
+            <button
+              id="todo-cancel"
+              type="button"
+              className="cancel-btn"
+              onClick={onCancelClick}
+            >
               <span className="material-symbols-outlined">cancel</span>Cancel
             </button>
             <button type="submit" className="accept-btn">
-              <span className="material-symbols-outlined">check_circle</span>Accept
+              <span className="material-symbols-outlined">check_circle</span>
+              Accept
             </button>
           </div>
         </form>
@@ -126,8 +177,15 @@ const ToDoContainer = ({ project }: Props) => {
       <div className="todo-header">
         <h3>To-Do</h3>
         <div>
-          <SearchBox items="tasks" onChange={(value) => project.filterTodo(value)} />
-          <button project-info-btn="todo-add" todo-add="" onClick={onNewTodoClick}>
+          <SearchBox
+            items="tasks"
+            onChange={(value) => project.filterTodo(value)}
+          />
+          <button
+            project-info-btn="todo-add"
+            todo-add=""
+            onClick={onNewTodoClick}
+          >
             <span className="material-symbols-outlined">playlist_add</span>
           </button>
         </div>

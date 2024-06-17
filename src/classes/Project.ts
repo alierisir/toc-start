@@ -55,43 +55,48 @@ export class Project implements IProject {
   }
 
   filterTodo(value: string) {
-    const filtered = this.getToDoList().filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
+    const filtered = this.getToDoList().filter((todo) =>
+      todo.task.toLowerCase().includes(value.toLowerCase())
+    );
     this.onFilterTodo(filtered);
   }
 
   private addDummyToDo() {
-    const itodo = {
+    const itodo: IToDo = {
       task: "test task, this is a dummy task created automatically deadline is 1 month from today",
       deadline: monthsAfterToday(-1),
+      status: "active",
+      projectId: this.id,
     };
     this.newToDo(itodo);
     //console.log("addDumyToDo() successfull");
   }
 
-  newToDo(iTodo: IToDo) {
-    if (this.checkToDoExist(iTodo)) return this.updateToDo(iTodo as ToDo);
-    const todo = new ToDo(iTodo);
+  newToDo(iTodo: IToDo, id?: string) {
+    if (id && this.checkToDoExist(id)) {
+      throw new Error("Todo is already exists");
+    }
+    //console.log("creating new todo");
+    const todo = new ToDo(iTodo, id);
+    //console.log("created:", todo);
     this.todoList.push(todo);
-    //console.log(todo.taskId, " todo added successfully");
+    //console.log(todo, " todo added successfully");
     this.onNewTodo(todo);
     return todo;
   }
 
-  updateToDo(todo: ToDo) {
-    const existingTodo = this.getToDo(todo.taskId);
-    if (existingTodo) {
-      existingTodo.task = todo.task;
-      existingTodo.setStatus(todo.status);
-      existingTodo.setDeadline(todo.deadline);
-    }
+  updateToDo(id: string, data: IToDo) {
+    const existingTodo = this.getToDo(id);
+    if (!(existingTodo instanceof ToDo)) return;
+    existingTodo.task = data.task;
+    existingTodo.setStatus(data.status);
+    existingTodo.setDeadline(data.deadline);
   }
 
-  checkToDoExist(iTodo: IToDo) {
+  checkToDoExist(id: string) {
     const todoIds = this.todoList.map((todo) => {
       return todo.taskId;
     });
-    const id = iTodo.taskId ? iTodo.taskId : false;
-    if (!id) return false;
     const isTodoExist = todoIds.includes(id);
     return isTodoExist;
   }
@@ -132,7 +137,7 @@ export class Project implements IProject {
 
   edit(data: IProject) {
     for (const key in data) {
-      console.log(this.name, ":", key, "editing...");
+      //console.log(this.name, ":", key, "editing...");
       const value = data[key] ? data[key] : this[key];
       this[key] = value;
     }
@@ -141,7 +146,7 @@ export class Project implements IProject {
 
   update(data: IProject) {
     for (const key in data) {
-      console.log(this.name, ":", key, "updating");
+      //console.log(this.name, ":", key, "updating");
       this[key] = data[key] ? data[key] : this[key];
     }
     this.initials = getInitials(this.name);

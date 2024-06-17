@@ -20,7 +20,10 @@ const app = initializeApp(firebaseConfig);
 export const firebaseDB = Firestore.getFirestore(app);
 
 export const getCollection = <T>(path: string) => {
-  return Firestore.collection(firebaseDB, "/projects") as Firestore.CollectionReference<T>;
+  return Firestore.collection(
+    firebaseDB,
+    path
+  ) as Firestore.CollectionReference<T>;
 };
 
 export const deleteCollection = async (path: string, id: string) => {
@@ -28,7 +31,11 @@ export const deleteCollection = async (path: string, id: string) => {
   await Firestore.deleteDoc(doc);
 };
 
-export const updateCollection = async <T extends Record<string, any>>(path: string, id: string, data: T) => {
+export const updateCollection = async <T extends Record<string, any>>(
+  path: string,
+  id: string,
+  data: T
+) => {
   const doc = Firestore.doc(firebaseDB, `/${path}/${id}`);
   await Firestore.updateDoc(doc, data);
 };

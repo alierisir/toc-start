@@ -36,8 +36,12 @@ const ProjectsPage = ({ projectsManager }: Props) => {
         const project = projectsManager.getProject(doc.id);
         if (!(project instanceof Project)) return;
         projectsManager.updateProject(doc.id, projectTemplate);
-        await updateCollection<Partial<IProject>>("projects", doc.id, projectTemplate);
-        console.log(doc.id, " project updated...");
+        await updateCollection<Partial<IProject>>(
+          "projects",
+          doc.id,
+          projectTemplate
+        );
+        //console.log(doc.id, " project updated...");
       }
     }
   };
@@ -58,19 +62,25 @@ const ProjectsPage = ({ projectsManager }: Props) => {
   };
 
   const onNewProjectClicked = () => {
-    const modal = document.getElementById("new-project-modal") as HTMLDialogElement;
+    const modal = document.getElementById(
+      "new-project-modal"
+    ) as HTMLDialogElement;
     modal.showModal();
   };
 
   const onCancelClicked = () => {
-    const modal = document.getElementById("new-project-modal") as HTMLDialogElement;
+    const modal = document.getElementById(
+      "new-project-modal"
+    ) as HTMLDialogElement;
     modal.close();
     const form = document.getElementById("new-project-form") as HTMLFormElement;
     form.reset();
   };
 
   const onFormSubmitted = async (e: React.FormEvent) => {
-    const projectForm = document.getElementById("new-project-form") as HTMLFormElement;
+    const projectForm = document.getElementById(
+      "new-project-form"
+    ) as HTMLFormElement;
     e.preventDefault();
     const formData = new FormData(projectForm);
     const date =
@@ -113,13 +123,21 @@ const ProjectsPage = ({ projectsManager }: Props) => {
           }}
         >
           <h2 className="modal-header">
-            <span className="material-symbols-outlined">add_business</span>New Project
+            <span className="material-symbols-outlined">add_business</span>New
+            Project
           </h2>
           <div className="project-properties">
             <label htmlFor="name">
               <span className="material-symbols-outlined">label</span>Name
             </label>
-            <input type="text" name="name" id="name" placeholder="Name of the project" minLength={5} required={true} />
+            <input
+              type="text"
+              name="name"
+              id="name"
+              placeholder="Name of the project"
+              minLength={5}
+              required={true}
+            />
             <p className="modal-tips">TIP:Give it simple name</p>
           </div>
           <div className="project-properties">
@@ -164,12 +182,18 @@ const ProjectsPage = ({ projectsManager }: Props) => {
           </div>
           <div className="project-properties">
             <label htmlFor="date">
-              <span className="material-symbols-outlined">event</span>Finishing Date
+              <span className="material-symbols-outlined">event</span>Finishing
+              Date
             </label>
             <input id="date-input" name="date" type="date" />
           </div>
           <div className="button-section">
-            <button id="form-cancel" type="button" className="cancel-btn" onClick={onCancelClicked}>
+            <button
+              id="form-cancel"
+              type="button"
+              className="cancel-btn"
+              onClick={onCancelClicked}
+            >
               <span className="material-symbols-outlined">cancel</span>Cancel
             </button>
             <button type="submit" className="accept-btn">
@@ -181,7 +205,10 @@ const ProjectsPage = ({ projectsManager }: Props) => {
       </dialog>
       <header>
         <h2>Projects</h2>
-        <SearchBox items="projects" onChange={(value) => projectsManager.filterProjects(value)} />
+        <SearchBox
+          items="projects"
+          onChange={(value) => projectsManager.filterProjects(value)}
+        />
         <div className="button-section">
           <button id="import-from-json" onClick={onImport}>
             <span className="material-symbols-outlined">upload_2</span>
@@ -192,11 +219,14 @@ const ProjectsPage = ({ projectsManager }: Props) => {
             Download Projects
           </button>
           <button id="new-project-btn" onClick={onNewProjectClicked}>
-            <span className="material-symbols-outlined">add_business</span>New Project
+            <span className="material-symbols-outlined">add_business</span>New
+            Project
           </button>
         </div>
       </header>
-      <div id="projects-list">{listProjects.length === 0 ? <>Project was not found!</> : listProjects}</div>
+      <div id="projects-list">
+        {listProjects.length === 0 ? <>Project was not found!</> : listProjects}
+      </div>
     </div>
   );
 };
