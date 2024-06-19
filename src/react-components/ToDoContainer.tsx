@@ -1,11 +1,14 @@
 import React from "react";
 import ToDoCard from "./ToDoCard";
 import { Project } from "../classes/Project";
-import { ToDo, IToDo, ToDoStatus } from "../classes/ToDo";
+import * as OBC from "openbim-components";
+import { ToDo, IToDo, ToDoStatus, ToDoPriority } from "../classes/ToDo";
 import * as CF from "../classes/CustomFunctions";
 import SearchBox from "./SearchBox";
 import { deleteCollection, getCollection, updateCollection } from "../firebase";
 import * as Firestore from "firebase/firestore";
+import { ViewerContext } from "./IFCViewer";
+import { TodoCreator } from "../bim-components/TodoCreator";
 
 interface Props {
   project: Project;
@@ -14,6 +17,7 @@ interface Props {
 const todosCollection = getCollection<IToDo>("/todos");
 
 const ToDoContainer = ({ project }: Props) => {
+  const { viewer } = React.useContext(ViewerContext);
   const [list, setList] = React.useState(project.getToDoList());
 
   const getFirebaseTodos = async (projectId: string) => {
@@ -31,7 +35,6 @@ const ToDoContainer = ({ project }: Props) => {
       //console.log("todoTemplate", todoTemplate);
       try {
         const todo = project.newToDo(todoTemplate, doc.id);
-        //console.log("todo", todo);
       } catch (error) {
         const todo = project.getToDo(doc.id);
         if (!(todo instanceof ToDo)) return;
@@ -58,15 +61,38 @@ const ToDoContainer = ({ project }: Props) => {
     setList([...project.getToDoList()]);
   };
 
-  const todoList = list.map((todo) => (
-    <ToDoCard
-      key={todo.taskId}
-      todo={todo}
-      onDeleteClick={() => {
-        onDeleteTodo(todo.taskId);
-      }}
-    />
-  ));
+  const handleCardClick = async (id: string) => {
+    if (!viewer) return;
+    const camera = viewer.camera;
+    if (!(camera instanceof OBC.OrthoPerspectiveCamera)) return;
+    const todoCreator = await viewer.tools.get(TodoCreator);
+    const todo = todoCreator.getTodo(id);
+    if (!todo) return;
+    todo.card.get().click();
+  };
+
+  const createViewerTodo = async (todo: ToDo) => {
+    if (!viewer) return;
+    const todoCreator = await viewer.tools.get(TodoCreator);
+    const viewerTodo = await todoCreator.addTodo(todo.task, todo.priority, todo.taskId);
+    //Add firestore document update here!!!
+  };
+
+  const todoList = list.map((todo) => {
+    createViewerTodo(todo);
+    return (
+      <ToDoCard
+        key={todo.taskId}
+        todo={todo}
+        onDeleteClick={() => {
+          onDeleteTodo(todo.taskId);
+        }}
+        onCardClick={() => {
+          handleCardClick(todo.taskId);
+        }}
+      />
+    );
+  });
 
   const onNewTodoClick = () => {
     const modal = document.getElementById("new-todo-modal") as HTMLDialogElement;
@@ -90,6 +116,7 @@ const ToDoContainer = ({ project }: Props) => {
         : new Date(formData.get("todo-deadline") as string);
     const itodo: IToDo = {
       task: formData.get("todo-task") as string,
+      priority: formData.get("todo-priority") as ToDoPriority,
       deadline,
       status: formData.get("todo-status") as ToDoStatus,
       projectId: project.id,
@@ -145,6 +172,19 @@ const ToDoContainer = ({ project }: Props) => {
               </option>
               <option value="completed">Completed</option>
               <option value="overdue">Overdue</option>
+            </select>
+          </div>
+          <div className="project-properties">
+            <label htmlFor="todo-priority">
+              <span className="material-symbols-outlined">priority_high</span>
+              Priority
+            </label>
+            <select name="todo-priority" id="todo-priority">
+              <option value="normal" defaultValue="normal">
+                Normal
+              </option>
+              <option value="low">Low</option>
+              <option value="high">High</option>
             </select>
           </div>
           <div className="project-properties">

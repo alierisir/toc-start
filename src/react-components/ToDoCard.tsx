@@ -7,9 +7,10 @@ import { updateCollection } from "../firebase";
 interface Props {
   todo: ToDo;
   onDeleteClick: () => void;
+  onCardClick: () => void;
 }
 
-const ToDoCard = ({ todo, onDeleteClick }: Props) => {
+const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
   const [status, setStatus] = React.useState(todo.getStatus());
   const symbols = {
     active: "check_box_outline_blank",
@@ -30,12 +31,23 @@ const ToDoCard = ({ todo, onDeleteClick }: Props) => {
   };
 
   return (
-    <div className={`list-item todo-${status}`}>
+    <div className={`list-item todo-${status}`} onClick={onCardClick}>
       <p todo-list-functions="toggle-active" onClick={onCheckboxClicked}>
         <span className="material-symbols-outlined">{status_symbol}</span>
       </p>
       <p>{todo.task}</p>
-      <p>{todo.deadline.toLocaleDateString()}</p>
+      <div
+        style={{
+          fontStyle: "italic",
+          fontSize: "0.6rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <p>{todo.priority}</p>
+        <p>{todo.deadline.toLocaleDateString()}</p>
+      </div>
       <p onClick={onDeleteClick}>
         <span className="material-symbols-outlined">delete</span>
       </p>

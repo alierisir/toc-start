@@ -4,13 +4,13 @@ import * as THREE from "three";
 import { TodoCard } from "./TodoCard";
 import { TodoCreator } from "..";
 
-export type TodoPriority = "Low" | "Normal" | "High";
+export type TodoPriority = "low" | "normal" | "high";
 
 export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
   enabled: boolean = true;
   private _components: OBC.Components;
   //Own Properties
-  id: string = generateUUID();
+  id: string;
   description: string;
   date: Date = new Date();
   priority: TodoPriority;
@@ -21,12 +21,9 @@ export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
   fragmentMap: OBC.FragmentIdMap;
   card: TodoCard;
 
-  constructor(
-    components: OBC.Components,
-    description: string,
-    priority: TodoPriority
-  ) {
+  constructor(components: OBC.Components, description: string, priority: TodoPriority, id: string) {
     super(components);
+    this.id = id;
     this._components = components;
     this.description = description;
     this.priority = priority;
@@ -35,12 +32,9 @@ export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
   }
 
   private async setup() {
-    const highlighter = await this._components.tools.get(
-      OBC.FragmentHighlighter
-    );
+    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
     const camera = this._components.camera;
-    if (!(camera instanceof OBC.OrthoPerspectiveCamera))
-      return console.warn("OrthoPerspective Camera is not found!");
+    if (!(camera instanceof OBC.OrthoPerspectiveCamera)) return console.warn("OrthoPerspective Camera is not found!");
     const position = new THREE.Vector3();
     const target = new THREE.Vector3();
     camera.controls.getPosition(position);
@@ -61,15 +55,11 @@ export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
     this.card.date = this.date;
     this.card.priority = this.priority;
 
-    const highlighter = await this._components.tools.get(
-      OBC.FragmentHighlighter
-    );
+    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
 
     const camera = this._components.camera;
     if (!(camera instanceof OBC.OrthoPerspectiveCamera))
-      return console.warn(
-        "This operation requires an active OrthoPerspective Camera"
-      );
+      return console.warn("This operation requires an active OrthoPerspective Camera");
 
     this.card.onCardClick.add(async () => {
       await camera.fit();
