@@ -4,7 +4,9 @@ import { ToDo } from "./ToDo";
 export class ProjectsManager {
   list: Project[] = [];
   onProjectCreated = (project: Project) => {};
-  onProjectDeleted = () => {};
+  onProjectDeleted = (id: string) => {};
+  onProjectEdited = (data: IProject) => {};
+  onProjectUpdated = (data: IProject) => {};
   onListFiltered = (filtered: Project[]) => {};
 
   filterProjects(value: string) {
@@ -16,8 +18,8 @@ export class ProjectsManager {
 
   initiateToDoList(project: Project, todoList: ToDo[]) {
     todoList.map((todo) => {
-      const { taskId, task, deadline, status } = todo;
-      project.newToDo({ task, deadline, status, taskId });
+      const { taskId, task, deadline, status, projectId, priority } = todo;
+      project.newToDo({ task, deadline, status, projectId, priority }, taskId);
     });
   }
 
@@ -41,15 +43,16 @@ export class ProjectsManager {
     const projectIds = this.list.map((project) => {
       return project.id;
     });
-    return projectIds.includes(id);
+    const idInUse = projectIds.includes(id);
+    return idInUse;
   }
 
-  newProject(data: IProject, id: string) {
-    if (this.checkIdInUse(id)) {
-      //bu noktada geri dönmek yerine, id'ler kontrol edilmeli, id mevcut ise proje update edilecek, değil ise yeni
+  newProject(data: IProject, id?: string) {
+    if (id && this.checkIdInUse(id)) {
       throw new Error("There is already a project with the same id!");
     }
-    const project = new Project(data);
+
+    const project = new Project(data, id);
     this.list.push(project);
     this.onProjectCreated(project);
     return project;
@@ -69,17 +72,30 @@ export class ProjectsManager {
     if (project) return this.getProject(project.id);
   }
 
+  updateProject(id: string, data: IProject) {
+    const project = this.getProject(id);
+    if (!(project instanceof Project)) return;
+    project.update(data);
+    this.onProjectUpdated(data);
+  }
+
+  editProject(id: string, data: IProject) {
+    const project = this.getProject(id);
+    if (!(project instanceof Project)) return;
+    project.edit(data);
+    this.onProjectEdited(data);
+  }
+
   deleteProject(id: string) {
     const project = this.getProject(id);
     if (!project) {
       return;
     }
-    project.ui.remove();
     const remaining = this.list.filter((project) => {
       return project.id !== id;
     });
     this.list = remaining;
-    this.onProjectDeleted();
+    this.onProjectDeleted(id);
   }
 
   getTotalCost() {
@@ -91,7 +107,7 @@ export class ProjectsManager {
 
   exportToJSON(fileName: string = "projects") {
     const json = JSON.stringify(this.list, null, 2);
-    console.log(json);
+    //console.log(json);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -116,19 +132,15 @@ export class ProjectsManager {
       for (const project of projects) {
         try {
           if (!this.checkIdInUse(project.id)) {
-            const data:IProject = {
-              name:project.name,
-              
-            }
-            const newProject = this.newProject(,project.id);
+            const newProject = this.newProject(project);
             for (const key in project) {
-              console.log(key, " data:", project[key], " project:", newProject[key]);
+              //console.log(key, " data:", project[key], " project:", newProject[key]);
             }
             if (project.todoList) this.initiateToDoList(newProject, project.todoList);
           } else {
-            console.log(project.id, "is updated");
+            //console.log(project.id, "is updated");
             const existingProject = this.getProject(project.id) as Project;
-            existingProject.editProject(project);
+            existingProject.edit(project);
             if (project.todoList) this.initiateToDoList(existingProject, project.todoList);
           }
         } catch (error) {
@@ -145,6 +157,6 @@ export class ProjectsManager {
       reader.readAsText(file);
     });
     input.click();
-    console.log(this.list);
+    //console.log(this.list);
   }
 }
