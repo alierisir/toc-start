@@ -1,8 +1,6 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
 import * as Firestore from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -18,4 +16,19 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const firebaseDB = Firestore.getFirestore();
+
+export const firebaseDB = Firestore.getFirestore(app);
+
+export const getCollection = <T>(path: string) => {
+  return Firestore.collection(firebaseDB, path) as Firestore.CollectionReference<T>;
+};
+
+export const deleteCollection = async (path: string, id: string) => {
+  const doc = Firestore.doc(firebaseDB, `/${path}/${id}`);
+  await Firestore.deleteDoc(doc);
+};
+
+export const updateCollection = async <T extends Record<string, any>>(path: string, id: string, data: T) => {
+  const doc = Firestore.doc(firebaseDB, `/${path}/${id}`);
+  await Firestore.updateDoc(doc, data);
+};
