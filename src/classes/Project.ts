@@ -55,9 +55,7 @@ export class Project implements IProject {
   }
 
   filterTodo(value: string) {
-    const filtered = this.getToDoList().filter((todo) =>
-      todo.task.toLowerCase().includes(value.toLowerCase())
-    );
+    const filtered = this.getToDoList().filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
     this.onFilterTodo(filtered);
   }
 
@@ -67,6 +65,7 @@ export class Project implements IProject {
       deadline: monthsAfterToday(-1),
       status: "active",
       projectId: this.id,
+      priority: "normal",
     };
     this.newToDo(itodo);
     //console.log("addDumyToDo() successfull");
