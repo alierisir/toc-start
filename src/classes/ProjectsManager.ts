@@ -7,16 +7,6 @@ export class ProjectsManager {
   onProjectDeleted = () => {};
   onListFiltered = (filtered: Project[]) => {};
 
-  constructor() {
-    const project = this.newProject({
-      name: "Default Project",
-      description: "This is just a default app project",
-      status: "pending",
-      role: "architect",
-      date: new Date(),
-    });
-  }
-
   filterProjects(value: string) {
     const filtered = this.list.filter((project) => {
       return project.name.toLowerCase().includes(value.toLowerCase());
@@ -47,18 +37,17 @@ export class ProjectsManager {
     return nameInUse;
   }
 
-  checkIdInUse(data: Project) {
+  checkIdInUse(id: string) {
     const projectIds = this.list.map((project) => {
       return project.id;
     });
-    const idInUse = projectIds.includes(data.id);
-    return idInUse;
+    return projectIds.includes(id);
   }
 
-  newProject(data: IProject) {
-    if (this.checkNameInUse(data)) {
+  newProject(data: IProject, id: string) {
+    if (this.checkIdInUse(id)) {
       //bu noktada geri dönmek yerine, id'ler kontrol edilmeli, id mevcut ise proje update edilecek, değil ise yeni
-      throw new Error("There is already a project with the same name!");
+      throw new Error("There is already a project with the same id!");
     }
     const project = new Project(data);
     this.list.push(project);
@@ -126,8 +115,12 @@ export class ProjectsManager {
       const projects: Project[] = JSON.parse(json as string); //id'si olmayan bir projeyi JSON içinde oluşturup import etmeyi denemeliyim.
       for (const project of projects) {
         try {
-          if (!this.checkIdInUse(project)) {
-            const newProject = this.newProject(project);
+          if (!this.checkIdInUse(project.id)) {
+            const data:IProject = {
+              name:project.name,
+              
+            }
+            const newProject = this.newProject(,project.id);
             for (const key in project) {
               console.log(key, " data:", project[key], " project:", newProject[key]);
             }

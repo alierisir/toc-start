@@ -2,10 +2,7 @@ import { ToDo, TodoPriority } from "./src/ToDo";
 import * as OBC from "openbim-components";
 import * as THREE from "three";
 
-export class TodoCreator
-  extends OBC.Component<ToDo[]>
-  implements OBC.UI, OBC.Disposable
-{
+export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Disposable {
   static uuid = "3e76b69b-febc-45f8-a9ed-44c466b0cbb2";
   onProjectCreated = new OBC.Event<ToDo>();
   enabled = true;
@@ -30,9 +27,7 @@ export class TodoCreator
   }
 
   async setup() {
-    const highlighter = await this._components.tools.get(
-      OBC.FragmentHighlighter
-    );
+    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
     highlighter.add(`${TodoCreator.uuid}-priority-Low`, [
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0x4be973) }),
     ]);
@@ -80,6 +75,7 @@ export class TodoCreator
     todoList.addChild(todoCard);
     //Load event
     this.onProjectCreated.trigger(todo);
+    return todo;
   }
 
   private async setUi() {
@@ -130,9 +126,7 @@ export class TodoCreator
 
     todoListToolbar.addChild(searchText);
 
-    const highlighter = await this._components.tools.get(
-      OBC.FragmentHighlighter
-    );
+    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
     colorizeBtn.onClick.add(() => {
       colorizeBtn.active = !colorizeBtn.active;
       if (colorizeBtn.active) {
@@ -141,10 +135,7 @@ export class TodoCreator
           if (fragmentMapLength === 0) {
             return;
           }
-          highlighter.highlightByID(
-            `${TodoCreator.uuid}-priority-${todo.priority}`,
-            todo.fragmentMap
-          );
+          highlighter.highlightByID(`${TodoCreator.uuid}-priority-${todo.priority}`, todo.fragmentMap);
         }
       } else {
         highlighter.clear(`${TodoCreator.uuid}-priority-Low`);
@@ -175,10 +166,7 @@ export class TodoCreator
     form.slots.content.addChild(priorityDropdown);
 
     form.onAccept.add(() => {
-      this.addTodo(
-        descriptionInput.value,
-        priorityDropdown.value as TodoPriority
-      );
+      this.addTodo(descriptionInput.value, priorityDropdown.value as TodoPriority);
       descriptionInput.value = "";
       priorityDropdown.value = "Normal";
       form.visible = false;

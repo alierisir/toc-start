@@ -1,9 +1,11 @@
 import React from "react";
+import * as Firestore from "firebase/firestore";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
 import * as Router from "react-router-dom";
 import SearchBox from "./SearchBox";
+import { firebaseDB } from "../firebase";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -11,13 +13,33 @@ interface Props {
 
 const ProjectsPage = ({ projectsManager }: Props) => {
   const [list, setList] = React.useState<Project[]>(projectsManager.list);
-
   projectsManager.onProjectCreated = () => {
     setList([...projectsManager.list]);
   };
   projectsManager.onProjectDeleted = () => {
     setList([...projectsManager.list]);
   };
+
+  const getFirestoreProjects = async () => {
+    const projectsCollection = Firestore.collection(firebaseDB, "/projects") as Firestore.CollectionReference<IProject>;
+    const firebaseProjects = await Firestore.getDocs(projectsCollection);
+    for (const doc of firebaseProjects.docs) {
+      const data = doc.data();
+      const projectTemplate: IProject = {
+        ...data,
+        date: (data.date as unknown as Firestore.Timestamp).toDate(),
+      };
+      try {
+        projectsManager.newProject(projectTemplate);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    getFirestoreProjects();
+  }, []);
 
   React.useEffect(() => {}, [list]);
 
