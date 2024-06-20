@@ -6,7 +6,7 @@ import DetailsHeader from "./DetailsHeader";
 import IFCViewer, { ViewerContext } from "./IFCViewer";
 import ToDoCard from "./ToDoCard";
 import { Project } from "../classes/Project";
-import { IToDo, ToDoStatus } from "../classes/ToDo";
+import { IToDo, ToDoPriority, ToDoStatus } from "../classes/ToDo";
 import * as CF from "../classes/CustomFunctions";
 import SearchBox from "./SearchBox";
 import { TodoCreator } from "../bim-components/TodoCreator";
@@ -76,6 +76,8 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
       task: formData.get("todo-task") as string,
       deadline,
       status: formData.get("todo-status") as ToDoStatus,
+      priority: formData.get("todo-priority") as ToDoPriority,
+      projectId: project.id,
     };
     try {
       project.newToDo(itodo);
@@ -134,6 +136,19 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
                     </option>
                     <option value="completed">Completed</option>
                     <option value="overdue">Overdue</option>
+                  </select>
+                </div>
+                <div className="project-properties">
+                  <label htmlFor="todo-priority">
+                    <span className="material-symbols-outlined">low_priority</span>
+                    Priority
+                  </label>
+                  <select name="todo-priority" id="todo-priority">
+                    <option value="normal" defaultValue="normal">
+                      Normal
+                    </option>
+                    <option value="low">Low</option>
+                    <option value="high">High</option>
                   </select>
                 </div>
                 <div className="project-properties">
