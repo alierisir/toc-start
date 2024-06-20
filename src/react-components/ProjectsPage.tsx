@@ -1,27 +1,28 @@
 import React from "react";
+import * as Router from "react-router-dom";
 import * as Firestore from "firebase/firestore";
+import { updateCollection } from "../firebase";
+import { getCollection } from "../firebase";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
-import * as Router from "react-router-dom";
 import SearchBox from "./SearchBox";
-import { firebaseDB } from "../firebase";
+import { monthsAfterToday } from "../classes/CustomFunctions";
 
 interface Props {
   projectsManager: ProjectsManager;
 }
 
+const projectsCollection = getCollection<IProject>("/projects");
+
 const ProjectsPage = ({ projectsManager }: Props) => {
   const [list, setList] = React.useState<Project[]>(projectsManager.list);
+
   projectsManager.onProjectCreated = () => {
     setList([...projectsManager.list]);
   };
-  projectsManager.onProjectDeleted = () => {
-    setList([...projectsManager.list]);
-  };
 
-  const getFirestoreProjects = async () => {
-    const projectsCollection = Firestore.collection(firebaseDB, "/projects") as Firestore.CollectionReference<IProject>;
+  const getFirebaseProjects = async () => {
     const firebaseProjects = await Firestore.getDocs(projectsCollection);
     for (const doc of firebaseProjects.docs) {
       const data = doc.data();
@@ -30,18 +31,19 @@ const ProjectsPage = ({ projectsManager }: Props) => {
         date: (data.date as unknown as Firestore.Timestamp).toDate(),
       };
       try {
-        projectsManager.newProject(projectTemplate);
+        projectsManager.newProject(projectTemplate, doc.id);
       } catch (error) {
-        console.log(error);
+        const project = projectsManager.getProject(doc.id);
+        if (!(project instanceof Project)) return;
+        projectsManager.updateProject(doc.id, projectTemplate);
+        await updateCollection<Partial<IProject>>("projects", doc.id, projectTemplate);
+        //console.log(doc.id, " project updated...");
       }
     }
   };
-
   React.useEffect(() => {
-    getFirestoreProjects();
+    getFirebaseProjects();
   }, []);
-
-  React.useEffect(() => {}, [list]);
 
   const listProjects = list.map((project) => {
     return (
@@ -67,22 +69,28 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     form.reset();
   };
 
-  const onFormSubmitted = (e: React.FormEvent) => {
+  const onFormSubmitted = async (e: React.FormEvent) => {
     const projectForm = document.getElementById("new-project-form") as HTMLFormElement;
     e.preventDefault();
     const formData = new FormData(projectForm);
+    const date =
+      new Date(formData.get("date") as string).toDateString() === "Invalid Date"
+        ? monthsAfterToday(6)
+        : new Date(formData.get("date") as string);
     const projectData: IProject = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       status: formData.get("status") as Status,
       role: formData.get("role") as Role,
-      date: new Date(formData.get("date") as string),
+      date,
     };
+
     try {
-      projectsManager.newProject(projectData);
+      const doc = await Firestore.addDoc(projectsCollection, projectData);
+      const project = projectsManager.newProject(projectData, doc.id);
       onCancelClicked();
     } catch (e) {
-      throw new Error(`Error adding new project: ${e}`);
+      console.warn(e);
     }
   };
 
