@@ -3,17 +3,18 @@ import { generateUUID } from "three/src/math/MathUtils.js";
 import * as THREE from "three";
 import { TodoCard } from "./TodoCard";
 import { TodoCreator } from "..";
+import { IToDo, ToDoPriority, ToDoStatus } from "../../../classes/ToDo";
 
-export type TodoPriority = "low" | "normal" | "high";
-
-export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
+export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable, IToDo {
   enabled: boolean = true;
   private _components: OBC.Components;
   //Own Properties
-  id: string;
-  description: string;
-  date: Date = new Date();
-  priority: TodoPriority;
+  taskId: string;
+  task: string;
+  deadline: Date = new Date();
+  priority: ToDoPriority;
+  status: ToDoStatus;
+  projectId: string;
   camera: { position: THREE.Vector3; target: THREE.Vector3 } = {
     position: new THREE.Vector3(),
     target: new THREE.Vector3(),
@@ -21,12 +22,13 @@ export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
   fragmentMap: OBC.FragmentIdMap;
   card: TodoCard;
 
-  constructor(components: OBC.Components, description: string, priority: TodoPriority, id: string) {
+  constructor(components: OBC.Components, data: IToDo, id: string = generateUUID()) {
     super(components);
-    this.id = id;
     this._components = components;
-    this.description = description;
-    this.priority = priority;
+    this.taskId = id;
+    this.projectId = data.projectId;
+    this.task = data.task;
+    this.priority = data.priority;
     this.setup();
     this.createCard();
   }
@@ -51,8 +53,8 @@ export class ToDo extends OBC.Component<ToDo> implements OBC.Disposable {
   async createCard() {
     const todoCard = new TodoCard(this._components);
     this.card = todoCard;
-    this.card.description = this.description;
-    this.card.date = this.date;
+    this.card.task = this.task;
+    this.card.deadline = this.deadline;
     this.card.priority = this.priority;
 
     const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);

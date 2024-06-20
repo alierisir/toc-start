@@ -20,21 +20,21 @@ const ToDoContainer = ({ project }: Props) => {
   const { viewer } = React.useContext(ViewerContext);
   const [list, setList] = React.useState(project.getToDoList());
 
-  const getFirebaseTodos = async (projectId: string) => {
+  const getFirebaseTodos = async () => {
     const firebaseTodos = await Firestore.getDocs(todosCollection);
     //console.log("firebaseTodos", firebaseTodos);
     for (const doc of firebaseTodos.docs) {
       //console.log("doc", doc);
       const data = doc.data();
       //console.log("data", data);
-      if (!(data.projectId === projectId)) continue;
+      if (!(data.projectId === project.id)) continue;
       const todoTemplate: IToDo = {
         ...data,
         deadline: (data.deadline as unknown as Firestore.Timestamp).toDate(),
       };
       //console.log("todoTemplate", todoTemplate);
       try {
-        const todo = project.newToDo(todoTemplate, doc.id);
+        project.newToDo(todoTemplate, doc.id);
       } catch (error) {
         const todo = project.getToDo(doc.id);
         if (!(todo instanceof ToDo)) return;
@@ -46,7 +46,7 @@ const ToDoContainer = ({ project }: Props) => {
   };
 
   React.useEffect(() => {
-    getFirebaseTodos(project.id);
+    getFirebaseTodos();
     console.log(project.getToDoList());
   }, []);
 
@@ -61,34 +61,13 @@ const ToDoContainer = ({ project }: Props) => {
     setList([...project.getToDoList()]);
   };
 
-  const handleCardClick = async (id: string) => {
-    if (!viewer) return;
-    const camera = viewer.camera;
-    if (!(camera instanceof OBC.OrthoPerspectiveCamera)) return;
-    const todoCreator = await viewer.tools.get(TodoCreator);
-    const todo = todoCreator.getTodo(id);
-    if (!todo) return;
-    todo.card.get().click();
-  };
-
-  const createViewerTodo = async (todo: ToDo) => {
-    if (!viewer) return;
-    const todoCreator = await viewer.tools.get(TodoCreator);
-    const viewerTodo = await todoCreator.addTodo(todo.task, todo.priority, todo.taskId);
-    //Add firestore document update here!!!
-  };
-
   const todoList = list.map((todo) => {
-    createViewerTodo(todo);
     return (
       <ToDoCard
         key={todo.taskId}
         todo={todo}
         onDeleteClick={() => {
           onDeleteTodo(todo.taskId);
-        }}
-        onCardClick={() => {
-          handleCardClick(todo.taskId);
         }}
       />
     );

@@ -1,7 +1,10 @@
-import { ToDo, TodoPriority } from "./src/ToDo";
+import { Project } from "./../../classes/Project";
+import { ToDo } from "./src/ToDo";
 import * as OBC from "openbim-components";
 import * as THREE from "three";
 import { generateUUID } from "three/src/math/MathUtils.js";
+import { IToDo, ToDoPriority, ToDoStatus } from "../../classes/ToDo";
+import { monthsAfterToday } from "../../classes/CustomFunctions";
 
 export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Disposable {
   static uuid = "3e76b69b-febc-45f8-a9ed-44c466b0cbb2";
@@ -40,16 +43,14 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     ]);
   }
 
-  deleteTodo(todo: ToDo) {
-    const remaining: ToDo[] = [];
-    this._list.map((item) => {
-      if (item.id !== todo.id) remaining.push(item);
-    });
-    this._list = remaining;
+  async deleteTodo(id: string) {
+    const todo = this._list.find((todo) => todo.taskId === id);
+    if (!todo) return console.log(`There is no todo with the id:${id}`);
+    await todo.dispose();
   }
 
   getTodo(id: string) {
-    return this.get().find((todo) => todo.id === id);
+    return this.get().find((todo) => todo.taskId === id);
   }
 
   updateList() {
@@ -58,19 +59,21 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
       if (item.enabled) {
         updated.push(item);
       } else {
-        console.log(`Task:${item.id} is removed from the list.`);
+        console.log(`Task:${item.taskId} is removed from the list.`);
       }
     });
     this._list = updated;
   }
 
-  async addTodo(description: string, priority: TodoPriority, id: string = generateUUID()) {
+  addTodo(data: IToDo, id: string = generateUUID()) {
     if (!this.enabled) return console.warn("ToDo Creator is disabled!");
-    const idList = this._list.map((todo) => todo.id);
-    if (idList.includes(id)) return console.log("todo is already exists with same id!");
-    const todo = new ToDo(this._components, description, priority, id);
+    const idList = this._list.map((todo) => todo.taskId);
+    if (idList.includes(id)) {
+      throw new Error(`A task with the id:${id} already exists`);
+    }
+    const todo = new ToDo(this._components, data, id);
     const todoCard = todo.card;
-    //Store Date
+    //Store Data
     const list = this.get();
     list.push(todo);
     //Store UI
@@ -116,9 +119,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     const searchText = new OBC.TextInput(this._components);
     searchText.label = "";
     searchText.domElement.addEventListener("input", () => {
-      const foundTodos = this.get().filter((todo) =>
-        todo.description.toLowerCase().includes(searchText.value.toLowerCase())
-      );
+      const foundTodos = this.get().filter((todo) => todo.task.toLowerCase().includes(searchText.value.toLowerCase()));
       this.get().map((todo) => {
         todo.card.visible = false;
       });
@@ -155,13 +156,18 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     this._components.ui.add(form);
     form.title = "Create New To-Do";
 
-    const descriptionInput = new OBC.TextArea(this._components);
-    descriptionInput.label = "Description";
-    form.slots.content.addChild(descriptionInput);
+    const taskInput = new OBC.TextArea(this._components);
+    taskInput.label = "Task";
+    form.slots.content.addChild(taskInput);
     form.slots.content.get().style.padding = "20px";
     form.slots.content.get().style.display = "flex";
     form.slots.content.get().style.flexDirection = "column";
     form.slots.content.get().style.rowGap = "20px";
+
+    const statusDropdown = new OBC.Dropdown(this._components, "Status");
+    statusDropdown.addOption("Active", "Completed", "Overdue");
+    statusDropdown.value = "Active";
+    form.slots.content.addChild(statusDropdown);
 
     const priorityDropdown = new OBC.Dropdown(this._components, "Priority");
     priorityDropdown.addOption("Low", "Normal", "High");
@@ -169,8 +175,15 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     form.slots.content.addChild(priorityDropdown);
 
     form.onAccept.add(() => {
-      this.addTodo(descriptionInput.value, priorityDropdown.value as TodoPriority);
-      descriptionInput.value = "";
+      const data: IToDo = {
+        task: taskInput.value,
+        status: statusDropdown.value?.toLowerCase() as ToDoStatus,
+        priority: priorityDropdown.value?.toLowerCase() as ToDoPriority,
+        deadline: monthsAfterToday(1),
+      };
+      const todo = this.addTodo(data);
+      taskInput.value = "";
+      statusDropdown.value = "Active";
       priorityDropdown.value = "Normal";
       form.visible = false;
     });
@@ -180,6 +193,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     });
 
     createTodoBtn.onClick.add(() => {
+      if (!this.activeProject) return console.log("active project must be registered!");
       form.visible = true;
     });
 
@@ -192,7 +206,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
 
   get fragmentQty() {
     const mapped = this.get().map((todo) => {
-      const id = todo.id;
+      const id = todo.taskId;
       const fragments = todo.fragmentMap;
       const item = {};
       let count = 0;

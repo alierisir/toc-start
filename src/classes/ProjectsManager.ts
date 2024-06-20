@@ -18,8 +18,8 @@ export class ProjectsManager {
 
   initiateToDoList(project: Project, todoList: ToDo[]) {
     todoList.map((todo) => {
-      const { taskId, task, deadline, status, projectId } = todo;
-      project.newToDo({ task, deadline, status, projectId }, taskId);
+      const { taskId, task, deadline, status, projectId, priority } = todo;
+      project.newToDo({ task, deadline, status, projectId, priority }, taskId);
     });
   }
 
@@ -136,14 +136,12 @@ export class ProjectsManager {
             for (const key in project) {
               //console.log(key, " data:", project[key], " project:", newProject[key]);
             }
-            if (project.todoList)
-              this.initiateToDoList(newProject, project.todoList);
+            if (project.todoList) this.initiateToDoList(newProject, project.todoList);
           } else {
             //console.log(project.id, "is updated");
             const existingProject = this.getProject(project.id) as Project;
             existingProject.edit(project);
-            if (project.todoList)
-              this.initiateToDoList(existingProject, project.todoList);
+            if (project.todoList) this.initiateToDoList(existingProject, project.todoList);
           }
         } catch (error) {
           alert(error);

@@ -1,13 +1,11 @@
 import React from "react";
-import { Project } from "../classes/Project";
-import { correctDate } from "../classes/CustomFunctions";
 import { IToDo, ToDo } from "../classes/ToDo";
 import { updateCollection } from "../firebase";
 
 interface Props {
   todo: ToDo;
   onDeleteClick: () => void;
-  onCardClick: () => void;
+  onCardClick?: () => void;
 }
 
 const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
@@ -31,11 +29,11 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
   };
 
   return (
-    <div className={`list-item todo-${status}`} onClick={onCardClick}>
+    <div className={`list-item todo-${status}`}>
       <p todo-list-functions="toggle-active" onClick={onCheckboxClicked}>
         <span className="material-symbols-outlined">{status_symbol}</span>
       </p>
-      <p>{todo.task}</p>
+      <p onClick={onCardClick}>{todo.task}</p>
       <div
         style={{
           fontStyle: "italic",

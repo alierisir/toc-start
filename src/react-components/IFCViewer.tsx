@@ -285,7 +285,7 @@ const IFCViewer = () => {
     const todoCreator = new TodoCreator(viewer);
     await todoCreator.setup();
     todoCreator.onProjectCreated.add((todo) => {
-      console.log(`Task:${todo.id} is successfully added to list`);
+      console.log(`Task:${todo.taskId} is successfully added to list`);
     });
 
     window.addEventListener("keydown", (e) => {
