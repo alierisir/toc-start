@@ -18,12 +18,10 @@ export interface IProject {
   status: Status;
   role: Role;
   date: Date;
-}
-
-export interface EProject extends IProject {
-  initials: string;
-  cost: number;
-  progress: number;
+  cost?: number;
+  progress?: number;
+  boxColor?: string;
+  todoList?: ToDo[];
 }
 
 export class Project implements IProject {
@@ -33,44 +31,27 @@ export class Project implements IProject {
   status: Status;
   role: Role;
   date: Date;
-
-  //Class internals
-  ui: HTMLDivElement;
   cost: number = 0;
   progress: number = 0;
+
+  //Class internals
   id: string;
   initials: string;
-  boxColor: string;
+  boxColor: string = getRandomColor();
   todoList: ToDo[] = [];
 
   //Events
-  onChange = (project: Project) => {};
   onNewTodo = (todo: ToDo) => {};
   onDeleteTodo = () => {};
   onFilterTodo = (filtered: ToDo[]) => {};
 
-  constructor(data: IProject) {
+  constructor(data: IProject, id = uuid4()) {
     //Project Data definitions
-    const keys = ["id", "name", "description", "status", "role", "date", "cost", "progress", "initials", "boxColor"];
-    for (const key of keys) {
+    this.id = id;
+    for (const key in data) {
       this[key] = data[key];
-      if (key === "id") {
-        this[key] = data[key] ? data[key] : uuid4();
-      }
-      if (key === "cost") {
-        this[key] = data[key] ? data[key] : 0;
-      }
-      if (key === "progress") {
-        this[key] = data[key] ? data[key] : 0;
-      }
     }
-    if (data.date.toString() === "Invalid Date") {
-      console.log("There is no date input, project finish date is set to 6 months from today by default.");
-      this.date = monthsAfterToday(6);
-    } else {
-      this.date = basicToNativeDate(correctDate(data.date));
-    }
-    this.setInitialsBox();
+    this.initials = getInitials(this.name);
   }
 
   filterTodo(value: string) {
@@ -78,82 +59,43 @@ export class Project implements IProject {
     this.onFilterTodo(filtered);
   }
 
-  setInitialsBox() {
-    if (this.boxColor && this.initials) {
-      return;
-    }
-    this.initials = getInitials(this.name);
-    this.boxColor = getRandomColor();
-  }
-
-  private getUiTemplate() {
-    const html = `<div class="card-header">
-    <p style='background-color:${this.boxColor}'>${this.initials}</p>
-    <div>
-    <h2>${this.name}</h2>
-    <p >${this.description}</p>
-    </div>
-    </div>
-    <div class="card-content">
-    <div class="card-property">
-        <p>Status</p>
-        <p>${this.status}</p>
-    </div>
-    <div class="card-property">
-        <p>Role</p>
-        <p>${this.role}</p>
-    </div>
-    <div class="card-property">
-        <p>Cost</p>
-        <p>$${this.cost}</p>
-    </div>
-    <div class="card-property">
-        <p>Estimated Progress</p>
-        <p>${this.progress}%</p>
-    </div>
-    </div>
-    `;
-    return html;
-  }
-
-  updateUi() {
-    this.initials = getInitials(this.name);
-    this.ui.innerHTML = this.getUiTemplate();
-  }
-
   private addDummyToDo() {
-    const itodo = {
+    const itodo: IToDo = {
       task: "test task, this is a dummy task created automatically deadline is 1 month from today",
       deadline: monthsAfterToday(-1),
+      status: "active",
+      projectId: this.id,
+      priority: "normal",
     };
     this.newToDo(itodo);
-    console.log("addDumyToDo() successfull");
+    //console.log("addDumyToDo() successfull");
   }
 
-  newToDo(iTodo: IToDo) {
-    if (this.checkToDoExist(iTodo)) return this.updateToDo(iTodo as ToDo);
-    const todo = new ToDo(iTodo);
+  newToDo(iTodo: IToDo, id?: string) {
+    if (id && this.checkToDoExist(id)) {
+      throw new Error("Todo is already exists");
+    }
+    //console.log("creating new todo");
+    const todo = new ToDo(iTodo, id);
+    //console.log("created:", todo);
     this.todoList.push(todo);
-    console.log(todo.taskId, " todo added successfully");
+    //console.log(todo, " todo added successfully");
     this.onNewTodo(todo);
     return todo;
   }
 
-  updateToDo(todo: ToDo) {
-    const existingTodo = this.getToDo(todo.taskId);
-    if (existingTodo) {
-      existingTodo.task = todo.task;
-      existingTodo.setStatus(todo.status);
-      existingTodo.setDeadline(todo.deadline);
-    }
+  updateToDo(id: string, data: IToDo) {
+    const existingTodo = this.getToDo(id);
+    if (!(existingTodo instanceof ToDo)) return;
+    existingTodo.task = data.task;
+    existingTodo.setStatus(data.status);
+    existingTodo.setDeadline(data.deadline);
   }
 
-  checkToDoExist(iTodo: IToDo) {
+  checkToDoExist(id: string) {
     const todoIds = this.todoList.map((todo) => {
       return todo.taskId;
     });
-    const id = iTodo.taskId ? iTodo.taskId : false;
-    if (!id) return false;
     const isTodoExist = todoIds.includes(id);
     return isTodoExist;
   }
@@ -170,34 +112,42 @@ export class Project implements IProject {
   changeToActive(id: string) {
     const todo = this.getToDo(id) as ToDo;
     todo.setStatus("active");
-    console.log("changeToActive() successfull");
+    //console.log("changeToActive() successfull");
   }
 
   changeToCompleted(id: string) {
     const todo = this.getToDo(id) as ToDo;
     todo.setStatus("completed");
-    console.log("changeToCompleted() successfull");
+    //console.log("changeToCompleted() successfull");
   }
 
   changeToOverdue(id: string) {
     const todo = this.getToDo(id) as ToDo;
     todo.setStatus("overdue");
-    console.log("changeToOverdue() successfull");
+    //console.log("changeToOverdue() successfull");
   }
 
   removeToDo(id: string) {
     const todo = this.getToDo(id);
-    if (!todo) return console.log(id, "this todo item doesn't exist.");
-    todo.ui.remove();
+    if (!todo) return; //console.log(id, "this todo item doesn't exist.");
     const remaining = this.todoList.filter((todo) => todo.taskId !== id);
     this.todoList = remaining;
   }
 
-  editProject(editedData: EProject) {
-    for (const key in editDummy) {
-      const value = editedData[key] ? editedData[key] : this[key];
+  edit(data: IProject) {
+    for (const key in data) {
+      //console.log(this.name, ":", key, "editing...");
+      const value = data[key] ? data[key] : this[key];
       this[key] = value;
     }
-    this.onChange(this);
+    this.initials = getInitials(this.name);
+  }
+
+  update(data: IProject) {
+    for (const key in data) {
+      //console.log(this.name, ":", key, "updating");
+      this[key] = data[key] ? data[key] : this[key];
+    }
+    this.initials = getInitials(this.name);
   }
 }
