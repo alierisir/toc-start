@@ -64,7 +64,6 @@ export class Project implements IProject {
       task: "test task, this is a dummy task created automatically deadline is 1 month from today",
       deadline: monthsAfterToday(-1),
       status: "active",
-      projectId: this.id,
       priority: "normal",
     };
     this.newToDo(itodo);
@@ -132,6 +131,7 @@ export class Project implements IProject {
     if (!todo) return; //console.log(id, "this todo item doesn't exist.");
     const remaining = this.todoList.filter((todo) => todo.taskId !== id);
     this.todoList = remaining;
+    this.onDeleteTodo();
   }
 
   edit(data: IProject) {

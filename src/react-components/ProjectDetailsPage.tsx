@@ -11,6 +11,7 @@ import * as CF from "../classes/CustomFunctions";
 import SearchBox from "./SearchBox";
 import { TodoCreator } from "../bim-components/TodoCreator";
 import { ToDo } from "../bim-components/TodoCreator/src/ToDo";
+import { generateUUID } from "three/src/math/MathUtils.js";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -23,11 +24,17 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
   if (!project) return <>Project is not found!</>;
   const { viewer } = React.useContext(ViewerContext);
   //details page todocontainer start
+
   const addTodo = async (data: IToDo) => {
     if (!viewer) return;
     const todoCreator = await viewer.tools.get(TodoCreator);
-    const todo = await todoCreator.addTodo(project.id, "Normal");
-    console.log(todo);
+    const todo = await todoCreator.addTodo(data);
+  };
+
+  const deleteTodo = async (id: string) => {
+    if (!viewer) return;
+    const todoCreator = await viewer.tools.get(TodoCreator);
+    todoCreator.deleteTodo(id);
   };
 
   const [list, setList] = React.useState(project.getToDoList());
@@ -37,9 +44,22 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
     setList([...project.getToDoList()]);
   };
 
-  const onDeleteTodo = (id: string) => {
-    project.removeToDo(id);
+  project.onDeleteTodo = () => {
     setList([...project.getToDoList()]);
+  };
+
+  const onDeleteTodo = async (id: string) => {
+    project.removeToDo(id);
+    await deleteTodo(id);
+    setList([...project.getToDoList()]);
+  };
+
+  const onTaskClick = async (id: string) => {
+    if (!viewer) return;
+    const todoCreator = await viewer.tools.get(TodoCreator);
+    const todo = todoCreator.getTodo(id);
+    if (!todo) return;
+    todo.card.slots.actionButtons.children[0].get().click();
   };
 
   const todoList = list.map((todo) => (
@@ -48,6 +68,9 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
       todo={todo}
       onDeleteClick={() => {
         onDeleteTodo(todo.taskId);
+      }}
+      onTaskClick={() => {
+        onTaskClick(todo.taskId);
       }}
     />
   ));
@@ -77,10 +100,8 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
       deadline,
       status: formData.get("todo-status") as ToDoStatus,
       priority: formData.get("todo-priority") as ToDoPriority,
-      projectId: project.id,
     };
     try {
-      project.newToDo(itodo);
       addTodo(itodo);
       onCancelClick();
     } catch (error) {}
@@ -181,7 +202,7 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
             </div>
           </div>
         </div>
-        <IFCViewer />
+        <IFCViewer project={project} />
       </div>
     </div>
   );

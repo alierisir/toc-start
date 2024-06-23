@@ -3,6 +3,9 @@ import * as OBC from "openbim-components";
 import { FragmentsGroup } from "bim-fragment";
 import { TodoCreator } from "../bim-components/TodoCreator";
 import { SimpleQto } from "../bim-components/SimpleQto";
+import { ProjectsManager } from "../classes/ProjectsManager";
+import { IToDo } from "../classes/ToDo";
+import { Project } from "../classes/Project";
 
 interface IViewerContext {
   viewer: OBC.Components | null;
@@ -16,7 +19,11 @@ export const ViewerProvider = ({ children }) => {
   return <ViewerContext.Provider value={{ viewer, setViewer }}>{children}</ViewerContext.Provider>;
 };
 
-const IFCViewer = () => {
+interface Props {
+  project: Project;
+}
+
+const IFCViewer = ({ project }: Props) => {
   const { setViewer } = React.useContext(ViewerContext);
 
   let viewer: OBC.Components;
@@ -282,7 +289,14 @@ const IFCViewer = () => {
     const todoCreator = new TodoCreator(viewer);
     await todoCreator.setup();
     todoCreator.onProjectCreated.add((todo) => {
-      console.log(`Task:${todo.id} is successfully added to list`);
+      const { deadline, status, priority, task, taskId } = todo;
+      const data: IToDo = {
+        deadline,
+        status,
+        priority,
+        task,
+      };
+      project.newToDo(data, taskId);
     });
 
     window.addEventListener("keydown", (e) => {

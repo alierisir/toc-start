@@ -9,7 +9,6 @@ export interface IToDo {
   task: string;
   status: ToDoStatus;
   deadline: Date;
-  projectId: string;
   priority: ToDoPriority;
 }
 
@@ -17,7 +16,6 @@ export class ToDo implements IToDo {
   //satisfy IToDo
   task: string = "this is a blank task created by default.Deadline is set to 1 month from today.";
   deadline: Date;
-  projectId: string;
   status: ToDoStatus = "active";
   priority: ToDoPriority = "normal";
   //class internal
@@ -25,7 +23,6 @@ export class ToDo implements IToDo {
 
   constructor(data: IToDo, id: string = uuid4()) {
     this.taskId = id;
-    this.projectId = data.projectId;
     this.task = data.task;
     this.priority = data.priority;
     this.deadline = data.deadline;

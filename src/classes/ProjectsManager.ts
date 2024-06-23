@@ -18,8 +18,8 @@ export class ProjectsManager {
 
   initiateToDoList(project: Project, todoList: ToDo[]) {
     todoList.map((todo) => {
-      const { taskId, task, deadline, status, projectId, priority } = todo;
-      project.newToDo({ task, deadline, status, projectId, priority }, taskId);
+      const { taskId, task, deadline, status, priority } = todo;
+      project.newToDo({ task, deadline, status, priority }, taskId);
     });
   }
 
