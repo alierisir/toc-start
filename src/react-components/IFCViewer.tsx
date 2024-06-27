@@ -128,12 +128,14 @@ const IFCViewer = ({ project }: Props) => {
     });
 
     const simpleGrid = new OBC.SimpleGrid(viewer);
-    simpleGrid.visible = false;
+    simpleGrid.visible = true;
 
     toggleGridBtn.onClick.add(() => {
       toggleGridBtn.active = !toggleGridBtn.active;
       simpleGrid.visible = toggleGridBtn.active;
     });
+
+    toggleGridBtn.active = true;
 
     toggleViewBtn.onClick.add(() => {
       cameraComponent.toggleProjection();

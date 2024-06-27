@@ -51,7 +51,8 @@
 
 /* General Styles */
 
-button {
+button,
+.delete-btn {
   padding: 8px;
   cursor: pointer;
   height: 40px;
@@ -69,6 +70,17 @@ button:hover,
 #nav-buttons li:hover {
   /*box-shadow: 0 0 15px var(--button-colors);*/
   background-color: var(--button-color-light);
+}
+
+.delete-btn {
+  opacity: 0.8;
+  background-color: var(--cancel-light);
+  border-radius: 5px;
+}
+
+.delete-btn:hover {
+  background-color: var(--cancel-light);
+  opacity: 1;
 }
 
 /* Form Styles */

@@ -12,6 +12,7 @@ import SearchBox from "./SearchBox";
 import { TodoCreator } from "../bim-components/TodoCreator";
 import { ToDo } from "../bim-components/TodoCreator/src/ToDo";
 import { generateUUID } from "three/src/math/MathUtils.js";
+import { deleteCollection, updateCollection } from "../firebase";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -23,6 +24,17 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
   const project = projectsManager.getProject(routeParams.id);
   if (!project) return <>Project is not found!</>;
   const { viewer } = React.useContext(ViewerContext);
+
+  const navigateTo = Router.useNavigate();
+  projectsManager.onProjectDeleted = async (id) => {
+    await deleteCollection("projects", id);
+    navigateTo("/");
+  };
+
+  const onDeleteProject = () => {
+    projectsManager.deleteProject(project.id);
+  };
+
   //details page todocontainer start
 
   const addTodo = async (data: IToDo) => {
@@ -115,7 +127,7 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
 
   return (
     <div id="project-details" className="page">
-      <DetailsHeader project={project} />
+      <DetailsHeader project={project} onDeleteProject={onDeleteProject} />
       <div className="main-page-content">
         <div id="details-container">
           <DetailsCard project={project} />
