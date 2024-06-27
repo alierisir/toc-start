@@ -1,5 +1,6 @@
 import { IProject, Project } from "./Project";
 import { ToDo } from "./ToDo";
+import * as Firestore from "firebase/firestore";
 
 export class ProjectsManager {
   list: Project[] = [];
@@ -18,7 +19,8 @@ export class ProjectsManager {
 
   initiateToDoList(project: Project, todoList: ToDo[]) {
     todoList.map((todo) => {
-      const { taskId, task, deadline, status, priority } = todo;
+      const { taskId, task, deadline: date, status, priority } = todo;
+      const deadline = (date as unknown as Firestore.Timestamp).toDate();
       project.newToDo({ task, deadline, status, priority }, taskId);
     });
   }

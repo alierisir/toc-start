@@ -30,6 +30,7 @@ const ProjectsPage = ({ projectsManager }: Props) => {
         ...data,
         date: (data.date as unknown as Firestore.Timestamp).toDate(),
       };
+
       try {
         projectsManager.newProject(projectTemplate, doc.id);
       } catch (error) {
@@ -37,10 +38,11 @@ const ProjectsPage = ({ projectsManager }: Props) => {
         if (!(project instanceof Project)) return;
         projectsManager.updateProject(doc.id, projectTemplate);
         await updateCollection<Partial<IProject>>("projects", doc.id, projectTemplate);
-        //console.log(doc.id, " project updated...");
+        console.log(doc.id, " project updated...");
       }
     }
   };
+
   React.useEffect(() => {
     getFirebaseProjects();
   }, []);

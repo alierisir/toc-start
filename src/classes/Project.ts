@@ -8,6 +8,7 @@ import {
   getRandomColor,
   monthsAfterToday,
 } from "./CustomFunctions";
+import * as Firestore from "firebase/firestore";
 
 export type Status = "active" | "pending" | "finished";
 export type Role = "engineer" | "architect" | "developer";
@@ -47,11 +48,31 @@ export class Project implements IProject {
 
   constructor(data: IProject, id = uuid4()) {
     //Project Data definitions
+    console.log(data.name);
     this.id = id;
     for (const key in data) {
-      this[key] = data[key];
+      if (key !== "todoList") {
+        this[key] = data[key];
+      }
     }
     this.initials = getInitials(this.name);
+    this.todoList = [];
+    if (data.todoList && data.todoList.length) {
+      this.initiateTodos(data.todoList);
+    }
+    console.log(this);
+  }
+
+  initiateTodos(todoList: ToDo[]) {
+    todoList.map((todo) => {
+      const data: IToDo = {
+        deadline: (todo.deadline as unknown as Firestore.Timestamp).toDate(),
+        task: todo.task,
+        priority: todo.priority,
+        status: todo.status,
+      };
+      this.newToDo(data, todo.taskId);
+    });
   }
 
   filterTodo(value: string) {
@@ -72,7 +93,8 @@ export class Project implements IProject {
 
   newToDo(iTodo: IToDo, id?: string) {
     if (id && this.checkToDoExist(id)) {
-      throw new Error("Todo is already exists");
+      const todo = this.updateToDo(id, iTodo);
+      return todo;
     }
     //console.log("creating new todo");
     const todo = new ToDo(iTodo, id);
@@ -89,6 +111,7 @@ export class Project implements IProject {
     existingTodo.task = data.task;
     existingTodo.setStatus(data.status);
     existingTodo.setDeadline(data.deadline);
+    return existingTodo;
   }
 
   checkToDoExist(id: string) {
@@ -145,9 +168,13 @@ export class Project implements IProject {
 
   update(data: IProject) {
     for (const key in data) {
-      //console.log(this.name, ":", key, "updating");
-      this[key] = data[key] ? data[key] : this[key];
+      if (key !== "todoList") {
+        this[key] = data[key] ? data[key] : this[key];
+      }
     }
     this.initials = getInitials(this.name);
+    if (data.todoList && data.todoList.length) {
+      this.initiateTodos(data.todoList);
+    }
   }
 }

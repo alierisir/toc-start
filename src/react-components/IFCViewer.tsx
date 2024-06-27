@@ -6,6 +6,7 @@ import { SimpleQto } from "../bim-components/SimpleQto";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import { IToDo } from "../classes/ToDo";
 import { Project } from "../classes/Project";
+import * as THREE from "three";
 
 interface IViewerContext {
   viewer: OBC.Components | null;
@@ -79,7 +80,35 @@ const IFCViewer = ({ project }: Props) => {
     };
 
     const highlighter = new OBC.FragmentHighlighter(viewer);
-    highlighter.setup();
+    await highlighter.setup();
+    const selectColor = highlighter.highlightMats["select"]
+      ? (highlighter.highlightMats["select"][0]["color"] as THREE.Color)
+      : new THREE.Color();
+
+    const hoverColor = highlighter.highlightMats["hover"]
+      ? (highlighter.highlightMats["hover"][0]["color"] as THREE.Color)
+      : new THREE.Color();
+
+    const configureColor = (existing: THREE.Color, config: Partial<THREE.Color>) => {
+      for (const key of Object.keys(config)) {
+        existing[key] = config[key];
+      }
+    };
+
+    const customSelectColor: Partial<THREE.Color> = {
+      r: 255 / 255,
+      g: 50 / 255,
+      b: 0 / 255,
+    };
+
+    const customHoverColor: Partial<THREE.Color> = {
+      r: 0 / 255,
+      g: 50 / 255,
+      b: 255 / 255,
+    };
+
+    configureColor(selectColor, customSelectColor);
+    configureColor(hoverColor, customHoverColor);
 
     const toolbar = new OBC.Toolbar(viewer, {
       name: "Top Toolbar",
