@@ -125,6 +125,10 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
 
   //details page todocontainer end
 
+  React.useEffect(() => {
+    console.log(project);
+  }, []);
+
   return (
     <div id="project-details" className="page">
       <DetailsHeader project={project} onDeleteProject={onDeleteProject} />

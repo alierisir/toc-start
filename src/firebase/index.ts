@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import * as Firestore from "firebase/firestore";
 import { initializeApp } from "firebase/app";
+import { IProject } from "../classes/Project";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -32,3 +33,13 @@ export const updateCollection = async <T extends Record<string, any>>(path: stri
   const doc = Firestore.doc(firebaseDB, `/${path}/${id}`);
   await Firestore.updateDoc(doc, data);
 };
+
+//document.addEventListener("click", async () => {
+//  console.log("click");
+//  const collection = getCollection<IProject>("projects");
+//  const firebaseCollections = await Firestore.getDocs(collection);
+//  const doc = firebaseCollections.docs.find((doc) => doc.id === "FIMpi0ZbAlMbhfAWLB2p");
+//  if (!doc) return
+//  const project = doc.data()
+//
+//});
