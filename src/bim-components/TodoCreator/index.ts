@@ -7,8 +7,8 @@ import { monthsAfterToday } from "../../classes/CustomFunctions";
 
 export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Disposable {
   static uuid = "3e76b69b-febc-45f8-a9ed-44c466b0cbb2";
-  onTodoCreated = new OBC.Event<ToDo>();
-  onTodoDeleted = new OBC.Event<string>();
+  onProjectCreated = new OBC.Event<ToDo>();
+  onProjectDeleted = new OBC.Event<string>();
   enabled = true;
   private _components: OBC.Components;
   private _list: ToDo[] = [];
@@ -47,7 +47,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     const todo = this.getTodo(id);
     if (!todo) return console.log(`there no todo with the id of ${id} `);
     await todo.dispose();
-    this.onTodoDeleted.trigger(id);
+    this.onProjectDeleted.trigger(id);
   }
 
   getTodo(id: string) {
@@ -77,7 +77,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     const todoList = this.uiElement.get("todoList");
     todoList.addChild(todoCard);
     //Load event
-    this.onTodoCreated.trigger(todo);
+    this.onProjectCreated.trigger(todo);
     return todo;
   }
 
