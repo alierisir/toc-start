@@ -1,5 +1,5 @@
+import { generateUUID } from "three/src/math/MathUtils.js";
 import { monthsAfterToday, dateAfterFromPoint } from "./CustomFunctions";
-import { v4 as uuid4 } from "uuid";
 
 export type ToDoStatus = "active" | "completed" | "overdue";
 
@@ -20,7 +20,7 @@ export class ToDo implements IToDo {
   taskId: string;
 
   constructor(data: IToDo) {
-    this.taskId = data.taskId ? data.taskId : uuid4();
+    this.taskId = data.taskId ? data.taskId : generateUUID();
     this.task = data.task;
     this.deadline = data.deadline;
     if (data.deadline.toString() === "Invalid Date") {

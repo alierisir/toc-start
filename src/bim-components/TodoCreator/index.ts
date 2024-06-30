@@ -33,13 +33,13 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
   async setup(project: Project) {
     this.activeProject = project;
     const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
-    highlighter.add(`${TodoCreator.uuid}-priority-Low`, [
+    highlighter.add(`${TodoCreator.uuid}-priority-low`, [
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0x4be973) }),
     ]);
-    highlighter.add(`${TodoCreator.uuid}-priority-Normal`, [
+    highlighter.add(`${TodoCreator.uuid}-priority-normal`, [
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0x4bb0e9) }),
     ]);
-    highlighter.add(`${TodoCreator.uuid}-priority-High`, [
+    highlighter.add(`${TodoCreator.uuid}-priority-high`, [
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0xe94b4b) }),
     ]);
     console.log("ToDoCreator setup is successfully completed: ", this);
@@ -143,9 +143,9 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
           highlighter.highlightByID(`${TodoCreator.uuid}-priority-${todo.priority}`, todo.fragmentMap);
         }
       } else {
-        highlighter.clear(`${TodoCreator.uuid}-priority-Low`);
-        highlighter.clear(`${TodoCreator.uuid}-priority-Normal`);
-        highlighter.clear(`${TodoCreator.uuid}-priority-High`);
+        highlighter.clear(`${TodoCreator.uuid}-priority-low`);
+        highlighter.clear(`${TodoCreator.uuid}-priority-normal`);
+        highlighter.clear(`${TodoCreator.uuid}-priority-high`);
       }
     });
 
