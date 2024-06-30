@@ -1,5 +1,4 @@
 import * as OBC from "openbim-components";
-import { generateUUID } from "three/src/math/MathUtils.js";
 import * as THREE from "three";
 import { TodoCard } from "./TodoCard";
 import { TodoCreator } from "..";
@@ -108,6 +107,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
   }
   async dispose() {
     const creator = await this._components.tools.get(TodoCreator);
+    creator.deleteTodo(this.taskId);
     this.card.enabled = false;
     await this.card.dispose();
     this.enabled = false;

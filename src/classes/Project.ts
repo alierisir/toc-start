@@ -1,14 +1,8 @@
 import { v4 as uuid4 } from "uuid";
-import { IToDo, ToDo, ToDoStatus } from "./ToDo";
-import {
-  basicToNativeDate,
-  correctDate,
-  editDummy,
-  getInitials,
-  getRandomColor,
-  monthsAfterToday,
-} from "./CustomFunctions";
+import { basicToNativeDate, correctDate, getInitials, getRandomColor, monthsAfterToday } from "./CustomFunctions";
+import { ToDo } from "../bim-components/TodoCreator/src/ToDo";
 
+export type Action = "added" | "removed" | "updated";
 export type Status = "active" | "pending" | "finished";
 export type Role = "engineer" | "architect" | "developer";
 
@@ -44,10 +38,8 @@ export class Project implements IProject {
 
   //Events
   onChange = (project: Project) => {};
-  onNewTodo = (todo: ToDo) => {};
-  onUpdateTodo = (todo: ToDo) => {};
-  onDeleteTodo = (remaining: ToDo[]) => {};
-  onFilterTodo = (filtered: ToDo[]) => {};
+  onToDoListUpdate = () => {};
+  onToDoListFiltered = (filtered: ToDo[]) => {};
 
   constructor(data: IProject) {
     //Project Data definitions
@@ -73,11 +65,6 @@ export class Project implements IProject {
     this.setInitialsBox();
   }
 
-  filterTodo(value: string) {
-    const filtered = this.getToDoList().filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
-    this.onFilterTodo(filtered);
-  }
-
   setInitialsBox() {
     if (this.boxColor && this.initials) {
       return;
@@ -86,61 +73,26 @@ export class Project implements IProject {
     this.boxColor = getRandomColor();
   }
 
-  newToDo(todo: ToDo) {
-    const list = this.getToDoList();
-    if (list.find((existing) => todo.taskId === existing.taskId))
-      throw new Error(`Todo "${todo.taskId}" already exists.`);
-    this.todoList.push(todo);
-    this.onNewTodo(todo);
-  }
-
-  updateToDo(taskId: string, data: Partial<ToDo>) {
-    try {
-      const todo = this.getToDo(taskId);
-      const keys = Object.keys(data);
-      for (const key of keys) {
-        todo[key] = data[key];
-      }
-      this.onUpdateTodo(todo);
-    } catch (error) {
-      console.log(error, " Update Failed!");
-    }
-  }
-
-  getToDoList() {
-    return this.todoList;
-  }
-
-  getToDo(taskId: string) {
-    const todo = this.todoList.find((todo) => {
-      todo.taskId === taskId;
-    });
-    if (!todo) throw new Error(`ProjectClass: TaskId "${taskId}" is not found`);
-    return todo;
-  }
-
-  changeStatus(taskId: string, status: ToDoStatus) {
-    try {
-      const todo = this.getToDo(taskId);
-      todo.setStatus(status);
-      todo.checkStatus();
-      this.onUpdateTodo(todo);
-    } catch (error) {
-      console.log(error, " Status change failed");
-    }
-  }
-
-  removeToDo(taskId: string) {
-    const list = this.getToDoList();
-    const remaining = list.filter((todo) => todo.taskId !== taskId);
-    this.todoList = remaining;
-    this.onDeleteTodo(this.todoList);
-  }
-
   edit(editedData: Partial<Project>) {
-    for (const key in Object.keys(editedData)) {
+    for (const key of Object.keys(editedData)) {
+      console.log(key);
       this[key] = editedData[key];
     }
     this.onChange(this);
+  }
+
+  getToDoList(): ToDo[] {
+    return this.todoList;
+  }
+
+  updateToDoList(list: ToDo[]): ToDo[] {
+    this.todoList = list;
+    this.onToDoListUpdate();
+    return this.todoList;
+  }
+
+  filterToDoList(value: string) {
+    const filtered = this.getToDoList().filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
+    this.onToDoListFiltered(filtered);
   }
 }

@@ -1,4 +1,4 @@
-import { monthsAfterToday, correctDate, dateAfterFromPoint } from "./CustomFunctions";
+import { monthsAfterToday, dateAfterFromPoint } from "./CustomFunctions";
 import { v4 as uuid4 } from "uuid";
 
 export type ToDoStatus = "active" | "completed" | "overdue";

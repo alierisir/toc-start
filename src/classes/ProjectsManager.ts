@@ -1,5 +1,4 @@
 import { IProject, Project } from "./Project";
-import { ToDo } from "./ToDo";
 
 export class ProjectsManager {
   list: Project[] = [];

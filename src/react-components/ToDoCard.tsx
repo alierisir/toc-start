@@ -1,7 +1,5 @@
 import React from "react";
-import { Project } from "../classes/Project";
-import { correctDate } from "../classes/CustomFunctions";
-import { ToDo } from "../classes/ToDo";
+import { ToDo } from "../bim-components/TodoCreator/src/ToDo";
 
 interface Props {
   todo: ToDo;

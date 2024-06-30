@@ -1,6 +1,6 @@
 import * as OBC from "openbim-components";
 import * as THREE from "three";
-import { IToDo, ToDo, ToDoPriority } from "./src/ToDo";
+import { IToDo, ToDo, ToDoPriority, ToDoStatus } from "./src/ToDo";
 import { generateUUID } from "three/src/math/MathUtils.js";
 import { Project } from "../../classes/Project";
 
@@ -9,7 +9,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
   onToDoCreated = new OBC.Event<ToDo>();
   onToDoDeleted = new OBC.Event<string>();
   enabled = true;
-  activeProjectId: string;
+  activeProject: Project;
   private _components: OBC.Components;
   private _list: ToDo[] = [];
   uiElement = new OBC.UIElement<{
@@ -30,8 +30,8 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     this.enabled = false;
   }
 
-  async setup(id: string) {
-    this.activeProjectId = id;
+  async setup(project: Project) {
+    this.activeProject = project;
     const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
     highlighter.add(`${TodoCreator.uuid}-priority-Low`, [
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0x4be973) }),
@@ -48,6 +48,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
   deleteTodo(id: string) {
     const remaining = this._list.filter((todo) => todo.taskId !== id);
     this._list = remaining;
+    this.activeProject.updateToDoList(this._list);
     this.onToDoDeleted.trigger(id);
   }
 
@@ -71,9 +72,10 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     if (!this.enabled) throw new Error("ToDo Creator is not enabled");
     const todo = new ToDo(this._components, data, taskId);
     const todoCard = todo.card;
-    //Store Date
+    //Store Data
     const list = this.get();
     list.push(todo);
+    this.activeProject.updateToDoList(list);
     //Store UI
     const todoList = this.uiElement.get("todoList");
     todoList.addChild(todoCard);
@@ -148,7 +150,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     });
 
     showTodoBtn.onClick.add(() => {
-      if (!this.activeProjectId) throw new Error("No active project found!");
+      if (!this.activeProject) throw new Error("No active project found!");
       todoList.visible = true;
     });
 
@@ -172,7 +174,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     form.onAccept.add(() => {
       const data: IToDo = {
         task: descriptionInput.value,
-        projectId: this.activeProjectId,
+        projectId: this.activeProject.id,
         priority: priorityDropdown.value?.toLowerCase() as ToDoPriority,
       };
       this.addTodo(data);
@@ -212,7 +214,46 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     return mapped;
   }
 
-  getProjectToDos(projectId: string) {
+  getProjectToDosById(projectId: string) {
     return this.get().filter((todo) => todo.projectId === projectId);
+  }
+
+  getProjectToDos() {
+    return this.get().filter((todo) => todo.projectId === this.activeProject.id);
+  }
+
+  getToDo(taskId: string) {
+    const todo = this._list.find((item) => {
+      item.taskId === taskId;
+    });
+    if (!todo) throw new Error(`TodoCreator: TaskId "${taskId}" is not found`);
+    return todo;
+  }
+
+  changeStatus(taskId: string, status: ToDoStatus) {
+    try {
+      const todo = this.getToDo(taskId);
+      todo.setStatus(status);
+      todo.checkStatus();
+    } catch (error) {
+      console.log(error, " Status change failed");
+    }
+  }
+
+  updateToDo(taskId: string, data: Partial<ToDo>) {
+    try {
+      const todo = this.getToDo(taskId);
+      const keys = Object.keys(data);
+      for (const key of keys) {
+        todo[key] = data[key];
+      }
+    } catch (error) {
+      console.log(error, " Update Failed!");
+    }
+  }
+
+  filterProjectTodos(value: string) {
+    const projectTodos = this.get().filter((todo) => todo.projectId === this.activeProject.id);
+    return projectTodos.filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
   }
 }

@@ -1,5 +1,3 @@
-import { Project } from "./Project";
-
 interface IBasicDate {
   day: string;
   month: string;

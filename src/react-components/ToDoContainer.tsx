@@ -1,12 +1,11 @@
 import React from "react";
-import * as OBC from "openbim-components";
 import ToDoCard from "./ToDoCard";
 import { Project } from "../classes/Project";
 import * as CF from "../classes/CustomFunctions";
 import SearchBox from "./SearchBox";
 import { ViewerContext } from "./IFCViewer";
 import { TodoCreator } from "../bim-components/TodoCreator";
-import { IToDo, ToDoStatus } from "../bim-components/TodoCreator/src/ToDo";
+import { IToDo, ToDo, ToDoStatus } from "../bim-components/TodoCreator/src/ToDo";
 
 interface Props {
   project: Project;
@@ -36,16 +35,15 @@ const ToDoContainer = ({ project }: Props) => {
   setupTodoCreator();
 
   const createNewToDo = async (data: IToDo) => {
-    const todo = todoCreator.addTodo(data);
+    todoCreator.addTodo(data);
   };
 
-  project.onNewTodo = (todo) => {
+  project.onToDoListUpdate = () => {
     setList([...project.getToDoList()]);
   };
 
-  const onDeleteTodo = (id: string) => {
-    todoCreator.deleteTodo(id);
-    setList([...project.getToDoList()]);
+  const onDeleteTodo = (todo: ToDo) => {
+    todo.dispose();
   };
 
   const todoList = list.map((todo) => (
@@ -53,7 +51,7 @@ const ToDoContainer = ({ project }: Props) => {
       key={todo.taskId}
       todo={todo}
       onDeleteClick={() => {
-        onDeleteTodo(todo.taskId);
+        onDeleteTodo(todo);
       }}
     />
   ));
@@ -90,7 +88,7 @@ const ToDoContainer = ({ project }: Props) => {
     } catch (error) {}
   };
 
-  project.onFilterTodo = (filtered) => {
+  project.onToDoListFiltered = (filtered) => {
     setList([...filtered]);
   };
 
@@ -154,7 +152,7 @@ const ToDoContainer = ({ project }: Props) => {
       <div className="todo-header">
         <h3>To-Do</h3>
         <div>
-          <SearchBox items="tasks" onChange={(value) => project.filterTodo(value)} />
+          <SearchBox items="tasks" onChange={(value) => project.filterToDoList(value)} />
           <button project-info-btn="todo-add" todo-add="" onClick={onNewTodoClick}>
             <span className="material-symbols-outlined">playlist_add</span>
           </button>

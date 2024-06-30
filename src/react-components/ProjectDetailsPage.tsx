@@ -23,7 +23,7 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
           <DetailsCard project={project} />
           <ToDoContainer project={project} />
         </div>
-        <IFCViewer />
+        <IFCViewer projectsManager={projectsManager} />
       </div>
     </div>
   );

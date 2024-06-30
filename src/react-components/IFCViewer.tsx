@@ -4,6 +4,11 @@ import { FragmentsGroup } from "bim-fragment";
 import { TodoCreator } from "../bim-components/TodoCreator";
 import { SimpleQto } from "../bim-components/SimpleQto";
 import * as Router from "react-router-dom";
+import { ProjectsManager } from "../classes/ProjectsManager";
+
+interface Props {
+  projectsManager: ProjectsManager;
+}
 
 interface IViewerContext {
   viewer: OBC.Components | null;
@@ -17,10 +22,12 @@ export const ViewerProvider = ({ children }) => {
   return <ViewerContext.Provider value={{ viewer, setViewer }}>{children}</ViewerContext.Provider>;
 };
 
-const IFCViewer = () => {
+const IFCViewer = ({ projectsManager }: Props) => {
   const routeParams = Router.useParams<{ id: string }>();
   if (!routeParams.id) return <>ID is invalid</>;
   const id = routeParams.id;
+  const project = projectsManager.getProject(id);
+  if (!project) return <>Project not found!</>;
 
   const { setViewer } = React.useContext(ViewerContext);
 
@@ -285,7 +292,7 @@ const IFCViewer = () => {
     });
 
     const todoCreator = new TodoCreator(viewer);
-    await todoCreator.setup(id);
+    await todoCreator.setup(project);
     todoCreator.onToDoCreated.add((todo) => {});
 
     //window.addEventListener("keydown", (e) => {
