@@ -3,6 +3,7 @@ import * as OBC from "openbim-components";
 import { FragmentsGroup } from "bim-fragment";
 import { TodoCreator } from "../bim-components/TodoCreator";
 import { SimpleQto } from "../bim-components/SimpleQto";
+import * as Router from "react-router-dom";
 
 interface IViewerContext {
   viewer: OBC.Components | null;
@@ -17,10 +18,14 @@ export const ViewerProvider = ({ children }) => {
 };
 
 const IFCViewer = () => {
+  const routeParams = Router.useParams<{ id: string }>();
+  if (!routeParams.id) return <>ID is invalid</>;
+  const id = routeParams.id;
+
   const { setViewer } = React.useContext(ViewerContext);
 
   let viewer: OBC.Components;
-  const createViewer = async () => {
+  const createViewer = async (id: string) => {
     viewer = new OBC.Components();
     setViewer(viewer);
 
@@ -280,17 +285,15 @@ const IFCViewer = () => {
     });
 
     const todoCreator = new TodoCreator(viewer);
-    await todoCreator.setup();
-    todoCreator.onProjectCreated.add((todo) => {
-      console.log(`Task:${todo.id} is successfully added to list`);
-    });
+    await todoCreator.setup(id);
+    todoCreator.onToDoCreated.add((todo) => {});
 
-    window.addEventListener("keydown", (e) => {
-      if (!(e.key === "a" || e.key === "A")) return;
-      console.log("getting fragment qtys..");
-      todoCreator.fragmentQty;
-      console.log("end");
-    });
+    //window.addEventListener("keydown", (e) => {
+    //  if (!(e.key === "a" || e.key === "A")) return;
+    //  console.log("getting fragment qtys..");
+    //  todoCreator.fragmentQty;
+    //  console.log("end");
+    //});
 
     const qtoManager = new SimpleQto(viewer);
     await qtoManager.setup();
@@ -328,7 +331,7 @@ const IFCViewer = () => {
   };
 
   React.useEffect(() => {
-    createViewer();
+    createViewer(id);
     console.log("viewer created");
     return () => {
       viewer.dispose();

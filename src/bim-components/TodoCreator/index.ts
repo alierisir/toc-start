@@ -1,14 +1,15 @@
-import { ToDo, TodoPriority } from "./src/ToDo";
 import * as OBC from "openbim-components";
 import * as THREE from "three";
+import { IToDo, ToDo, ToDoPriority } from "./src/ToDo";
+import { generateUUID } from "three/src/math/MathUtils.js";
+import { Project } from "../../classes/Project";
 
-export class TodoCreator
-  extends OBC.Component<ToDo[]>
-  implements OBC.UI, OBC.Disposable
-{
+export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Disposable {
   static uuid = "3e76b69b-febc-45f8-a9ed-44c466b0cbb2";
-  onProjectCreated = new OBC.Event<ToDo>();
+  onToDoCreated = new OBC.Event<ToDo>();
+  onToDoDeleted = new OBC.Event<string>();
   enabled = true;
+  activeProjectId: string;
   private _components: OBC.Components;
   private _list: ToDo[] = [];
   uiElement = new OBC.UIElement<{
@@ -29,10 +30,9 @@ export class TodoCreator
     this.enabled = false;
   }
 
-  async setup() {
-    const highlighter = await this._components.tools.get(
-      OBC.FragmentHighlighter
-    );
+  async setup(id: string) {
+    this.activeProjectId = id;
+    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
     highlighter.add(`${TodoCreator.uuid}-priority-Low`, [
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0x4be973) }),
     ]);
@@ -42,18 +42,17 @@ export class TodoCreator
     highlighter.add(`${TodoCreator.uuid}-priority-High`, [
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0xe94b4b) }),
     ]);
+    console.log("ToDoCreator setup is successfully completed: ", this);
   }
 
-  deleteTodo(todo: ToDo) {
-    const remaining: ToDo[] = [];
-    this._list.map((item) => {
-      if (item.id !== todo.id) remaining.push(item);
-    });
+  deleteTodo(id: string) {
+    const remaining = this._list.filter((todo) => todo.taskId !== id);
     this._list = remaining;
+    this.onToDoDeleted.trigger(id);
   }
 
   getTodo(id: string) {
-    return this.get().find((todo) => todo.id === id);
+    return this.get().find((todo) => todo.taskId === id);
   }
 
   updateList() {
@@ -62,15 +61,15 @@ export class TodoCreator
       if (item.enabled) {
         updated.push(item);
       } else {
-        console.log(`Task:${item.id} is removed from the list.`);
+        console.log(`Task:${item.taskId} is removed from the list.`);
       }
     });
     this._list = updated;
   }
 
-  async addTodo(description: string, priority: TodoPriority) {
-    if (!this.enabled) return console.warn("ToDo Creator is disabled!");
-    const todo = new ToDo(this._components, description, priority);
+  addTodo(data: IToDo, taskId: string = generateUUID()) {
+    if (!this.enabled) throw new Error("ToDo Creator is not enabled");
+    const todo = new ToDo(this._components, data, taskId);
     const todoCard = todo.card;
     //Store Date
     const list = this.get();
@@ -79,7 +78,9 @@ export class TodoCreator
     const todoList = this.uiElement.get("todoList");
     todoList.addChild(todoCard);
     //Load event
-    this.onProjectCreated.trigger(todo);
+    console.log(this._list);
+    this.onToDoCreated.trigger(todo);
+    return todo;
   }
 
   private async setUi() {
@@ -100,7 +101,7 @@ export class TodoCreator
     activationButton.addChild(createTodoBtn, showTodoBtn);
 
     const todoList = new OBC.FloatingWindow(this._components);
-    todoList.title = "Todo List";
+    todoList.title = `Todo List`;
     this._components.ui.add(todoList);
     todoList.visible = false;
 
@@ -117,9 +118,7 @@ export class TodoCreator
     const searchText = new OBC.TextInput(this._components);
     searchText.label = "";
     searchText.domElement.addEventListener("input", () => {
-      const foundTodos = this.get().filter((todo) =>
-        todo.description.toLowerCase().includes(searchText.value.toLowerCase())
-      );
+      const foundTodos = this.get().filter((todo) => todo.task.toLowerCase().includes(searchText.value.toLowerCase()));
       this.get().map((todo) => {
         todo.card.visible = false;
       });
@@ -130,9 +129,7 @@ export class TodoCreator
 
     todoListToolbar.addChild(searchText);
 
-    const highlighter = await this._components.tools.get(
-      OBC.FragmentHighlighter
-    );
+    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
     colorizeBtn.onClick.add(() => {
       colorizeBtn.active = !colorizeBtn.active;
       if (colorizeBtn.active) {
@@ -141,10 +138,7 @@ export class TodoCreator
           if (fragmentMapLength === 0) {
             return;
           }
-          highlighter.highlightByID(
-            `${TodoCreator.uuid}-priority-${todo.priority}`,
-            todo.fragmentMap
-          );
+          highlighter.highlightByID(`${TodoCreator.uuid}-priority-${todo.priority}`, todo.fragmentMap);
         }
       } else {
         highlighter.clear(`${TodoCreator.uuid}-priority-Low`);
@@ -154,6 +148,7 @@ export class TodoCreator
     });
 
     showTodoBtn.onClick.add(() => {
+      if (!this.activeProjectId) throw new Error("No active project found!");
       todoList.visible = true;
     });
 
@@ -175,10 +170,12 @@ export class TodoCreator
     form.slots.content.addChild(priorityDropdown);
 
     form.onAccept.add(() => {
-      this.addTodo(
-        descriptionInput.value,
-        priorityDropdown.value as TodoPriority
-      );
+      const data: IToDo = {
+        task: descriptionInput.value,
+        projectId: this.activeProjectId,
+        priority: priorityDropdown.value?.toLowerCase() as ToDoPriority,
+      };
+      this.addTodo(data);
       descriptionInput.value = "";
       priorityDropdown.value = "Normal";
       form.visible = false;
@@ -201,7 +198,7 @@ export class TodoCreator
 
   get fragmentQty() {
     const mapped = this.get().map((todo) => {
-      const id = todo.id;
+      const id = todo.taskId;
       const fragments = todo.fragmentMap;
       const item = {};
       let count = 0;
@@ -213,5 +210,9 @@ export class TodoCreator
     });
     console.log(mapped);
     return mapped;
+  }
+
+  getProjectToDos(projectId: string) {
+    return this.get().filter((todo) => todo.projectId === projectId);
   }
 }

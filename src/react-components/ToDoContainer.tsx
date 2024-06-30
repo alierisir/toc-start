@@ -1,9 +1,12 @@
 import React from "react";
+import * as OBC from "openbim-components";
 import ToDoCard from "./ToDoCard";
 import { Project } from "../classes/Project";
-import { IToDo, ToDoStatus } from "../classes/ToDo";
 import * as CF from "../classes/CustomFunctions";
 import SearchBox from "./SearchBox";
+import { ViewerContext } from "./IFCViewer";
+import { TodoCreator } from "../bim-components/TodoCreator";
+import { IToDo, ToDoStatus } from "../bim-components/TodoCreator/src/ToDo";
 
 interface Props {
   project: Project;
@@ -12,13 +15,36 @@ interface Props {
 const ToDoContainer = ({ project }: Props) => {
   const [list, setList] = React.useState(project.getToDoList());
 
+  const { viewer } = React.useContext(ViewerContext);
+  if (!viewer) return <>Viewer component couldn't be found!</>;
+
+  const showToDos = async (e: KeyboardEvent) => {
+    if (e.key !== "h") return;
+    const todoCreator = await viewer.tools.get(TodoCreator);
+    console.log("Creator: ", todoCreator.get(), "Project: ", project.getToDoList());
+    removeEventListener("keydown", showToDos);
+  };
+
+  addEventListener("keydown", showToDos);
+
+  let todoCreator: TodoCreator;
+
+  const setupTodoCreator = async () => {
+    todoCreator = await viewer.tools.get(TodoCreator);
+  };
+
+  setupTodoCreator();
+
+  const createNewToDo = async (data: IToDo) => {
+    const todo = todoCreator.addTodo(data);
+  };
+
   project.onNewTodo = (todo) => {
-    console.log(todo);
     setList([...project.getToDoList()]);
   };
 
   const onDeleteTodo = (id: string) => {
-    project.removeToDo(id);
+    todoCreator.deleteTodo(id);
     setList([...project.getToDoList()]);
   };
 
@@ -52,13 +78,14 @@ const ToDoContainer = ({ project }: Props) => {
       new Date(formData.get("todo-deadline") as string).toDateString() === "Invalid Date"
         ? CF.monthsAfterToday(1)
         : new Date(formData.get("todo-deadline") as string);
-    const itodo: IToDo = {
+    const data: IToDo = {
       task: formData.get("todo-task") as string,
       deadline,
       status: formData.get("todo-status") as ToDoStatus,
+      projectId: project.id,
     };
     try {
-      project.newToDo(itodo);
+      createNewToDo(data);
       onCancelClick();
     } catch (error) {}
   };
@@ -66,6 +93,7 @@ const ToDoContainer = ({ project }: Props) => {
   project.onFilterTodo = (filtered) => {
     setList([...filtered]);
   };
+
   return (
     <div className="dashboard-card">
       <dialog id="new-todo-modal">

@@ -1,5 +1,5 @@
 import { v4 as uuid4 } from "uuid";
-import { IToDo, ToDo } from "./ToDo";
+import { IToDo, ToDo, ToDoStatus } from "./ToDo";
 import {
   basicToNativeDate,
   correctDate,
@@ -35,7 +35,6 @@ export class Project implements IProject {
   date: Date;
 
   //Class internals
-  ui: HTMLDivElement;
   cost: number = 0;
   progress: number = 0;
   id: string;
@@ -46,7 +45,8 @@ export class Project implements IProject {
   //Events
   onChange = (project: Project) => {};
   onNewTodo = (todo: ToDo) => {};
-  onDeleteTodo = () => {};
+  onUpdateTodo = (todo: ToDo) => {};
+  onDeleteTodo = (remaining: ToDo[]) => {};
   onFilterTodo = (filtered: ToDo[]) => {};
 
   constructor(data: IProject) {
@@ -86,117 +86,60 @@ export class Project implements IProject {
     this.boxColor = getRandomColor();
   }
 
-  private getUiTemplate() {
-    const html = `<div class="card-header">
-    <p style='background-color:${this.boxColor}'>${this.initials}</p>
-    <div>
-    <h2>${this.name}</h2>
-    <p >${this.description}</p>
-    </div>
-    </div>
-    <div class="card-content">
-    <div class="card-property">
-        <p>Status</p>
-        <p>${this.status}</p>
-    </div>
-    <div class="card-property">
-        <p>Role</p>
-        <p>${this.role}</p>
-    </div>
-    <div class="card-property">
-        <p>Cost</p>
-        <p>$${this.cost}</p>
-    </div>
-    <div class="card-property">
-        <p>Estimated Progress</p>
-        <p>${this.progress}%</p>
-    </div>
-    </div>
-    `;
-    return html;
-  }
-
-  updateUi() {
-    this.initials = getInitials(this.name);
-    this.ui.innerHTML = this.getUiTemplate();
-  }
-
-  private addDummyToDo() {
-    const itodo = {
-      task: "test task, this is a dummy task created automatically deadline is 1 month from today",
-      deadline: monthsAfterToday(-1),
-    };
-    this.newToDo(itodo);
-    console.log("addDumyToDo() successfull");
-  }
-
-  newToDo(iTodo: IToDo) {
-    if (this.checkToDoExist(iTodo)) return this.updateToDo(iTodo as ToDo);
-    const todo = new ToDo(iTodo);
+  newToDo(todo: ToDo) {
+    const list = this.getToDoList();
+    if (list.find((existing) => todo.taskId === existing.taskId))
+      throw new Error(`Todo "${todo.taskId}" already exists.`);
     this.todoList.push(todo);
-    console.log(todo.taskId, " todo added successfully");
     this.onNewTodo(todo);
-    return todo;
   }
 
-  updateToDo(todo: ToDo) {
-    const existingTodo = this.getToDo(todo.taskId);
-    if (existingTodo) {
-      existingTodo.task = todo.task;
-      existingTodo.setStatus(todo.status);
-      existingTodo.setDeadline(todo.deadline);
+  updateToDo(taskId: string, data: Partial<ToDo>) {
+    try {
+      const todo = this.getToDo(taskId);
+      const keys = Object.keys(data);
+      for (const key of keys) {
+        todo[key] = data[key];
+      }
+      this.onUpdateTodo(todo);
+    } catch (error) {
+      console.log(error, " Update Failed!");
     }
-  }
-
-  checkToDoExist(iTodo: IToDo) {
-    const todoIds = this.todoList.map((todo) => {
-      return todo.taskId;
-    });
-    const id = iTodo.taskId ? iTodo.taskId : false;
-    if (!id) return false;
-    const isTodoExist = todoIds.includes(id);
-    return isTodoExist;
   }
 
   getToDoList() {
     return this.todoList;
   }
 
-  getToDo(id: string) {
-    const todo = this.todoList.find((todo) => todo.taskId === id);
+  getToDo(taskId: string) {
+    const todo = this.todoList.find((todo) => {
+      todo.taskId === taskId;
+    });
+    if (!todo) throw new Error(`ProjectClass: TaskId "${taskId}" is not found`);
     return todo;
   }
 
-  changeToActive(id: string) {
-    const todo = this.getToDo(id) as ToDo;
-    todo.setStatus("active");
-    console.log("changeToActive() successfull");
+  changeStatus(taskId: string, status: ToDoStatus) {
+    try {
+      const todo = this.getToDo(taskId);
+      todo.setStatus(status);
+      todo.checkStatus();
+      this.onUpdateTodo(todo);
+    } catch (error) {
+      console.log(error, " Status change failed");
+    }
   }
 
-  changeToCompleted(id: string) {
-    const todo = this.getToDo(id) as ToDo;
-    todo.setStatus("completed");
-    console.log("changeToCompleted() successfull");
-  }
-
-  changeToOverdue(id: string) {
-    const todo = this.getToDo(id) as ToDo;
-    todo.setStatus("overdue");
-    console.log("changeToOverdue() successfull");
-  }
-
-  removeToDo(id: string) {
-    const todo = this.getToDo(id);
-    if (!todo) return console.log(id, "this todo item doesn't exist.");
-    todo.ui.remove();
-    const remaining = this.todoList.filter((todo) => todo.taskId !== id);
+  removeToDo(taskId: string) {
+    const list = this.getToDoList();
+    const remaining = list.filter((todo) => todo.taskId !== taskId);
     this.todoList = remaining;
+    this.onDeleteTodo(this.todoList);
   }
 
-  editProject(editedData: EProject) {
-    for (const key in editDummy) {
-      const value = editedData[key] ? editedData[key] : this[key];
-      this[key] = value;
+  edit(editedData: Partial<Project>) {
+    for (const key in Object.keys(editedData)) {
+      this[key] = editedData[key];
     }
     this.onChange(this);
   }

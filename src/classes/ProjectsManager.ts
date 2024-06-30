@@ -24,12 +24,7 @@ export class ProjectsManager {
     this.onListFiltered(filtered);
   }
 
-  initiateToDoList(project: Project, todoList: ToDo[]) {
-    todoList.map((todo) => {
-      const { taskId, task, deadline, status } = todo;
-      project.newToDo({ task, deadline, status, taskId });
-    });
-  }
+  initiateToDoList() {}
 
   checkEditNameInUse(data: IProject) {
     const projectNames = this.list.map((project) => {
@@ -85,7 +80,6 @@ export class ProjectsManager {
     if (!project) {
       return;
     }
-    project.ui.remove();
     const remaining = this.list.filter((project) => {
       return project.id !== id;
     });
@@ -131,12 +125,12 @@ export class ProjectsManager {
             for (const key in project) {
               console.log(key, " data:", project[key], " project:", newProject[key]);
             }
-            if (project.todoList) this.initiateToDoList(newProject, project.todoList);
+            if (project.todoList) this.initiateToDoList();
           } else {
             console.log(project.id, "is updated");
             const existingProject = this.getProject(project.id) as Project;
-            existingProject.editProject(project);
-            if (project.todoList) this.initiateToDoList(existingProject, project.todoList);
+            existingProject.edit(project);
+            if (project.todoList) this.initiateToDoList();
           }
         } catch (error) {
           alert(error);
