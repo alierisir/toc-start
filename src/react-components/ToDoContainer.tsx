@@ -159,7 +159,11 @@ const ToDoContainer = ({ project }: Props) => {
         </div>
       </div>
       <div todo-list-container="" className="todo-list">
-        {todoList.length === 0 ? <>ToDo was not found!</> : todoList}
+        {todoList.length === 0 ? (
+          <p style={{ fontStyle: "italic", color: "var(--text-secondary)" }}>There is nothing to do</p>
+        ) : (
+          todoList
+        )}
       </div>
     </div>
   );

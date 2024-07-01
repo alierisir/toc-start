@@ -104,7 +104,8 @@ const IFCViewer = ({ projectsManager }: Props) => {
     });
 
     const simpleGrid = new OBC.SimpleGrid(viewer);
-    simpleGrid.visible = false;
+    simpleGrid.visible = true;
+    toggleGridBtn.active = true;
 
     toggleGridBtn.onClick.add(() => {
       toggleGridBtn.active = !toggleGridBtn.active;
