@@ -42,7 +42,7 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     highlighter.add(`${TodoCreator.uuid}-priority-high`, [
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0xe94b4b) }),
     ]);
-    console.log("ToDoCreator setup is successfully completed: ", this);
+    //console.log("ToDoCreator setup is successfully completed: ", this);
   }
 
   deleteTodo(id: string) {
