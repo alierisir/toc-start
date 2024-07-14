@@ -1,5 +1,11 @@
 import { v4 as uuid4 } from "uuid";
-import { basicToNativeDate, correctDate, getInitials, getRandomColor, monthsAfterToday } from "./CustomFunctions";
+import {
+  basicToNativeDate,
+  correctDate,
+  getInitials,
+  getRandomColor,
+  monthsAfterToday,
+} from "./CustomFunctions";
 import { ToDo } from "../bim-components/TodoCreator/src/ToDo";
 
 export type Action = "added" | "removed" | "updated";
@@ -43,7 +49,18 @@ export class Project implements IProject {
 
   constructor(data: IProject) {
     //Project Data definitions
-    const keys = ["id", "name", "description", "status", "role", "date", "cost", "progress", "initials", "boxColor"];
+    const keys = [
+      "id",
+      "name",
+      "description",
+      "status",
+      "role",
+      "date",
+      "cost",
+      "progress",
+      "initials",
+      "boxColor",
+    ];
     for (const key of keys) {
       this[key] = data[key];
       if (key === "id") {
@@ -57,7 +74,9 @@ export class Project implements IProject {
       }
     }
     if (data.date.toString() === "Invalid Date") {
-      console.log("There is no date input, project finish date is set to 6 months from today by default.");
+      console.log(
+        "There is no date input, project finish date is set to 6 months from today by default."
+      );
       this.date = monthsAfterToday(6);
     } else {
       this.date = basicToNativeDate(correctDate(data.date));
@@ -91,8 +110,16 @@ export class Project implements IProject {
     return this.todoList;
   }
 
+  removeToDo(id: string) {
+    const remaining = this.todoList.filter((todo) => todo.taskId !== id);
+    this.todoList = remaining;
+    this.onToDoListUpdate();
+  }
+
   filterToDoList(value: string) {
-    const filtered = this.getToDoList().filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
+    const filtered = this.getToDoList().filter((todo) =>
+      todo.task.toLowerCase().includes(value.toLowerCase())
+    );
     this.onToDoListFiltered(filtered);
   }
 }

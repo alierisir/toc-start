@@ -11,7 +11,6 @@ export class TodoCreator
 {
   static uuid = "3e76b69b-febc-45f8-a9ed-44c466b0cbb2";
   onToDoCreated = new OBC.Event<ToDo>();
-  onToDoDeleted = new OBC.Event<string>();
   enabled = true;
   activeProject: Project;
   private _components: OBC.Components;
@@ -54,16 +53,11 @@ export class TodoCreator
     });
   }
 
-  async listExistingTodos() {
+  async listExistingTodos(
+    highlighter: OBC.FragmentHighlighter,
+    camera: OBC.OrthoPerspectiveCamera
+  ) {
     const list = this._list;
-    const highlighter = await this._components.tools.get(
-      OBC.FragmentHighlighter
-    );
-    const camera = this._components.camera;
-    if (!(camera instanceof OBC.OrthoPerspectiveCamera))
-      return console.warn(
-        "This operation requires an active OrthoPerspective Camera"
-      );
     list.map(async (todo) => {
       const card = new TodoCard(this._components);
       todo.card = card;
@@ -104,8 +98,7 @@ export class TodoCreator
   deleteTodo(id: string) {
     const remaining = this._list.filter((todo) => todo.taskId !== id);
     this._list = remaining;
-    this.activeProject.updateToDoList(this._list);
-    this.onToDoDeleted.trigger(id);
+    this.activeProject.removeToDo(id); // Remove todo ile değiştirilmeli
   }
 
   getTodo(id: string) {

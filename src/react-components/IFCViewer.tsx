@@ -313,7 +313,7 @@ const IFCViewer = ({ projectsManager }: Props) => {
     const todoCreator = new TodoCreator(viewer);
     await todoCreator.setup(project);
     todoCreator.onToDoCreated.add((todo) => {});
-    await todoCreator.listExistingTodos();
+    await todoCreator.listExistingTodos(highlighter, cameraComponent);
     //window.addEventListener("keydown", (e) => {
     //  if (!(e.key === "a" || e.key === "A")) return;
     //  console.log("getting fragment qtys..");
