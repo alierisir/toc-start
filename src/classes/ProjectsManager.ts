@@ -6,16 +6,6 @@ export class ProjectsManager {
   onProjectDeleted = () => {};
   onListFiltered = (filtered: Project[]) => {};
 
-  constructor() {
-    const project = this.newProject({
-      name: "Default Project",
-      description: "This is just a default app project",
-      status: "pending",
-      role: "architect",
-      date: new Date(),
-    });
-  }
-
   filterProjects(value: string) {
     const filtered = this.list.filter((project) => {
       return project.name.toLowerCase().includes(value.toLowerCase());
@@ -23,7 +13,7 @@ export class ProjectsManager {
     this.onListFiltered(filtered);
   }
 
-  initiateToDoList() {}
+  initiateToDoList() {} //firestoredaki todoları projelerle bu method ile eşleyebilirim!!!!!!!!!!!!!!!!!
 
   checkEditNameInUse(data: IProject) {
     const projectNames = this.list.map((project) => {
@@ -49,12 +39,12 @@ export class ProjectsManager {
     return idInUse;
   }
 
-  newProject(data: IProject) {
+  newProject(data: IProject, id?:string) {
     if (this.checkNameInUse(data)) {
       //bu noktada geri dönmek yerine, id'ler kontrol edilmeli, id mevcut ise proje update edilecek, değil ise yeni
       throw new Error("There is already a project with the same name!");
     }
-    const project = new Project(data);
+    const project = new Project(data,id);
     this.list.push(project);
     this.onProjectCreated(project);
     return project;

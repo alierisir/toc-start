@@ -1,9 +1,11 @@
-import React from "react";
+import * as React from "react";
+import * as Router from "react-router-dom";
+import * as Firestore from "firebase/firestore"
 import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
-import * as Router from "react-router-dom";
 import SearchBox from "./SearchBox";
+import { getCollection } from "../firebase";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -12,14 +14,36 @@ interface Props {
 const ProjectsPage = ({ projectsManager }: Props) => {
   const [list, setList] = React.useState<Project[]>(projectsManager.list);
 
+
+  const projectsCollection = getCollection<IProject>("/projects")
+
   projectsManager.onProjectCreated = () => {
     setList([...projectsManager.list]);
   };
-  projectsManager.onProjectDeleted = () => {
-    setList([...projectsManager.list]);
-  };
 
-  React.useEffect(() => {}, [list]);
+  const getFirestoreProjects = async () => {
+    // const projectsCollection = Firestore.collection(firebaseDB,"/projects") as Firestore.CollectionReference<IProject> // Firestore.CollectionReference kısmı sabit
+    const firebaseProjects = await Firestore.getDocs(projectsCollection) // projelerin olduğu liste bu değil, liste docs özelliğinde tutuluyor
+    const projectDocs = firebaseProjects.docs // tip: array, firestoreda bir üst methodda verilen parametreye göre yapılan arama sonucunun listesi
+    for (const doc of projectDocs){ //her bir dokümana bu şekilde ulaşılıyor
+      const data = doc.data() //her doküman içindeki verilere ulaşabilmek için data() methodu kullanılır.
+      const projectData:IProject = {
+        ...data,
+        date: (data.date as unknown as Firestore.Timestamp).toDate()
+      }
+      try {
+        projectsManager.newProject(projectData,doc.id) //collection methodu kullanılırken parametre olarak kullanılacak verinin tipi doğru belirtilmelidir!
+      } catch (error) {
+        const project = projectsManager.getProject(doc.id)
+        if (!project) return
+        project.edit(projectData)
+      }
+    }
+  }
+
+  React.useEffect(() => {
+    getFirestoreProjects()
+  }, []);
 
   const listProjects = list.map((project) => {
     return (
@@ -45,19 +69,23 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     form.reset();
   };
 
-  const onFormSubmitted = (e: React.FormEvent) => {
+  const onFormSubmitted = async (e: React.FormEvent) => {
     const projectForm = document.getElementById("new-project-form") as HTMLFormElement;
     e.preventDefault();
     const formData = new FormData(projectForm);
+    const date = new Date(formData.get("date") as string).toDateString() === "Invalid Date"
+    ? new Date()
+    : new Date(formData.get("date") as string);
     const projectData: IProject = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       status: formData.get("status") as Status,
       role: formData.get("role") as Role,
-      date: new Date(formData.get("date") as string),
+      date
     };
     try {
-      projectsManager.newProject(projectData);
+      const doc = await Firestore.addDoc(projectsCollection,projectData)
+      projectsManager.newProject(projectData,doc.id);
       onCancelClicked();
     } catch (e) {
       throw new Error(`Error adding new project: ${e}`);

@@ -5,6 +5,7 @@ import DetailsCard from "./DetailsCard";
 import DetailsHeader from "./DetailsHeader";
 import ToDoContainer from "./ToDoContainer";
 import IFCViewer from "./IFCViewer";
+import { deleteDocument } from "../firebase";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -15,9 +16,17 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
   if (!routeParams.id) return <>ID is invalid</>;
   const project = projectsManager.getProject(routeParams.id);
   if (!project) return <>Project is not found!</>;
+  const navigateTo = Router.useNavigate();
+
+  const handleDelete = () => {
+    deleteDocument("/projects",project.id)
+    projectsManager.deleteProject(project.id)
+    navigateTo("/")
+  }
+
   return (
     <div id="project-details" className="page">
-      <DetailsHeader project={project} />
+      <DetailsHeader project={project} onDeleteClick={handleDelete} />
       <div className="main-page-content">
         <div id="details-container">
           <DetailsCard project={project} />

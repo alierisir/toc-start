@@ -31,13 +31,14 @@ const DetailsCard = ({ project }: Props) => {
     e.preventDefault();
     const form = document.getElementById("edit-project-form") as HTMLFormElement;
     const formData = new FormData(form);
+    const name = formData.get("edit-name") ? (formData.get("edit-name") as string) : project.name
     const date =
       new Date(formData.get("edit-date") as string).toDateString() === "Invalid Date"
         ? project.date
         : new Date(formData.get("edit-date") as string);
     const editedProject: Partial<Project> = {
-      initials: CF.getInitials(formData.get("edit-name") as string),
-      name: formData.get("edit-name") ? (formData.get("edit-name") as string) : project.name,
+      initials: CF.getInitials(name),
+      name,
       description: formData.get("edit-description")
         ? (formData.get("edit-description") as string)
         : project.description,

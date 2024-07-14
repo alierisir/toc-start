@@ -1,4 +1,4 @@
-import { v4 as uuid4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import {
   basicToNativeDate,
   correctDate,
@@ -47,40 +47,13 @@ export class Project implements IProject {
   onToDoListUpdate = () => {};
   onToDoListFiltered = (filtered: ToDo[]) => {};
 
-  constructor(data: IProject) {
+  constructor(data: IProject,id=uuidv4()) {
     //Project Data definitions
-    const keys = [
-      "id",
-      "name",
-      "description",
-      "status",
-      "role",
-      "date",
-      "cost",
-      "progress",
-      "initials",
-      "boxColor",
-    ];
-    for (const key of keys) {
-      this[key] = data[key];
-      if (key === "id") {
-        this[key] = data[key] ? data[key] : uuid4();
-      }
-      if (key === "cost") {
-        this[key] = data[key] ? data[key] : 0;
-      }
-      if (key === "progress") {
-        this[key] = data[key] ? data[key] : 0;
-      }
+    this.id=id
+    for (const key in data){
+      this[key]=data[key]
     }
-    if (data.date.toString() === "Invalid Date") {
-      console.log(
-        "There is no date input, project finish date is set to 6 months from today by default."
-      );
-      this.date = monthsAfterToday(6);
-    } else {
-      this.date = basicToNativeDate(correctDate(data.date));
-    }
+
     this.setInitialsBox();
   }
 
@@ -93,11 +66,19 @@ export class Project implements IProject {
   }
 
   edit(editedData: Partial<Project>) {
-    for (const key of Object.keys(editedData)) {
-      console.log(key);
-      this[key] = editedData[key];
+    console.log(`${this.name} is being updated...`)
+    for (const key in editedData) {
+      if(this[key] !== editedData[key]){
+        console.log(key,"\nold:",this[key],"\nnew:",editedData[key]);
+        this[key] = editedData[key];
+      }
     }
     this.onChange(this);
+    console.log(`${this.name} is updated.`)
+  }
+
+  update(data:Partial<Project>){
+
   }
 
   getToDoList(): ToDo[] {
