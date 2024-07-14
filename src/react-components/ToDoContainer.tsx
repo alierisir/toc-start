@@ -29,16 +29,8 @@ const ToDoContainer = ({ project }: Props) => {
 
   setupTodoCreator();
 
-  const createNewToDo = async (data: IToDo) => {
-    todoCreator.addTodo(data);
-  };
-
   project.onToDoListUpdate = () => {
     setList([...project.getToDoList()]);
-  };
-
-  const onDeleteTodo = (todo: ToDo) => {
-    todo.dispose();
   };
 
   const todoList = list.map((todo) => (
@@ -46,7 +38,10 @@ const ToDoContainer = ({ project }: Props) => {
       key={todo.taskId}
       todo={todo}
       onDeleteClick={() => {
-        onDeleteTodo(todo);
+        todo.dispose();
+      }}
+      onCardClick={() => {
+        todo.card.get().click();
       }}
     />
   ));
@@ -83,7 +78,7 @@ const ToDoContainer = ({ project }: Props) => {
       projectId: project.id,
     };
     try {
-      createNewToDo(data);
+      todoCreator.addTodo(data);
       onCancelClick();
     } catch (error) {}
   };

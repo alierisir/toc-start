@@ -3,10 +3,11 @@ import { ToDo } from "../bim-components/TodoCreator/src/ToDo";
 
 interface Props {
   todo: ToDo;
-  onDeleteClick: () => void;
+  onDeleteClick?: () => void;
+  onCardClick?: () => void;
 }
 
-const ToDoCard = ({ todo, onDeleteClick }: Props) => {
+const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
   const [status, setStatus] = React.useState(todo.getStatus());
   const symbols = {
     active: "check_box_outline_blank",
@@ -26,7 +27,7 @@ const ToDoCard = ({ todo, onDeleteClick }: Props) => {
       <p todo-list-functions="toggle-active" onClick={onCheckboxClicked}>
         <span className="material-symbols-outlined">{status_symbol}</span>
       </p>
-      <p>{todo.task}</p>
+      <p onClick={onCardClick}>{todo.task}</p>
       <p>{todo.deadline.toLocaleDateString()}</p>
       <p onClick={onDeleteClick}>
         <span className="material-symbols-outlined">delete</span>

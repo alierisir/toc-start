@@ -85,8 +85,8 @@ export class TodoCreator
       deleteButton.materialIcon = "delete";
 
       todo.card.slots.actionButtons.addChild(deleteButton);
-      deleteButton.onClick.add(async () => {
-        await todo.dispose();
+      deleteButton.onClick.add(() => {
+        todo.dispose();
       });
     });
     const listUi = this.uiElement.get("todoList");
