@@ -41,6 +41,8 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     }
   }
 
+  console.log(projectsManager.list)
+
   React.useEffect(() => {
     getFirestoreProjects()
   }, []);

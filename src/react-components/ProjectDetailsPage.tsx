@@ -18,15 +18,16 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
   if (!project) return <>Project is not found!</>;
   const navigateTo = Router.useNavigate();
 
-  const handleDelete = () => {
-    deleteDocument("/projects",project.id)
-    projectsManager.deleteProject(project.id)
+  projectsManager.onProjectDeleted=async() => {
+    await deleteDocument("/projects",project.id)
     navigateTo("/")
   }
 
   return (
     <div id="project-details" className="page">
-      <DetailsHeader project={project} onDeleteClick={handleDelete} />
+      <DetailsHeader project={project} onDeleteClick={() => {
+        projectsManager.deleteProject(project.id)
+      }} />
       <div className="main-page-content">
         <div id="details-container">
           <DetailsCard project={project} />

@@ -1,5 +1,6 @@
 import * as Firestore from "firebase/firestore"
 import { initializeApp } from "firebase/app";
+import { Project } from "../classes/Project";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAjzKg7VDkgQBVTHcjBLQddXODiUe3vObA",
@@ -17,7 +18,12 @@ export const getCollection = <T> (path:string) => {
   return Firestore.collection(firebaseDB,path) as Firestore.CollectionReference<T>
 }
 
-export const deleteDocument=(path:string,id:string) => {
+export const deleteDocument=async(path:string,id:string) => {
   const doc = Firestore.doc(firebaseDB,`${path}/${id}`)
-  Firestore.deleteDoc(doc)
+  await Firestore.deleteDoc(doc)
+}
+
+export const updateDocument=async<T extends Record<string,any>>(path:string,id:string,data:T) =>{
+  const doc = Firestore.doc(firebaseDB,`${path}/${id}`)
+  await Firestore.updateDoc(doc,data)
 }

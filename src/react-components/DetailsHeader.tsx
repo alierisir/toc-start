@@ -13,7 +13,7 @@ const DetailsHeader = ({ project,onDeleteClick }: Props) => {
         <p data-project-info="headDescription">{project.description}</p>
       </div>
       <div>
-        <button onClick={onDeleteClick}>Delete Project</button>
+        <button style={{background:"none" , color:"black", border:"2px dashed black", borderRadius:"5px"}} onClick={onDeleteClick}>Delete Project</button>
       </div>
     </header>
   );
