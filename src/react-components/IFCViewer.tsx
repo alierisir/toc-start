@@ -307,12 +307,26 @@ const IFCViewer = ({ projectsManager }: Props) => {
     });
 
     fragmentManager.onFragmentsLoaded.add((model) => {
-      importFromJson(model);
+      alert(`${model.name} is loaded, please load properties manually.`);
+      const loadPropBtn = new OBC.Button(viewer, {
+        materialIconName: "upload",
+        tooltip: "Load Properties",
+      });
+      loadPropBtn.onClick.add(() => {
+        importFromJson(model);
+        toolbar.removeChild(loadPropBtn);
+        loadPropBtn.dispose();
+      });
+      toolbar.addChild(loadPropBtn);
     });
 
     const todoCreator = new TodoCreator(viewer);
     await todoCreator.setup(project);
-    todoCreator.onToDoCreated.add((todo) => {});
+    todoCreator.onToDoCreated.add((todo) => {
+      console.log(
+        `id:${todo.taskId} is added to the project:${project.name}'s todo list.`
+      );
+    });
     await todoCreator.listExistingTodos(highlighter, cameraComponent);
     //window.addEventListener("keydown", (e) => {
     //  if (!(e.key === "a" || e.key === "A")) return;

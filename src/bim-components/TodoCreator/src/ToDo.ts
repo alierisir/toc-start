@@ -87,7 +87,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
       try {
         await highlighter.highlightByID("select", this.fragmentMap);
       } catch (error) {
-        console.log("To-do has no fragments assigned.");
+        console.log("Fragments are not found, check if the model is uploaded.");
       }
       camera.controls.setLookAt(
         this.camera.position.x,
