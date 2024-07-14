@@ -1,10 +1,14 @@
+import { TodoCard } from "./src/TodoCard";
 import * as OBC from "openbim-components";
 import * as THREE from "three";
 import { IToDo, ToDo, ToDoPriority, ToDoStatus } from "./src/ToDo";
 import { generateUUID } from "three/src/math/MathUtils.js";
 import { Project } from "../../classes/Project";
 
-export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Disposable {
+export class TodoCreator
+  extends OBC.Component<ToDo[]>
+  implements OBC.UI, OBC.Disposable
+{
   static uuid = "3e76b69b-febc-45f8-a9ed-44c466b0cbb2";
   onToDoCreated = new OBC.Event<ToDo>();
   onToDoDeleted = new OBC.Event<string>();
@@ -32,7 +36,9 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
 
   async setup(project: Project) {
     this.activeProject = project;
-    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
+    const highlighter = await this._components.tools.get(
+      OBC.FragmentHighlighter
+    );
     highlighter.add(`${TodoCreator.uuid}-priority-low`, [
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0x4be973) }),
     ]);
@@ -43,6 +49,56 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0xe94b4b) }),
     ]);
     //console.log("ToDoCreator setup is successfully completed: ", this);
+    this.activeProject.getToDoList().map((todo) => {
+      this._list.push(todo);
+    });
+  }
+
+  async listExistingTodos() {
+    const list = this._list;
+    const highlighter = await this._components.tools.get(
+      OBC.FragmentHighlighter
+    );
+    const camera = this._components.camera;
+    if (!(camera instanceof OBC.OrthoPerspectiveCamera))
+      return console.warn(
+        "This operation requires an active OrthoPerspective Camera"
+      );
+    list.map(async (todo) => {
+      const card = new TodoCard(this._components);
+      todo.card = card;
+      todo.card.description = todo.task;
+      todo.card.date = todo.deadline;
+      todo.card.priority = todo.priority;
+      todo.card.onCardClick.add(async () => {
+        await camera.fit();
+        try {
+          await highlighter.highlightByID("select", todo.fragmentMap);
+        } catch (error) {
+          console.log("To-do has no fragments assigned.");
+        }
+        camera.controls.setLookAt(
+          todo.camera.position.x,
+          todo.camera.position.y,
+          todo.camera.position.z,
+          todo.camera.target.x,
+          todo.camera.target.y,
+          todo.camera.target.z,
+          true
+        );
+      });
+      const deleteButton = new OBC.Button(this._components);
+      deleteButton.materialIcon = "delete";
+
+      todo.card.slots.actionButtons.addChild(deleteButton);
+      deleteButton.onClick.add(async () => {
+        await todo.dispose();
+      });
+    });
+    const listUi = this.uiElement.get("todoList");
+    list.map(async (todo) => {
+      listUi.addChild(todo.card);
+    });
   }
 
   deleteTodo(id: string) {
@@ -120,7 +176,9 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
     const searchText = new OBC.TextInput(this._components);
     searchText.label = "";
     searchText.domElement.addEventListener("input", () => {
-      const foundTodos = this.get().filter((todo) => todo.task.toLowerCase().includes(searchText.value.toLowerCase()));
+      const foundTodos = this.get().filter((todo) =>
+        todo.task.toLowerCase().includes(searchText.value.toLowerCase())
+      );
       this.get().map((todo) => {
         todo.card.visible = false;
       });
@@ -131,7 +189,9 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
 
     todoListToolbar.addChild(searchText);
 
-    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
+    const highlighter = await this._components.tools.get(
+      OBC.FragmentHighlighter
+    );
     colorizeBtn.onClick.add(() => {
       colorizeBtn.active = !colorizeBtn.active;
       if (colorizeBtn.active) {
@@ -140,7 +200,10 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
           if (fragmentMapLength === 0) {
             return;
           }
-          highlighter.highlightByID(`${TodoCreator.uuid}-priority-${todo.priority}`, todo.fragmentMap);
+          highlighter.highlightByID(
+            `${TodoCreator.uuid}-priority-${todo.priority}`,
+            todo.fragmentMap
+          );
         }
       } else {
         highlighter.clear(`${TodoCreator.uuid}-priority-low`);
@@ -219,7 +282,9 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
   }
 
   getProjectToDos() {
-    return this.get().filter((todo) => todo.projectId === this.activeProject.id);
+    return this.get().filter(
+      (todo) => todo.projectId === this.activeProject.id
+    );
   }
 
   getToDo(taskId: string) {
@@ -253,7 +318,11 @@ export class TodoCreator extends OBC.Component<ToDo[]> implements OBC.UI, OBC.Di
   }
 
   filterProjectTodos(value: string) {
-    const projectTodos = this.get().filter((todo) => todo.projectId === this.activeProject.id);
-    return projectTodos.filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
+    const projectTodos = this.get().filter(
+      (todo) => todo.projectId === this.activeProject.id
+    );
+    return projectTodos.filter((todo) =>
+      todo.task.toLowerCase().includes(value.toLowerCase())
+    );
   }
 }

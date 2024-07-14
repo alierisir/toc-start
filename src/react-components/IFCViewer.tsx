@@ -15,11 +15,18 @@ interface IViewerContext {
   setViewer: (viewer: OBC.Components | null) => void;
 }
 
-export const ViewerContext = React.createContext<IViewerContext>({ viewer: null, setViewer: () => {} });
+export const ViewerContext = React.createContext<IViewerContext>({
+  viewer: null,
+  setViewer: () => {},
+});
 
 export const ViewerProvider = ({ children }) => {
   const [viewer, setViewer] = React.useState<OBC.Components | null>(null);
-  return <ViewerContext.Provider value={{ viewer, setViewer }}>{children}</ViewerContext.Provider>;
+  return (
+    <ViewerContext.Provider value={{ viewer, setViewer }}>
+      {children}
+    </ViewerContext.Provider>
+  );
 };
 
 const IFCViewer = ({ projectsManager }: Props) => {
@@ -43,8 +50,13 @@ const IFCViewer = ({ projectsManager }: Props) => {
 
     viewer.scene = sceneComponent;
 
-    const viewerContainer = document.getElementById("viewer-container") as HTMLDivElement;
-    const rendererComponent = new OBC.PostproductionRenderer(viewer, viewerContainer);
+    const viewerContainer = document.getElementById(
+      "viewer-container"
+    ) as HTMLDivElement;
+    const rendererComponent = new OBC.PostproductionRenderer(
+      viewer,
+      viewerContainer
+    );
 
     viewer.renderer = rendererComponent;
 
@@ -141,10 +153,16 @@ const IFCViewer = ({ projectsManager }: Props) => {
     loaderBtn.materialIcon = "input";
 
     const setupDepthTest = () => {
-      const selectMat = highlighter.highlightMats.select ? highlighter.highlightMats.select[0] : undefined;
-      const hoverMat = highlighter.highlightMats.hover ? highlighter.highlightMats.hover[0] : undefined;
+      const selectMat = highlighter.highlightMats.select
+        ? highlighter.highlightMats.select[0]
+        : undefined;
+      const hoverMat = highlighter.highlightMats.hover
+        ? highlighter.highlightMats.hover[0]
+        : undefined;
 
-      selectMat ? (selectMat.depthTest = false) : "Can't find the select material";
+      selectMat
+        ? (selectMat.depthTest = false)
+        : "Can't find the select material";
       hoverMat ? (hoverMat.depthTest = false) : "Can't find the hover material";
     };
 
@@ -295,7 +313,7 @@ const IFCViewer = ({ projectsManager }: Props) => {
     const todoCreator = new TodoCreator(viewer);
     await todoCreator.setup(project);
     todoCreator.onToDoCreated.add((todo) => {});
-
+    await todoCreator.listExistingTodos();
     //window.addEventListener("keydown", (e) => {
     //  if (!(e.key === "a" || e.key === "A")) return;
     //  console.log("getting fragment qtys..");
@@ -348,7 +366,13 @@ const IFCViewer = ({ projectsManager }: Props) => {
     };
   }, []);
 
-  return <div id="viewer-container" className="dashboard-card" style={{ minWidth: 0, position: "relative" }} />;
+  return (
+    <div
+      id="viewer-container"
+      className="dashboard-card"
+      style={{ minWidth: 0, position: "relative" }}
+    />
+  );
 };
 
 export default IFCViewer;

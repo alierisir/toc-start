@@ -46,9 +46,12 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
   }
 
   private async setup() {
-    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
+    const highlighter = await this._components.tools.get(
+      OBC.FragmentHighlighter
+    );
     const camera = this._components.camera;
-    if (!(camera instanceof OBC.OrthoPerspectiveCamera)) return console.warn("OrthoPerspective Camera is not found!");
+    if (!(camera instanceof OBC.OrthoPerspectiveCamera))
+      return console.warn("OrthoPerspective Camera is not found!");
     const position = new THREE.Vector3();
     const target = new THREE.Vector3();
     camera.controls.getPosition(position);
@@ -69,11 +72,15 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
     this.card.date = this.deadline;
     this.card.priority = this.priority;
 
-    const highlighter = await this._components.tools.get(OBC.FragmentHighlighter);
+    const highlighter = await this._components.tools.get(
+      OBC.FragmentHighlighter
+    );
 
     const camera = this._components.camera;
     if (!(camera instanceof OBC.OrthoPerspectiveCamera))
-      return console.warn("This operation requires an active OrthoPerspective Camera");
+      return console.warn(
+        "This operation requires an active OrthoPerspective Camera"
+      );
 
     this.card.onCardClick.add(async () => {
       await camera.fit();
@@ -127,7 +134,9 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
       return this.status;
     }
     if (this.deadline >= today && this.status === "overdue") {
-      console.log("There is still time for the task to be completed, changing status to 'active'.");
+      console.log(
+        "There is still time for the task to be completed, changing status to 'active'."
+      );
       this.setStatus("active");
       return this.status;
     }
