@@ -271,17 +271,17 @@ const IFCViewer = ({ projectsManager }: Props) => {
       return Number([...Object.values(fragmentMap)[0]][0]);
     };
 
-    const culler = new OBC.ScreenCuller(viewer);
-    cameraComponent.controls.addEventListener("sleep", () => {
-      culler.needsUpdate = true;
-    });
+    //const culler = new OBC.ScreenCuller(viewer);
+    //cameraComponent.controls.addEventListener("sleep", () => {
+    //  culler.needsUpdate = true;
+    //});
 
     const onModelLoaded = async (model: FragmentsGroup) => {
       highlighter.update();
-      for (const fragment of model.items) {
-        culler.add(fragment.mesh);
-      }
-      culler.needsUpdate = true;
+      //for (const fragment of model.items) {
+      //  culler.add(fragment.mesh);
+      //}
+      //culler.needsUpdate = true;
 
       try {
         classifier.byModel(model.name, model);
@@ -321,6 +321,7 @@ const IFCViewer = ({ projectsManager }: Props) => {
     });
 
     const todoCreator = new TodoCreator(viewer);
+    console.log(viewer);
     await todoCreator.setup(project);
     todoCreator.onToDoCreated.add((todo) => {
       console.log(
@@ -354,6 +355,7 @@ const IFCViewer = ({ projectsManager }: Props) => {
 
     toolbar.addChild(toggleGridBtn, toggleViewBtn);
     toolbar.addChild(loaderBtn);
+    toolbar.addChild(fragmentManager.uiElement.get("main"));
     loaderBtn.addChild(ifcLoader.uiElement.get("main"));
     loaderBtn.addChild(fragmentLoadBtn);
 

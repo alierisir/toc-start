@@ -124,7 +124,7 @@ export class TodoCreator
     //Store Data
     const list = this.get();
     list.push(todo);
-    this.activeProject.updateToDoList(list);
+    this.activeProject.newToDo(todo);
     //Store UI
     const todoList = this.uiElement.get("todoList");
     todoList.addChild(todoCard);

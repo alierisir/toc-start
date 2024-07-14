@@ -110,6 +110,11 @@ export class Project implements IProject {
     return this.todoList;
   }
 
+  newToDo(todo: ToDo) {
+    this.todoList.push(todo);
+    this.onToDoListUpdate();
+  }
+
   removeToDo(id: string) {
     const remaining = this.todoList.filter((todo) => todo.taskId !== id);
     this.todoList = remaining;
