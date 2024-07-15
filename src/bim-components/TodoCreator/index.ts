@@ -105,6 +105,11 @@ export class TodoCreator
     return this.get().find((todo) => todo.taskId === id);
   }
 
+  idIsValid(id:string){
+    const idList=this._list.map(todo=>todo.taskId)
+    return !idList.includes(id)
+  }
+
   updateList() {
     const updated: ToDo[] = [];
     this._list.map((item) => {
@@ -117,8 +122,9 @@ export class TodoCreator
     this._list = updated;
   }
 
-  addTodo(data: IToDo, taskId: string = generateUUID()) {
+  addTodo(data: IToDo, taskId?:string) {
     if (!this.enabled) throw new Error("ToDo Creator is not enabled");
+    if (!this.idIsValid) throw new Error("Task id is in use")
     const todo = new ToDo(this._components, data, taskId);
     const todoCard = todo.card;
     //Store Data

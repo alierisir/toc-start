@@ -1,5 +1,6 @@
 import * as OBC from "openbim-components";
 import * as THREE from "three";
+import { v4 as uuidv4 } from "uuid";
 import { TodoCard } from "./TodoCard";
 import { TodoCreator } from "..";
 import { monthsAfterToday } from "../../../classes/CustomFunctions";
@@ -33,7 +34,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
   fragmentMap: OBC.FragmentIdMap;
   card: TodoCard;
 
-  constructor(components: OBC.Components, data: IToDo, taskId: string) {
+  constructor(components: OBC.Components, data: IToDo, taskId: string=uuidv4()) {
     super(components);
     this._components = components;
     this.taskId = taskId;

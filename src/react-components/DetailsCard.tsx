@@ -2,6 +2,7 @@ import React from "react";
 import { Project, Role, Status } from "../classes/Project";
 import * as CF from "../classes/CustomFunctions";
 import * as Router from "react-router-dom";
+import { updateDocument } from "../firebase";
 
 interface Props {
   project: Project;
@@ -11,7 +12,8 @@ const DetailsCard = ({ project }: Props) => {
   const [data, setData] = React.useState(project);
   const navigateTo = Router.useNavigate();
 
-  project.onChange = () => {
+  project.onChange = async(data) => {
+    await updateDocument<Partial<Project>>("/projects",project.id,data)
     setData(project);
   };
 

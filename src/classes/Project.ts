@@ -43,7 +43,7 @@ export class Project implements IProject {
   todoList: ToDo[] = [];
 
   //Events
-  onChange = (project: Project) => {};
+  onChange = (data: Partial<Project>) => {};
   onToDoListUpdate = () => {};
   onToDoListFiltered = (filtered: ToDo[]) => {};
 
@@ -66,15 +66,15 @@ export class Project implements IProject {
   }
 
   edit(editedData: Partial<Project>) {
-    console.log(`${this.name} is being updated...`)
+    //console.log(`${this.name} is being updated...`)
     for (const key in editedData) {
       if(this[key] !== editedData[key]){
-        console.log(key,"\nold:",this[key],"\nnew:",editedData[key]);
+        //console.log(key,"\nold:",this[key],"\nnew:",editedData[key]);
         this[key] = editedData[key];
       }
     }
-    this.onChange(this);
-    console.log(`${this.name} is updated.`)
+    this.onChange(editedData);
+    //console.log(`${this.name} is updated.`)
   }
 
   update(data:Partial<Project>){

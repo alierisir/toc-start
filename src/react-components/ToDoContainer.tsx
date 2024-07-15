@@ -80,7 +80,9 @@ const ToDoContainer = ({ project }: Props) => {
     try {
       todoCreator.addTodo(data);
       onCancelClick();
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   project.onToDoListFiltered = (filtered) => {

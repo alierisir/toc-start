@@ -6,6 +6,7 @@ import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
 import SearchBox from "./SearchBox";
 import { getCollection } from "../firebase";
+import { monthsAfterToday } from "../classes/CustomFunctions";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -21,12 +22,13 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     setList([...projectsManager.list]);
   };
 
-  const getFirestoreProjects = async () => {
+  const getFirebaseProjects = async () => {
     // const projectsCollection = Firestore.collection(firebaseDB,"/projects") as Firestore.CollectionReference<IProject> // Firestore.CollectionReference kısmı sabit
     const firebaseProjects = await Firestore.getDocs(projectsCollection) // projelerin olduğu liste bu değil, liste docs özelliğinde tutuluyor
     const projectDocs = firebaseProjects.docs // tip: array, firestoreda bir üst methodda verilen parametreye göre yapılan arama sonucunun listesi
     for (const doc of projectDocs){ //her bir dokümana bu şekilde ulaşılıyor
       const data = doc.data() //her doküman içindeki verilere ulaşabilmek için data() methodu kullanılır.
+      //console.log(data)
       const projectData:IProject = {
         ...data,
         date: (data.date as unknown as Firestore.Timestamp).toDate()
@@ -41,10 +43,10 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     }
   }
 
-  console.log(projectsManager.list)
+  //console.log(projectsManager.list)
 
   React.useEffect(() => {
-    getFirestoreProjects()
+    getFirebaseProjects()
   }, []);
 
   const listProjects = list.map((project) => {
@@ -76,7 +78,7 @@ const ProjectsPage = ({ projectsManager }: Props) => {
     e.preventDefault();
     const formData = new FormData(projectForm);
     const date = new Date(formData.get("date") as string).toDateString() === "Invalid Date"
-    ? new Date()
+    ? monthsAfterToday(6)
     : new Date(formData.get("date") as string);
     const projectData: IProject = {
       name: formData.get("name") as string,
