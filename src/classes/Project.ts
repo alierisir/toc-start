@@ -44,14 +44,16 @@ export class Project implements IProject {
 
   //Events
   onChange = (data: Partial<Project>) => {};
+  onToDoCreated = (todo: ToDo) => {};
+  onToDoDeleted = () => {};
   onToDoListUpdate = () => {};
   onToDoListFiltered = (filtered: ToDo[]) => {};
 
-  constructor(data: IProject,id=uuidv4()) {
+  constructor(data: IProject, id = uuidv4()) {
     //Project Data definitions
-    this.id=id
-    for (const key in data){
-      this[key]=data[key]
+    this.id = id;
+    for (const key in data) {
+      this[key] = data[key];
     }
 
     this.setInitialsBox();
@@ -68,7 +70,7 @@ export class Project implements IProject {
   edit(editedData: Partial<Project>) {
     //console.log(`${this.name} is being updated...`)
     for (const key in editedData) {
-      if(this[key] !== editedData[key]){
+      if (this[key] !== editedData[key]) {
         //console.log(key,"\nold:",this[key],"\nnew:",editedData[key]);
         this[key] = editedData[key];
       }
@@ -77,9 +79,7 @@ export class Project implements IProject {
     //console.log(`${this.name} is updated.`)
   }
 
-  update(data:Partial<Project>){
-
-  }
+  update(data: Partial<Project>) {}
 
   getToDoList(): ToDo[] {
     return this.todoList;
@@ -93,13 +93,19 @@ export class Project implements IProject {
 
   newToDo(todo: ToDo) {
     this.todoList.push(todo);
+    this.onToDoCreated(todo);
     this.onToDoListUpdate();
   }
 
   removeToDo(id: string) {
     const remaining = this.todoList.filter((todo) => todo.taskId !== id);
     this.todoList = remaining;
+    this.onToDoDeleted();
     this.onToDoListUpdate();
+  }
+
+  getToDo(id: string) {
+    return this.todoList.find((todo) => todo.taskId === id);
   }
 
   filterToDoList(value: string) {

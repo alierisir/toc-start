@@ -43,6 +43,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
       this[key] = data[key];
     }
     this.setup();
+    this.checkStatus();
     this.createCard();
   }
 

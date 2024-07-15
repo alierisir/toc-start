@@ -7,7 +7,7 @@ import * as Router from "react-router-dom";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import { getCollection } from "../firebase";
 import { IToDo } from "../bim-components/TodoCreator/src/ToDo";
-import * as Firestore  from "firebase/firestore";
+import * as Firestore from "firebase/firestore";
 import { monthsAfterToday } from "../classes/CustomFunctions";
 
 interface Props {
@@ -325,37 +325,36 @@ const IFCViewer = ({ projectsManager }: Props) => {
     });
 
     const todoCreator = new TodoCreator(viewer);
-    console.log(viewer);
     await todoCreator.setup(project);
-    todoCreator.onToDoCreated.add((todo) => {
-      console.log(
-        `id:${todo.taskId} is added to the project:${project.name}'s todo list.`
-      );
-    });
+
     //TODO CREATOR BU NOKTADA FIREBASE DATASI ILE SENKRONIZE OLACAK
-    const todosCollection = getCollection<IToDo>("/todos")
-    const firebaseTodos = await Firestore.getDocs(todosCollection)
-    const todosDocs=firebaseTodos.docs
+    const todosCollection = getCollection<IToDo>("/todos");
+    const firebaseTodos = await Firestore.getDocs(todosCollection);
+    const todosDocs = firebaseTodos.docs;
     for (const doc of todosDocs) {
-      if (doc.data().projectId!==project.id) continue
-      const data=doc.data()
-      const deadline=data.deadline?(data.deadline as unknown as Firestore.Timestamp).toDate():monthsAfterToday(1)         
-      const itodo:IToDo={
+      if (doc.data().projectId !== project.id) continue;
+      const data = doc.data();
+      const deadline = data.deadline
+        ? (data.deadline as unknown as Firestore.Timestamp).toDate()
+        : monthsAfterToday(1);
+      const itodo: IToDo = {
         ...data,
-        deadline
-      }
+        deadline,
+      };
       try {
-        todoCreator.addTodo(itodo,doc.id)
+        todoCreator.addTodo(itodo, doc.id);
       } catch (error) {
-        await todoCreator.listExistingTodos(highlighter,cameraComponent)
+        const todo = project.getToDo(doc.id);
+        console.log("todo exists,", todo);
+        if (!todo) throw new Error("Todo not found");
+        todoCreator.createExistingCard(todo, highlighter, cameraComponent);
       }
     }
 
-    
+    todoCreator.onToDoCreated.add((todo) => {
+      console.log(todo.taskId);
+    });
     //BU SATIRDAN SONRA TODOCREATOR LISTESI FIREBASE ILE EŞIT OLACAK
-
-    //await todoCreator.listExistingTodos(highlighter, cameraComponent);
-
 
     const qtoManager = new SimpleQto(viewer);
     await qtoManager.setup();

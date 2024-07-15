@@ -1,4 +1,5 @@
 import React from "react";
+import * as Firestore from "firebase/firestore";
 import ToDoCard from "./ToDoCard";
 import { Project } from "../classes/Project";
 import * as CF from "../classes/CustomFunctions";
@@ -10,6 +11,7 @@ import {
   ToDo,
   ToDoStatus,
 } from "../bim-components/TodoCreator/src/ToDo";
+import { getCollection } from "../firebase";
 
 interface Props {
   project: Project;
@@ -28,6 +30,7 @@ const ToDoContainer = ({ project }: Props) => {
   };
 
   setupTodoCreator();
+  const todosCollection = getCollection<IToDo>("/todos");
 
   project.onToDoListUpdate = () => {
     setList([...project.getToDoList()]);
@@ -62,7 +65,7 @@ const ToDoContainer = ({ project }: Props) => {
     form.reset();
   };
 
-  const onFormSubmit = (e: React.FormEvent) => {
+  const onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = document.getElementById("new-todo-form") as HTMLFormElement;
     const formData = new FormData(form);
@@ -78,10 +81,11 @@ const ToDoContainer = ({ project }: Props) => {
       projectId: project.id,
     };
     try {
-      todoCreator.addTodo(data);
+      const doc = await Firestore.addDoc(todosCollection, data);
+      todoCreator.addTodo(data, doc.id);
       onCancelClick();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 

@@ -4,6 +4,8 @@ import * as THREE from "three";
 import { IToDo, ToDo, ToDoPriority, ToDoStatus } from "./src/ToDo";
 import { generateUUID } from "three/src/math/MathUtils.js";
 import { Project } from "../../classes/Project";
+import * as Firestore from "firebase/firestore";
+import { getCollection } from "../../firebase";
 
 export class TodoCreator
   extends OBC.Component<ToDo[]>
@@ -14,7 +16,6 @@ export class TodoCreator
   enabled = true;
   activeProject: Project;
   private _components: OBC.Components;
-  private _list: ToDo[] = [];
   uiElement = new OBC.UIElement<{
     activationButton: OBC.Button;
     todoList: OBC.FloatingWindow;
@@ -29,7 +30,6 @@ export class TodoCreator
 
   async dispose() {
     this.uiElement.dispose();
-    this._list = [];
     this.enabled = false;
   }
 
@@ -48,56 +48,48 @@ export class TodoCreator
       new THREE.MeshStandardMaterial({ color: new THREE.Color(0xe94b4b) }),
     ]);
     //console.log("ToDoCreator setup is successfully completed: ", this);
-    this.activeProject.getToDoList().map((todo) => {
-      this._list.push(todo);
-    });
   }
 
-  async listExistingTodos(
+  async createExistingCard(
+    todo: ToDo,
     highlighter: OBC.FragmentHighlighter,
     camera: OBC.OrthoPerspectiveCamera
   ) {
-    const list = this._list;
-    list.map(async (todo) => {
-      const card = new TodoCard(this._components);
-      todo.card = card;
-      todo.card.description = todo.task;
-      todo.card.date = todo.deadline;
-      todo.card.priority = todo.priority;
-      todo.card.onCardClick.add(async () => {
-        await camera.fit();
-        try {
-          await highlighter.highlightByID("select", todo.fragmentMap);
-        } catch (error) {
-          console.log("To-do has no fragments assigned.");
-        }
-        camera.controls.setLookAt(
-          todo.camera.position.x,
-          todo.camera.position.y,
-          todo.camera.position.z,
-          todo.camera.target.x,
-          todo.camera.target.y,
-          todo.camera.target.z,
-          true
-        );
-      });
-      const deleteButton = new OBC.Button(this._components);
-      deleteButton.materialIcon = "delete";
+    const list = this.activeProject.getToDoList();
+    const card = new TodoCard(this._components);
+    todo.card = card;
+    todo.card.description = todo.task;
+    todo.card.date = todo.deadline;
+    todo.card.priority = todo.priority;
+    todo.card.onCardClick.add(async () => {
+      await camera.fit();
+      try {
+        await highlighter.highlightByID("select", todo.fragmentMap);
+      } catch (error) {
+        console.log("To-do has no fragments assigned.");
+      }
+      camera.controls.setLookAt(
+        todo.camera.position.x,
+        todo.camera.position.y,
+        todo.camera.position.z,
+        todo.camera.target.x,
+        todo.camera.target.y,
+        todo.camera.target.z,
+        true
+      );
+    });
+    const deleteButton = new OBC.Button(this._components);
+    deleteButton.materialIcon = "delete";
 
-      todo.card.slots.actionButtons.addChild(deleteButton);
-      deleteButton.onClick.add(() => {
-        todo.dispose();
-      });
+    todo.card.slots.actionButtons.addChild(deleteButton);
+    deleteButton.onClick.add(() => {
+      todo.dispose();
     });
     const listUi = this.uiElement.get("todoList");
-    list.map(async (todo) => {
-      listUi.addChild(todo.card);
-    });
+    listUi.addChild(todo.card);
   }
 
   deleteTodo(id: string) {
-    const remaining = this._list.filter((todo) => todo.taskId !== id);
-    this._list = remaining;
     this.activeProject.removeToDo(id); // Remove todo ile değiştirilmeli
   }
 
@@ -105,31 +97,30 @@ export class TodoCreator
     return this.get().find((todo) => todo.taskId === id);
   }
 
-  idIsValid(id:string){
-    const idList=this._list.map(todo=>todo.taskId)
-    return !idList.includes(id)
+  idIsValid(id: string) {
+    const idList = this.activeProject.getToDoList().map((todo) => todo.taskId);
+    return !idList.includes(id);
   }
 
   updateList() {
     const updated: ToDo[] = [];
-    this._list.map((item) => {
+    const list = this.activeProject.getToDoList();
+    list.map((item) => {
       if (item.enabled) {
         updated.push(item);
       } else {
         console.log(`Task:${item.taskId} is removed from the list.`);
       }
     });
-    this._list = updated;
+    this.activeProject.updateToDoList(updated);
   }
 
-  addTodo(data: IToDo, taskId?:string) {
+  addTodo(data: IToDo, taskId?: string) {
     if (!this.enabled) throw new Error("ToDo Creator is not enabled");
     const todo = new ToDo(this._components, data, taskId);
-    if(!this.idIsValid(todo.taskId)) throw new Error("Task id is invalid")
+    if (!this.idIsValid(todo.taskId)) throw new Error("Task id is invalid");
     const todoCard = todo.card;
     //Store Data
-    const list = this.get();
-    list.push(todo);
     this.activeProject.newToDo(todo);
     //Store UI
     const todoList = this.uiElement.get("todoList");
@@ -194,7 +185,7 @@ export class TodoCreator
     colorizeBtn.onClick.add(() => {
       colorizeBtn.active = !colorizeBtn.active;
       if (colorizeBtn.active) {
-        for (const todo of this._list) {
+        for (const todo of this.activeProject.getToDoList()) {
           const fragmentMapLength = Object.keys(todo.fragmentMap).length;
           if (fragmentMapLength === 0) {
             return;
@@ -233,13 +224,15 @@ export class TodoCreator
     priorityDropdown.value = "Normal";
     form.slots.content.addChild(priorityDropdown);
 
-    form.onAccept.add(() => {
+    form.onAccept.add(async () => {
+      const todosCollection = getCollection("/todos");
       const data: IToDo = {
         task: descriptionInput.value,
         projectId: this.activeProject.id,
         priority: priorityDropdown.value?.toLowerCase() as ToDoPriority,
       };
-      this.addTodo(data);
+      const doc = await Firestore.addDoc(todosCollection, data);
+      this.addTodo(data, doc.id);
       descriptionInput.value = "";
       priorityDropdown.value = "Normal";
       form.visible = false;
@@ -257,7 +250,7 @@ export class TodoCreator
   }
 
   get(): ToDo[] {
-    return this._list;
+    return this.activeProject.getToDoList();
   }
 
   get fragmentQty() {
@@ -287,7 +280,7 @@ export class TodoCreator
   }
 
   getToDo(taskId: string) {
-    const todo = this._list.find((item) => {
+    const todo = this.activeProject.getToDoList().find((item) => {
       item.taskId === taskId;
     });
     if (!todo) throw new Error(`TodoCreator: TaskId "${taskId}" is not found`);
