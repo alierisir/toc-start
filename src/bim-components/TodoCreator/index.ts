@@ -124,8 +124,8 @@ export class TodoCreator
 
   addTodo(data: IToDo, taskId?:string) {
     if (!this.enabled) throw new Error("ToDo Creator is not enabled");
-    if (!this.idIsValid) throw new Error("Task id is in use")
     const todo = new ToDo(this._components, data, taskId);
+    if(!this.idIsValid(todo.taskId)) throw new Error("Task id is invalid")
     const todoCard = todo.card;
     //Store Data
     const list = this.get();
@@ -135,7 +135,7 @@ export class TodoCreator
     const todoList = this.uiElement.get("todoList");
     todoList.addChild(todoCard);
     //Load event
-    console.log(this._list);
+    //console.log(this._list);
     this.onToDoCreated.trigger(todo);
     return todo;
   }

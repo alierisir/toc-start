@@ -5,6 +5,10 @@ import { TodoCreator } from "../bim-components/TodoCreator";
 import { SimpleQto } from "../bim-components/SimpleQto";
 import * as Router from "react-router-dom";
 import { ProjectsManager } from "../classes/ProjectsManager";
+import { getCollection } from "../firebase";
+import { IToDo } from "../bim-components/TodoCreator/src/ToDo";
+import * as Firestore  from "firebase/firestore";
+import { monthsAfterToday } from "../classes/CustomFunctions";
 
 interface Props {
   projectsManager: ProjectsManager;
@@ -328,13 +332,30 @@ const IFCViewer = ({ projectsManager }: Props) => {
         `id:${todo.taskId} is added to the project:${project.name}'s todo list.`
       );
     });
-    await todoCreator.listExistingTodos(highlighter, cameraComponent);
-    //window.addEventListener("keydown", (e) => {
-    //  if (!(e.key === "a" || e.key === "A")) return;
-    //  console.log("getting fragment qtys..");
-    //  todoCreator.fragmentQty;
-    //  console.log("end");
-    //});
+    //TODO CREATOR BU NOKTADA FIREBASE DATASI ILE SENKRONIZE OLACAK
+    const todosCollection = getCollection<IToDo>("/todos")
+    const firebaseTodos = await Firestore.getDocs(todosCollection)
+    const todosDocs=firebaseTodos.docs
+    for (const doc of todosDocs) {
+      if (doc.data().projectId!==project.id) continue
+      const data=doc.data()
+      const deadline=data.deadline?(data.deadline as unknown as Firestore.Timestamp).toDate():monthsAfterToday(1)         
+      const itodo:IToDo={
+        ...data,
+        deadline
+      }
+      try {
+        todoCreator.addTodo(itodo,doc.id)
+      } catch (error) {
+        await todoCreator.listExistingTodos(highlighter,cameraComponent)
+      }
+    }
+
+    
+    //BU SATIRDAN SONRA TODOCREATOR LISTESI FIREBASE ILE EŞIT OLACAK
+
+    //await todoCreator.listExistingTodos(highlighter, cameraComponent);
+
 
     const qtoManager = new SimpleQto(viewer);
     await qtoManager.setup();

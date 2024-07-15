@@ -39,7 +39,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
     this._components = components;
     this.taskId = taskId;
     for (const key of Object.keys(data)) {
-      console.log(data);
+      //console.log(data);
       this[key] = data[key];
     }
     this.setup();
