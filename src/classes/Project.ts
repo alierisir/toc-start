@@ -1,11 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import {
-  basicToNativeDate,
-  correctDate,
-  getInitials,
-  getRandomColor,
-  monthsAfterToday,
-} from "./CustomFunctions";
+import { basicToNativeDate, correctDate, getInitials, getRandomColor, monthsAfterToday } from "./CustomFunctions";
 import { ToDo } from "../bim-components/TodoCreator/src/ToDo";
 
 export type Action = "added" | "removed" | "updated";
@@ -45,7 +39,7 @@ export class Project implements IProject {
   //Events
   onChange = (data: Partial<Project>) => {};
   onToDoCreated = (todo: ToDo) => {};
-  onToDoDeleted = () => {};
+  onToDoDeleted = (id: string) => {};
   onToDoListUpdate = () => {};
   onToDoListFiltered = (filtered: ToDo[]) => {};
 
@@ -100,7 +94,7 @@ export class Project implements IProject {
   removeToDo(id: string) {
     const remaining = this.todoList.filter((todo) => todo.taskId !== id);
     this.todoList = remaining;
-    this.onToDoDeleted();
+    this.onToDoDeleted(id);
     this.onToDoListUpdate();
   }
 
@@ -109,9 +103,7 @@ export class Project implements IProject {
   }
 
   filterToDoList(value: string) {
-    const filtered = this.getToDoList().filter((todo) =>
-      todo.task.toLowerCase().includes(value.toLowerCase())
-    );
+    const filtered = this.getToDoList().filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
     this.onToDoListFiltered(filtered);
   }
 }

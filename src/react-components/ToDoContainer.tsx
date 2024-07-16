@@ -6,12 +6,8 @@ import * as CF from "../classes/CustomFunctions";
 import SearchBox from "./SearchBox";
 import { ViewerContext } from "./IFCViewer";
 import { TodoCreator } from "../bim-components/TodoCreator";
-import {
-  IToDo,
-  ToDo,
-  ToDoStatus,
-} from "../bim-components/TodoCreator/src/ToDo";
-import { getCollection } from "../firebase";
+import { IToDo, ToDo, ToDoStatus } from "../bim-components/TodoCreator/src/ToDo";
+import { deleteDocument, getCollection } from "../firebase";
 
 interface Props {
   project: Project;
@@ -32,6 +28,10 @@ const ToDoContainer = ({ project }: Props) => {
   setupTodoCreator();
   const todosCollection = getCollection<IToDo>("/todos");
 
+  project.onToDoDeleted = async (id) => {
+    await deleteDocument("/todos", id);
+  };
+
   project.onToDoListUpdate = () => {
     setList([...project.getToDoList()]);
   };
@@ -50,16 +50,12 @@ const ToDoContainer = ({ project }: Props) => {
   ));
 
   const onNewTodoClick = () => {
-    const modal = document.getElementById(
-      "new-todo-modal"
-    ) as HTMLDialogElement;
+    const modal = document.getElementById("new-todo-modal") as HTMLDialogElement;
     modal.showModal();
   };
 
   const onCancelClick = () => {
-    const modal = document.getElementById(
-      "new-todo-modal"
-    ) as HTMLDialogElement;
+    const modal = document.getElementById("new-todo-modal") as HTMLDialogElement;
     modal.close();
     const form = document.getElementById("new-todo-form") as HTMLFormElement;
     form.reset();
@@ -70,8 +66,7 @@ const ToDoContainer = ({ project }: Props) => {
     const form = document.getElementById("new-todo-form") as HTMLFormElement;
     const formData = new FormData(form);
     const deadline =
-      new Date(formData.get("todo-deadline") as string).toDateString() ===
-      "Invalid Date"
+      new Date(formData.get("todo-deadline") as string).toDateString() === "Invalid Date"
         ? CF.monthsAfterToday(1)
         : new Date(formData.get("todo-deadline") as string);
     const data: IToDo = {
@@ -104,8 +99,7 @@ const ToDoContainer = ({ project }: Props) => {
           }}
         >
           <h2 className="modal-header">
-            <span className="material-symbols-outlined">assignment_add</span>New
-            ToDo
+            <span className="material-symbols-outlined">assignment_add</span>New ToDo
           </h2>
           <div className="project-properties">
             <label htmlFor="todo-task">
@@ -142,12 +136,7 @@ const ToDoContainer = ({ project }: Props) => {
             <input id="todo-deadline" name="todo-deadline" type="date" />
           </div>
           <div className="button-section">
-            <button
-              id="todo-cancel"
-              type="button"
-              className="cancel-btn"
-              onClick={onCancelClick}
-            >
+            <button id="todo-cancel" type="button" className="cancel-btn" onClick={onCancelClick}>
               <span className="material-symbols-outlined">cancel</span>Cancel
             </button>
             <button type="submit" className="accept-btn">
@@ -160,24 +149,15 @@ const ToDoContainer = ({ project }: Props) => {
       <div className="todo-header">
         <h3>To-Do</h3>
         <div>
-          <SearchBox
-            items="tasks"
-            onChange={(value) => project.filterToDoList(value)}
-          />
-          <button
-            project-info-btn="todo-add"
-            todo-add=""
-            onClick={onNewTodoClick}
-          >
+          <SearchBox items="tasks" onChange={(value) => project.filterToDoList(value)} />
+          <button project-info-btn="todo-add" todo-add="" onClick={onNewTodoClick}>
             <span className="material-symbols-outlined">playlist_add</span>
           </button>
         </div>
       </div>
       <div todo-list-container="" className="todo-list">
         {todoList.length === 0 ? (
-          <p style={{ fontStyle: "italic", color: "var(--text-secondary)" }}>
-            There is nothing to do
-          </p>
+          <p style={{ fontStyle: "italic", color: "var(--text-secondary)" }}>There is nothing to do</p>
         ) : (
           todoList
         )}
