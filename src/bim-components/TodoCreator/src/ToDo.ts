@@ -15,6 +15,35 @@ export type SimpleVector = {
   y: number;
   z: number;
 };
+
+export const fragmentMapToJSON = (fragmentIdMap: OBC.FragmentIdMap) => {
+  //console.log("ID Map:", fragmentIdMap);
+  const mapObj = {};
+  for (const fragmentId in fragmentIdMap) {
+    //console.log("ID:", fragmentId);
+    //console.log("set: ", fragmentIdMap[fragmentId]);
+    let arrObj: string[] = [];
+    for (const expressID of fragmentIdMap[fragmentId]) {
+      //console.log("expressId: ", expressID);
+      arrObj.push(expressID);
+    }
+    mapObj[fragmentId] = [...arrObj];
+  }
+  return mapObj;
+};
+
+export const jsonTofragmentMap = (jsonMap: Record<string, string[]>) => {
+  const fragmentMap: OBC.FragmentIdMap = {};
+  for (const fragmentId in jsonMap) {
+    let arrObj: string[] = [];
+    for (const expressID of jsonMap[fragmentId]) {
+      arrObj.push(expressID);
+    }
+    fragmentMap[fragmentId] = new Set<string>(arrObj);
+  }
+  return fragmentMap;
+};
+
 export interface IToDo {
   task: string;
   projectId: string;
@@ -22,6 +51,7 @@ export interface IToDo {
   deadline?: Date;
   priority?: ToDoPriority;
   camera?: { position: SimpleVector; target: SimpleVector };
+  fragmentMap?: OBC.FragmentIdMap | Record<string, string[]>;
 }
 
 export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
@@ -69,13 +99,17 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
     const target = new THREE.Vector3();
     camera.controls.getPosition(position);
     camera.controls.getTarget(target);
+
+    //If it's new: create and store camera and fragmentmap from tools update the database | if it exists: make sure it gets the data from database.
     this.camera.position.x = data.camera ? data.camera.position.x : position.x;
     this.camera.position.y = data.camera ? data.camera.position.y : position.y;
     this.camera.position.z = data.camera ? data.camera.position.z : position.z;
     this.camera.target.x = data.camera ? data.camera.target.x : target.x;
     this.camera.target.y = data.camera ? data.camera.target.y : target.y;
     this.camera.target.z = data.camera ? data.camera.target.z : target.z;
-    this.fragmentMap = highlighter.selection.select;
+    this.fragmentMap = data.fragmentMap
+      ? jsonTofragmentMap(data.fragmentMap as Record<string, string[]>)
+      : highlighter.selection.select;
 
     await updateDocument("/todos", this.taskId, {
       camera: {
@@ -90,6 +124,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
           z: this.camera.target.z,
         },
       },
+      fragmentMap: { ...fragmentMapToJSON(this.fragmentMap) },
     });
   }
 

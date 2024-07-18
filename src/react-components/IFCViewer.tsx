@@ -102,6 +102,15 @@ const IFCViewer = ({ projectsManager }: Props) => {
     const highlighter = new OBC.FragmentHighlighter(viewer);
     highlighter.setup();
 
+    // TEST convertion functions
+
+    //highlighter.events.select.onHighlight.add((fragmentIdMap) => {
+    //  const mapObJ = fragmentMapToJSON(fragmentIdMap);
+    //  console.log("Map OBJ: ", mapObJ, typeof mapObJ);
+    //  const fragMap = jsonTofragmentMap(mapObJ);
+    //  console.log("FragmentMap Obj: ", fragMap, typeof fragMap);
+    //});
+
     const toolbar = new OBC.Toolbar(viewer, {
       name: "Top Toolbar",
       position: "top",
@@ -327,7 +336,7 @@ const IFCViewer = ({ projectsManager }: Props) => {
     const todoCreator = new TodoCreator(viewer);
     await todoCreator.setup(project);
 
-    //TODO CREATOR BU NOKTADA FIREBASE DATASI ILE SENKRONIZE OLACAK
+    //TODO CREATOR WILL SYNCHRONIZE WITH FIREBASE DATA AT THIS POINT
     const todosCollection = getCollection<IToDo>("/todos");
     const firebaseTodos = await Firestore.getDocs(todosCollection);
     const todosDocs = firebaseTodos.docs;
@@ -354,7 +363,7 @@ const IFCViewer = ({ projectsManager }: Props) => {
     todoCreator.onToDoCreated.add((todo) => {
       console.log(todo.taskId);
     });
-    //BU SATIRDAN SONRA TODOCREATOR LISTESI FIREBASE ILE EŞIT OLACAK
+    //AFTER THIS LINE THE TODOCREATOR LIST WILL BE EQUAL TO FIREBASE
 
     const qtoManager = new SimpleQto(viewer);
     await qtoManager.setup();
