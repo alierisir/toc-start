@@ -170,6 +170,9 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
     deleteButton.onClick.add(async () => {
       await this.dispose();
     });
+
+    //last check before creating card
+    await updateDocument("/todos", this.taskId, { status: this.status });
   }
 
   get(): ToDo {
@@ -221,8 +224,9 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
     return this.status;
   }
 
-  setDeadline(date: Date) {
+  async setDeadline(date: Date) {
     this.deadline = date;
+    await updateDocument("/todos", this.taskId, { deadline: this.deadline });
     this.checkStatus();
   }
 
@@ -234,7 +238,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
     this.status = status;
   }
 
-  toggleStatus(status: ToDoStatus) {
+  async toggleStatus(status: ToDoStatus) {
     if (status === "active") return this.setStatus("completed");
     if (status === "completed") {
       if (this.deadline < new Date()) {
@@ -247,7 +251,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
       console.log(
         "note to self: add a date input or delete task options here. for now deadline is updated to 1 month from today!"
       );
-      return this.setDeadline(monthsAfterToday(1));
+      return await this.setDeadline(monthsAfterToday(1));
     }
   }
 }

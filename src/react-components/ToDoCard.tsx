@@ -1,5 +1,6 @@
 import React from "react";
 import { ToDo } from "../bim-components/TodoCreator/src/ToDo";
+import { updateDocument } from "../firebase";
 
 interface Props {
   todo: ToDo;
@@ -9,6 +10,16 @@ interface Props {
 
 const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
   const [status, setStatus] = React.useState(todo.getStatus());
+
+  const getFragmentQty = () => {
+    let count = 0;
+    for (const fragmentId in todo.fragmentMap) {
+      const set = todo.fragmentMap[fragmentId];
+      count += set.size;
+    }
+    return count;
+  };
+
   const symbols = {
     active: "check_box_outline_blank",
     completed: "check_box",
@@ -16,10 +27,11 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
   };
   const status_symbol = symbols[status];
 
-  const onCheckboxClicked = () => {
-    todo.toggleStatus(status);
+  const onCheckboxClicked = async () => {
+    await todo.toggleStatus(status);
     const updatedStatus = todo.getStatus();
     setStatus(updatedStatus);
+    await updateDocument("/todos", todo.taskId, { status: updatedStatus });
   };
 
   return (
@@ -27,11 +39,16 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
       <p todo-list-functions="toggle-active" onClick={onCheckboxClicked}>
         <span className="material-symbols-outlined">{status_symbol}</span>
       </p>
-      <p onClick={onCardClick}>{todo.task}</p>
+      <p>{todo.task}</p>
       <p>{todo.deadline.toLocaleDateString()}</p>
-      <p onClick={onDeleteClick}>
-        <span className="material-symbols-outlined">delete</span>
-      </p>
+      <div className="todo-btn-section">
+        <p onClick={onCardClick}>
+          <span className="material-symbols-outlined">ads_click</span>
+        </p>
+        <p onClick={onDeleteClick}>
+          <span className="material-symbols-outlined">delete</span>
+        </p>
+      </div>
     </div>
   );
 };
