@@ -4,17 +4,24 @@ import { v4 as uuidv4 } from "uuid";
 import { TodoCard } from "./TodoCard";
 import { TodoCreator } from "..";
 import { monthsAfterToday } from "../../../classes/CustomFunctions";
+import { updateDocument } from "../../../firebase";
 
 export type ToDoPriority = "low" | "normal" | "high";
 
 export type ToDoStatus = "active" | "completed" | "overdue";
 
+export type SimpleVector = {
+  x: number;
+  y: number;
+  z: number;
+};
 export interface IToDo {
   task: string;
   projectId: string;
   status?: ToDoStatus;
   deadline?: Date;
   priority?: ToDoPriority;
+  camera?: { position: SimpleVector; target: SimpleVector };
 }
 
 export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
@@ -34,7 +41,11 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
   fragmentMap: OBC.FragmentIdMap;
   card: TodoCard;
 
-  constructor(components: OBC.Components, data: IToDo, taskId: string=uuidv4()) {
+  constructor(
+    components: OBC.Components,
+    data: IToDo,
+    taskId: string = uuidv4()
+  ) {
     super(components);
     this._components = components;
     this.taskId = taskId;
@@ -42,12 +53,12 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
       //console.log(data);
       this[key] = data[key];
     }
-    this.setup();
+    this.setup(data);
     this.checkStatus();
     this.createCard();
   }
 
-  private async setup() {
+  private async setup(data: IToDo) {
     const highlighter = await this._components.tools.get(
       OBC.FragmentHighlighter
     );
@@ -58,13 +69,28 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
     const target = new THREE.Vector3();
     camera.controls.getPosition(position);
     camera.controls.getTarget(target);
-    this.camera.position.x = position.x;
-    this.camera.position.y = position.y;
-    this.camera.position.z = position.z;
-    this.camera.target.x = target.x;
-    this.camera.target.y = target.y;
-    this.camera.target.z = target.z;
+    this.camera.position.x = data.camera ? data.camera.position.x : position.x;
+    this.camera.position.y = data.camera ? data.camera.position.y : position.y;
+    this.camera.position.z = data.camera ? data.camera.position.z : position.z;
+    this.camera.target.x = data.camera ? data.camera.target.x : target.x;
+    this.camera.target.y = data.camera ? data.camera.target.y : target.y;
+    this.camera.target.z = data.camera ? data.camera.target.z : target.z;
     this.fragmentMap = highlighter.selection.select;
+
+    await updateDocument("/todos", this.taskId, {
+      camera: {
+        position: {
+          x: this.camera.position.x,
+          y: this.camera.position.y,
+          z: this.camera.position.z,
+        },
+        target: {
+          x: this.camera.target.x,
+          y: this.camera.target.y,
+          z: this.camera.target.z,
+        },
+      },
+    });
   }
 
   async createCard() {
