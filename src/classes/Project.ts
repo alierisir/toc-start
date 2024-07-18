@@ -1,5 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
-import { basicToNativeDate, correctDate, getInitials, getRandomColor, monthsAfterToday } from "./CustomFunctions";
+import {
+  basicToNativeDate,
+  correctDate,
+  getInitials,
+  getRandomColor,
+  monthsAfterToday,
+} from "./CustomFunctions";
 import { ToDo } from "../bim-components/TodoCreator/src/ToDo";
 
 export type Action = "added" | "removed" | "updated";
@@ -103,7 +109,9 @@ export class Project implements IProject {
   }
 
   filterToDoList(value: string) {
-    const filtered = this.getToDoList().filter((todo) => todo.task.toLowerCase().includes(value.toLowerCase()));
+    const filtered = this.getToDoList().filter((todo) =>
+      todo.task.toLowerCase().includes(value.toLowerCase())
+    );
     this.onToDoListFiltered(filtered);
   }
 }

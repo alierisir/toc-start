@@ -18,16 +18,22 @@ const ProjectDetailsPage = ({ projectsManager }: Props) => {
   if (!project) return <>Project is not found!</>;
   const navigateTo = Router.useNavigate();
 
-  projectsManager.onProjectDeleted=async() => {
-    await deleteDocument("/projects",project.id)
-    navigateTo("/")
-  }
+  projectsManager.onProjectDeleted = async () => {
+    project.todoList.map(async (todo) => {
+      todo.dispose();
+    });
+    await deleteDocument("/projects", project.id);
+    navigateTo("/");
+  };
 
   return (
     <div id="project-details" className="page">
-      <DetailsHeader project={project} onDeleteClick={() => {
-        projectsManager.deleteProject(project.id)
-      }} />
+      <DetailsHeader
+        project={project}
+        onDeleteClick={() => {
+          projectsManager.deleteProject(project.id);
+        }}
+      />
       <div className="main-page-content">
         <div id="details-container">
           <DetailsCard project={project} />
