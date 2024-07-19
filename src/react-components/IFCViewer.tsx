@@ -354,14 +354,14 @@ const IFCViewer = ({ projectsManager }: Props) => {
         todoCreator.addTodo(itodo, doc.id);
       } catch (error) {
         const todo = project.getToDo(doc.id);
-        console.log("todo exists,", todo);
+        //console.log("todo exists,", todo);
         if (!todo) throw new Error("Todo not found");
         todoCreator.createExistingCard(todo, highlighter, cameraComponent);
       }
     }
 
     todoCreator.onToDoCreated.add((todo) => {
-      console.log(todo.taskId);
+      //console.log(todo.taskId);
     });
     //AFTER THIS LINE THE TODOCREATOR LIST WILL BE EQUAL TO FIREBASE
 
@@ -403,11 +403,11 @@ const IFCViewer = ({ projectsManager }: Props) => {
 
   React.useEffect(() => {
     createViewer(id);
-    console.log("viewer created");
+    //console.log("viewer created");
     return () => {
       viewer.dispose();
       setViewer(null);
-      console.log("viewer disposed");
+      //console.log("viewer disposed");
     };
   }, []);
 

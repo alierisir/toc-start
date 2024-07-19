@@ -14,7 +14,15 @@ interface IBasicDate {
 
 export function basicToNativeDate(date: IBasicDate): Date {
   const { nYear, nMonth, nDay, nHour, nMinute, nSecond, nMillisecond } = date;
-  const nativeDate = new Date(nYear, nMonth, nDay, nHour, nMinute, nSecond, nMillisecond);
+  const nativeDate = new Date(
+    nYear,
+    nMonth,
+    nDay,
+    nHour,
+    nMinute,
+    nSecond,
+    nMillisecond
+  );
   return nativeDate;
 }
 
@@ -29,8 +37,34 @@ function formatDateString(strDate: string): IBasicDate {
 }
 
 export function formatDate(date: Date): IBasicDate {
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const monthNumbers = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const monthNumbers = [
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+  ];
   const formatted: IBasicDate = {
     day: date.getDate().toString(),
     month: months[date.getMonth()],
@@ -47,7 +81,12 @@ export function formatDate(date: Date): IBasicDate {
   return formatted;
 }
 
-export function dateAfterFromPoint(date: Date | string, years: number = 0, months: number = 0, days: number = 0) {
+export function dateAfterFromPoint(
+  date: Date | string,
+  years: number = 0,
+  months: number = 0,
+  days: number = 0
+) {
   const { nDay, nMonth, nYear } = correctDate(date);
   //The Date() constructor can be called with two or more arguments,
   //in which case they are interpreted as the year, month, day, hour, minute, second, and millisecond, respectively, in local time.
@@ -93,7 +132,8 @@ export function getRandomColor() {
     "#ad8145",
     "#4596ad",
   ];
-  const selectedColor = colors[Math.floor((Math.random() * 100) % colors.length)];
+  const selectedColor =
+    colors[Math.floor((Math.random() * 100) % colors.length)];
   return selectedColor;
 }
 
@@ -108,7 +148,7 @@ export const editDummy = {
   date: "date",
 };
 
-console.log("custom-functions! - test area start");
+//console.log("custom-functions! - test area start");
 //write code to check here;
 
-console.log("custom-functions! - test area end");
+//console.log("custom-functions! - test area end");

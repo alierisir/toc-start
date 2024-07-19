@@ -549,6 +549,16 @@ user-card:hover {
   font-size: var(--text-s);
 }
 
+.edit-todo-btn {
+  scale: 0.8;
+  opacity: 0.5;
+}
+
+.edit-todo-btn:hover {
+  scale: 1;
+  opacity: 1;
+}
+
 .list-item:hover {
   opacity: 1;
 }

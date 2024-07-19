@@ -17,14 +17,14 @@ export type SimpleVector = {
 };
 
 export const fragmentMapToJSON = (fragmentIdMap: OBC.FragmentIdMap) => {
-  //console.log("ID Map:", fragmentIdMap);
+  ////console.log("ID Map:", fragmentIdMap);
   const mapObj = {};
   for (const fragmentId in fragmentIdMap) {
-    //console.log("ID:", fragmentId);
-    //console.log("set: ", fragmentIdMap[fragmentId]);
+    ////console.log("ID:", fragmentId);
+    ////console.log("set: ", fragmentIdMap[fragmentId]);
     let arrObj: string[] = [];
     for (const expressID of fragmentIdMap[fragmentId]) {
-      //console.log("expressId: ", expressID);
+      ////console.log("expressId: ", expressID);
       arrObj.push(expressID);
     }
     mapObj[fragmentId] = [...arrObj];
@@ -71,6 +71,10 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
   fragmentMap: OBC.FragmentIdMap;
   card: TodoCard;
 
+  onEdit = async (data: Partial<ToDo>) => {
+    updateDocument("/todos", this.taskId, data);
+  };
+
   constructor(
     components: OBC.Components,
     data: IToDo,
@@ -80,7 +84,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
     this._components = components;
     this.taskId = taskId;
     for (const key of Object.keys(data)) {
-      //console.log(data);
+      ////console.log(data);
       this[key] = data[key];
     }
     this.setup(data);
@@ -150,7 +154,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
       try {
         await highlighter.highlightByID("select", this.fragmentMap);
       } catch (error) {
-        console.log("Fragments are not found, check if the model is uploaded.");
+        //console.log("Fragments are not found, check if the model is uploaded.");
       }
       camera.controls.setLookAt(
         this.camera.position.x,
@@ -190,34 +194,32 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
   checkStatus() {
     const today = new Date();
     if (this.deadline >= today && this.status === "active") {
-      console.log("Task is waiting to be done.");
+      //console.log("Task is waiting to be done.");
       this.setStatus("active");
       return this.status;
     }
     if (this.deadline >= today && this.status === "completed") {
-      console.log("Task is completed early.");
+      //console.log("Task is completed early.");
       this.setStatus("completed");
       return this.status;
     }
     if (this.deadline >= today && this.status === "overdue") {
-      console.log(
-        "There is still time for the task to be completed, changing status to 'active'."
-      );
+      //console.log("There is still time for the task to be completed, changing status to 'active'.");
       this.setStatus("active");
       return this.status;
     }
     if (this.deadline < today && this.status === "active") {
-      console.log("Task is overdue.");
+      //console.log("Task is overdue.");
       this.setStatus("overdue");
       return this.status;
     }
     if (this.deadline < today && this.status === "completed") {
-      console.log("Task is already completed.");
+      //console.log("Task is already completed.");
       this.setStatus("completed");
       return this.status;
     }
     if (this.deadline < today && this.status === "overdue") {
-      console.log("Task couldn't be completed in time!");
+      //console.log("Task couldn't be completed in time!");
       this.setStatus("overdue");
       return this.status;
     }
@@ -234,6 +236,12 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
     return this.status;
   }
 
+  edit(task: string, priority: ToDoPriority) {
+    this.task = task;
+    this.priority = priority;
+    this.onEdit({ task, priority });
+  }
+
   setStatus(status: ToDoStatus) {
     this.status = status;
   }
@@ -248,9 +256,7 @@ export class ToDo extends OBC.Component<ToDo> implements IToDo, OBC.Disposable {
       }
     }
     if (status === "overdue") {
-      console.log(
-        "note to self: add a date input or delete task options here. for now deadline is updated to 1 month from today!"
-      );
+      //console.log("note to self: add a date input or delete task options here. for now deadline is updated to 1 month from today!");
       return await this.setDeadline(monthsAfterToday(1));
     }
   }

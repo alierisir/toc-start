@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Router from "react-router-dom";
-import * as Firestore from "firebase/firestore"
+import * as Firestore from "firebase/firestore";
 import { ProjectsManager } from "../classes/ProjectsManager";
 import { IProject, Project, Role, Status } from "../classes/Project";
 import ProjectCard from "./ProjectCard";
@@ -15,8 +15,7 @@ interface Props {
 const ProjectsPage = ({ projectsManager }: Props) => {
   const [list, setList] = React.useState<Project[]>(projectsManager.list);
 
-
-  const projectsCollection = getCollection<IProject>("/projects")
+  const projectsCollection = getCollection<IProject>("/projects");
 
   projectsManager.onProjectCreated = () => {
     setList([...projectsManager.list]);
@@ -24,29 +23,30 @@ const ProjectsPage = ({ projectsManager }: Props) => {
 
   const getFirebaseProjects = async () => {
     // const projectsCollection = Firestore.collection(firebaseDB,"/projects") as Firestore.CollectionReference<IProject> // Firestore.CollectionReference kısmı sabit
-    const firebaseProjects = await Firestore.getDocs(projectsCollection) // projelerin olduğu liste bu değil, liste docs özelliğinde tutuluyor
-    const projectDocs = firebaseProjects.docs // tip: array, firestoreda bir üst methodda verilen parametreye göre yapılan arama sonucunun listesi
-    for (const doc of projectDocs){ //her bir dokümana bu şekilde ulaşılıyor
-      const data = doc.data() //her doküman içindeki verilere ulaşabilmek için data() methodu kullanılır.
+    const firebaseProjects = await Firestore.getDocs(projectsCollection); // projelerin olduğu liste bu değil, liste docs özelliğinde tutuluyor
+    const projectDocs = firebaseProjects.docs; // tip: array, firestoreda bir üst methodda verilen parametreye göre yapılan arama sonucunun listesi
+    for (const doc of projectDocs) {
+      //her bir dokümana bu şekilde ulaşılıyor
+      const data = doc.data(); //her doküman içindeki verilere ulaşabilmek için data() methodu kullanılır.
       //console.log(data)
-      const projectData:IProject = {
+      const projectData: IProject = {
         ...data,
-        date: (data.date as unknown as Firestore.Timestamp).toDate()
-      }
+        date: (data.date as unknown as Firestore.Timestamp).toDate(),
+      };
       try {
-        projectsManager.newProject(projectData,doc.id) //collection methodu kullanılırken parametre olarak kullanılacak verinin tipi doğru belirtilmelidir!
+        projectsManager.newProject(projectData, doc.id); //collection methodu kullanılırken parametre olarak kullanılacak verinin tipi doğru belirtilmelidir!
       } catch (error) {
-        const project = projectsManager.getProject(doc.id)
-        if (!project) return
-        project.edit(projectData)
+        const project = projectsManager.getProject(doc.id);
+        if (!project) return;
+        project.edit(projectData);
       }
     }
-  }
+  };
 
   //console.log(projectsManager.list)
 
   React.useEffect(() => {
-    getFirebaseProjects()
+    getFirebaseProjects();
   }, []);
 
   const listProjects = list.map((project) => {
@@ -62,34 +62,41 @@ const ProjectsPage = ({ projectsManager }: Props) => {
   };
 
   const onNewProjectClicked = () => {
-    const modal = document.getElementById("new-project-modal") as HTMLDialogElement;
+    const modal = document.getElementById(
+      "new-project-modal"
+    ) as HTMLDialogElement;
     modal.showModal();
   };
 
   const onCancelClicked = () => {
-    const modal = document.getElementById("new-project-modal") as HTMLDialogElement;
+    const modal = document.getElementById(
+      "new-project-modal"
+    ) as HTMLDialogElement;
     modal.close();
     const form = document.getElementById("new-project-form") as HTMLFormElement;
     form.reset();
   };
 
   const onFormSubmitted = async (e: React.FormEvent) => {
-    const projectForm = document.getElementById("new-project-form") as HTMLFormElement;
+    const projectForm = document.getElementById(
+      "new-project-form"
+    ) as HTMLFormElement;
     e.preventDefault();
     const formData = new FormData(projectForm);
-    const date = new Date(formData.get("date") as string).toDateString() === "Invalid Date"
-    ? monthsAfterToday(6)
-    : new Date(formData.get("date") as string);
+    const date =
+      new Date(formData.get("date") as string).toDateString() === "Invalid Date"
+        ? monthsAfterToday(6)
+        : new Date(formData.get("date") as string);
     const projectData: IProject = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       status: formData.get("status") as Status,
       role: formData.get("role") as Role,
-      date
+      date,
     };
     try {
-      const doc = await Firestore.addDoc(projectsCollection,projectData)
-      projectsManager.newProject(projectData,doc.id);
+      const doc = await Firestore.addDoc(projectsCollection, projectData);
+      projectsManager.newProject(projectData, doc.id);
       onCancelClicked();
     } catch (e) {
       throw new Error(`Error adding new project: ${e}`);
@@ -115,13 +122,21 @@ const ProjectsPage = ({ projectsManager }: Props) => {
           }}
         >
           <h2 className="modal-header">
-            <span className="material-symbols-outlined">add_business</span>New Project
+            <span className="material-symbols-outlined">add_business</span>New
+            Project
           </h2>
           <div className="project-properties">
             <label htmlFor="name">
               <span className="material-symbols-outlined">label</span>Name
             </label>
-            <input type="text" name="name" id="name" placeholder="Name of the project" minLength={5} required={true} />
+            <input
+              type="text"
+              name="name"
+              id="name"
+              placeholder="Name of the project"
+              minLength={5}
+              required={true}
+            />
             <p className="modal-tips">TIP:Give it simple name</p>
           </div>
           <div className="project-properties">
@@ -166,12 +181,18 @@ const ProjectsPage = ({ projectsManager }: Props) => {
           </div>
           <div className="project-properties">
             <label htmlFor="date">
-              <span className="material-symbols-outlined">event</span>Finishing Date
+              <span className="material-symbols-outlined">event</span>Finishing
+              Date
             </label>
             <input id="date-input" name="date" type="date" />
           </div>
           <div className="button-section">
-            <button id="form-cancel" type="button" className="cancel-btn" onClick={onCancelClicked}>
+            <button
+              id="form-cancel"
+              type="button"
+              className="cancel-btn"
+              onClick={onCancelClicked}
+            >
               <span className="material-symbols-outlined">cancel</span>Cancel
             </button>
             <button type="submit" className="accept-btn">
@@ -183,22 +204,36 @@ const ProjectsPage = ({ projectsManager }: Props) => {
       </dialog>
       <header>
         <h2>Projects</h2>
-        <SearchBox items="projects" onChange={(value) => projectsManager.filterProjects(value)} />
+        <SearchBox
+          items="projects"
+          onChange={(value) => projectsManager.filterProjects(value)}
+        />
         <div className="button-section">
-          <button id="import-from-json" onClick={onImport}>
+          <button
+            id="import-from-json"
+            onClick={onImport}
+            style={{ display: "none" }}
+          >
             <span className="material-symbols-outlined">upload_2</span>
             Upload Projects
           </button>
-          <button id="export-to-json" onClick={onExport}>
+          <button
+            id="export-to-json"
+            onClick={onExport}
+            style={{ display: "none" }}
+          >
             <span className="material-symbols-outlined">download_2</span>
             Download Projects
           </button>
           <button id="new-project-btn" onClick={onNewProjectClicked}>
-            <span className="material-symbols-outlined">add_business</span>New Project
+            <span className="material-symbols-outlined">add_business</span>New
+            Project
           </button>
         </div>
       </header>
-      <div id="projects-list">{listProjects.length === 0 ? <>Project was not found!</> : listProjects}</div>
+      <div id="projects-list">
+        {listProjects.length === 0 ? <>Project was not found!</> : listProjects}
+      </div>
     </div>
   );
 };
