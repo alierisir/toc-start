@@ -1,6 +1,8 @@
 import React from "react";
-import { EProject, Project, Role, Status } from "../classes/Project";
+import { Project, Role, Status } from "../classes/Project";
 import * as CF from "../classes/CustomFunctions";
+import * as Router from "react-router-dom";
+import { updateDocument } from "../firebase";
 
 interface Props {
   project: Project;
@@ -8,8 +10,10 @@ interface Props {
 
 const DetailsCard = ({ project }: Props) => {
   const [data, setData] = React.useState(project);
+  const navigateTo = Router.useNavigate();
 
-  project.onChange = () => {
+  project.onChange = async(data) => {
+    await updateDocument<Partial<Project>>("/projects",project.id,data)
     setData(project);
   };
 
@@ -29,23 +33,26 @@ const DetailsCard = ({ project }: Props) => {
     e.preventDefault();
     const form = document.getElementById("edit-project-form") as HTMLFormElement;
     const formData = new FormData(form);
+    const name = formData.get("edit-name") ? (formData.get("edit-name") as string) : project.name
     const date =
       new Date(formData.get("edit-date") as string).toDateString() === "Invalid Date"
         ? project.date
         : new Date(formData.get("edit-date") as string);
-    const editedProject: EProject = {
-      initials: CF.getInitials(formData.get("edit-name") as string),
-      name: formData.get("edit-name") as string,
-      description: formData.get("edit-description") as string,
-      cost: Number(formData.get("edit-cost")),
-      progress: Number(formData.get("edit-progress")),
+    const editedProject: Partial<Project> = {
+      initials: CF.getInitials(name),
+      name,
+      description: formData.get("edit-description")
+        ? (formData.get("edit-description") as string)
+        : project.description,
+      cost: formData.get("edit-cost") ? Number(formData.get("edit-cost")) : project.cost,
+      progress: formData.get("edit-progress") ? Number(formData.get("edit-progress")) : project.progress,
       date,
-      role: formData.get("edit-role") as Role,
-      status: formData.get("edit-status") as Status,
+      role: formData.get("edit-role") ? (formData.get("edit-role") as Role) : project.role,
+      status: formData.get("edit-status") ? (formData.get("edit-status") as Status) : project.status,
     };
     try {
-      console.log("DATE:", editedProject.date.toString());
-      project.editProject(editedProject);
+      project.edit(editedProject);
+      navigateTo("/");
       onCancelClick();
     } catch (error) {
       console.log(error);

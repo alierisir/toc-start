@@ -1,21 +1,10 @@
 import { IProject, Project } from "./Project";
-import { ToDo } from "./ToDo";
 
 export class ProjectsManager {
   list: Project[] = [];
   onProjectCreated = (project: Project) => {};
   onProjectDeleted = () => {};
   onListFiltered = (filtered: Project[]) => {};
-
-  constructor() {
-    const project = this.newProject({
-      name: "Default Project",
-      description: "This is just a default app project",
-      status: "pending",
-      role: "architect",
-      date: new Date(),
-    });
-  }
 
   filterProjects(value: string) {
     const filtered = this.list.filter((project) => {
@@ -24,12 +13,7 @@ export class ProjectsManager {
     this.onListFiltered(filtered);
   }
 
-  initiateToDoList(project: Project, todoList: ToDo[]) {
-    todoList.map((todo) => {
-      const { taskId, task, deadline, status } = todo;
-      project.newToDo({ task, deadline, status, taskId });
-    });
-  }
+  initiateToDoList() {} //firestoredaki todoları projelerle bu method ile eşleyebilirim!!!!!!!!!!!!!!!!!
 
   checkEditNameInUse(data: IProject) {
     const projectNames = this.list.map((project) => {
@@ -55,12 +39,12 @@ export class ProjectsManager {
     return idInUse;
   }
 
-  newProject(data: IProject) {
+  newProject(data: IProject, id?:string) {
     if (this.checkNameInUse(data)) {
       //bu noktada geri dönmek yerine, id'ler kontrol edilmeli, id mevcut ise proje update edilecek, değil ise yeni
       throw new Error("There is already a project with the same name!");
     }
-    const project = new Project(data);
+    const project = new Project(data,id);
     this.list.push(project);
     this.onProjectCreated(project);
     return project;
@@ -85,7 +69,6 @@ export class ProjectsManager {
     if (!project) {
       return;
     }
-    project.ui.remove();
     const remaining = this.list.filter((project) => {
       return project.id !== id;
     });
@@ -131,12 +114,12 @@ export class ProjectsManager {
             for (const key in project) {
               console.log(key, " data:", project[key], " project:", newProject[key]);
             }
-            if (project.todoList) this.initiateToDoList(newProject, project.todoList);
+            if (project.todoList) this.initiateToDoList();
           } else {
             console.log(project.id, "is updated");
             const existingProject = this.getProject(project.id) as Project;
-            existingProject.editProject(project);
-            if (project.todoList) this.initiateToDoList(existingProject, project.todoList);
+            existingProject.edit(project);
+            if (project.todoList) this.initiateToDoList();
           }
         } catch (error) {
           alert(error);

@@ -318,7 +318,7 @@ user-card:hover {
 
 #project-details > .main-page-content {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 400px 1fr;
   grid-template-areas: "details-container viewer-container";
   height: 100%;
   color: var(--textcolor-secondary);
@@ -475,70 +475,116 @@ user-card:hover {
   gap: 15px;
 }
 
-.todo-active {
-  background-color: #ffd54f;
+.todo-active-low {
+  background: linear-gradient(0.07turn, #ffd54f, #fff, #4be973);
   font-size: var(--text-s);
 }
 
-.todo-completed {
-  background-color: #70ff4c;
+.todo-active-normal {
+  background: linear-gradient(0.07turn, #ffd54f, #fff, #4bb0e9);
+  font-size: var(--text-s);
+}
+
+.todo-active-high {
+  background: linear-gradient(0.07turn, #ffd54f, #fff, #e94b4b);
+  font-size: var(--text-s);
+}
+
+.todo-completed-low {
+  background: linear-gradient(0.07turn, #70ff4c, #fff, #4be973);
   font-size: var(--text-s);
   text-decoration: line-through;
 }
 
-.todo-overdue {
-  background-color: #ff5959;
+.todo-completed-normal {
+  background: linear-gradient(0.07turn, #70ff4c, #fff, #4bb0e9);
+  font-size: var(--text-s);
+  text-decoration: line-through;
+}
+
+.todo-completed-high {
+  background: linear-gradient(0.07turn, #70ff4c, #fff, #e94b4b);
+  font-size: var(--text-s);
+  text-decoration: line-through;
+}
+
+.todo-overdue-low {
+  background: linear-gradient(0.07turn, #ff5959, #fff, #4be973);
   font-size: var(--text-s);
   text-decoration: underline;
 }
 
-.todo-list > * {
-  display: flex;
-  align-items: center;
-  color: var(--textcolor-primary);
-  padding: 15px;
-  border-radius: 5px;
-  justify-content: space-between;
+.todo-overdue-normal {
+  background: linear-gradient(0.07turn, #ff5959, #fff, #4bb0e9);
+  font-size: var(--text-s);
+  text-decoration: underline;
 }
 
-.list-item {
+.todo-overdue-high {
+  background: linear-gradient(0.07turn, #ff5959, #fff, #e94b4b);
+  font-size: var(--text-s);
+  text-decoration: underline;
+}
+
+.todo-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  color: black;
+  padding: 5px;
+  border-radius: 0px 10px;
+  opacity: 0.8;
+  gap: 10px;
   opacity: 0.8;
 }
 
-.list-item > :first-child {
+.todo-card:hover {
+  opacity: 1;
+}
+
+.task-date-section {
+  display: grid;
+  grid-template-rows: 1rem 1fr;
+  gap: 10px;
+  font-size: var(--text-s);
+}
+
+.edit-todo-btn {
+  scale: 0.8;
   opacity: 0.5;
 }
 
-.list-item > :first-child:hover {
-  scale: 1.2;
+.edit-todo-btn:hover {
+  scale: 1;
   opacity: 1;
-  cursor: pointer;
-}
-
-.list-item > :last-child {
-  opacity: 0.5;
-}
-
-.list-item > :last-child:hover {
-  scale: 1.2;
-  opacity: 1;
-  cursor: pointer;
 }
 
 .list-item:hover {
   opacity: 1;
 }
 
-.todo-list-item {
-  opacity: 0.8;
+.todo-checkbox {
+  opacity: 0.5;
+  padding: 10px;
 }
 
-.todo-list-item:hover {
+.todo-checkbox:hover {
+  scale: 1.2;
   opacity: 1;
+  cursor: pointer;
 }
 
-.todo-list-item > p {
-  padding: 2px;
+.todo-btn-section {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.todo-btn-section > p :hover {
+  scale: 1.2;
+  opacity: 1;
+  cursor: pointer;
 }
 
 /* User Page Styles */

@@ -3,24 +3,47 @@ import * as OBC from "openbim-components";
 import { FragmentsGroup } from "bim-fragment";
 import { TodoCreator } from "../bim-components/TodoCreator";
 import { SimpleQto } from "../bim-components/SimpleQto";
+import * as Router from "react-router-dom";
+import { ProjectsManager } from "../classes/ProjectsManager";
+import { getCollection } from "../firebase";
+import { IToDo } from "../bim-components/TodoCreator/src/ToDo";
+import * as Firestore from "firebase/firestore";
+import { monthsAfterToday } from "../classes/CustomFunctions";
+
+interface Props {
+  projectsManager: ProjectsManager;
+}
 
 interface IViewerContext {
   viewer: OBC.Components | null;
   setViewer: (viewer: OBC.Components | null) => void;
 }
 
-export const ViewerContext = React.createContext<IViewerContext>({ viewer: null, setViewer: () => {} });
+export const ViewerContext = React.createContext<IViewerContext>({
+  viewer: null,
+  setViewer: () => {},
+});
 
 export const ViewerProvider = ({ children }) => {
   const [viewer, setViewer] = React.useState<OBC.Components | null>(null);
-  return <ViewerContext.Provider value={{ viewer, setViewer }}>{children}</ViewerContext.Provider>;
+  return (
+    <ViewerContext.Provider value={{ viewer, setViewer }}>
+      {children}
+    </ViewerContext.Provider>
+  );
 };
 
-const IFCViewer = () => {
+const IFCViewer = ({ projectsManager }: Props) => {
+  const routeParams = Router.useParams<{ id: string }>();
+  if (!routeParams.id) return <>ID is invalid</>;
+  const id = routeParams.id;
+  const project = projectsManager.getProject(id);
+  if (!project) return <>Project not found!</>;
+
   const { setViewer } = React.useContext(ViewerContext);
 
   let viewer: OBC.Components;
-  const createViewer = async () => {
+  const createViewer = async (id: string) => {
     viewer = new OBC.Components();
     setViewer(viewer);
 
@@ -31,8 +54,13 @@ const IFCViewer = () => {
 
     viewer.scene = sceneComponent;
 
-    const viewerContainer = document.getElementById("viewer-container") as HTMLDivElement;
-    const rendererComponent = new OBC.PostproductionRenderer(viewer, viewerContainer);
+    const viewerContainer = document.getElementById(
+      "viewer-container"
+    ) as HTMLDivElement;
+    const rendererComponent = new OBC.PostproductionRenderer(
+      viewer,
+      viewerContainer
+    );
 
     viewer.renderer = rendererComponent;
 
@@ -74,6 +102,15 @@ const IFCViewer = () => {
     const highlighter = new OBC.FragmentHighlighter(viewer);
     highlighter.setup();
 
+    // TEST convertion functions
+
+    //highlighter.events.select.onHighlight.add((fragmentIdMap) => {
+    //  const mapObJ = fragmentMapToJSON(fragmentIdMap);
+    //  console.log("Map OBJ: ", mapObJ, typeof mapObJ);
+    //  const fragMap = jsonTofragmentMap(mapObJ);
+    //  console.log("FragmentMap Obj: ", fragMap, typeof fragMap);
+    //});
+
     const toolbar = new OBC.Toolbar(viewer, {
       name: "Top Toolbar",
       position: "top",
@@ -92,7 +129,8 @@ const IFCViewer = () => {
     });
 
     const simpleGrid = new OBC.SimpleGrid(viewer);
-    simpleGrid.visible = false;
+    simpleGrid.visible = true;
+    toggleGridBtn.active = true;
 
     toggleGridBtn.onClick.add(() => {
       toggleGridBtn.active = !toggleGridBtn.active;
@@ -128,10 +166,16 @@ const IFCViewer = () => {
     loaderBtn.materialIcon = "input";
 
     const setupDepthTest = () => {
-      const selectMat = highlighter.highlightMats.select ? highlighter.highlightMats.select[0] : undefined;
-      const hoverMat = highlighter.highlightMats.hover ? highlighter.highlightMats.hover[0] : undefined;
+      const selectMat = highlighter.highlightMats.select
+        ? highlighter.highlightMats.select[0]
+        : undefined;
+      const hoverMat = highlighter.highlightMats.hover
+        ? highlighter.highlightMats.hover[0]
+        : undefined;
 
-      selectMat ? (selectMat.depthTest = false) : "Can't find the select material";
+      selectMat
+        ? (selectMat.depthTest = false)
+        : "Can't find the select material";
       hoverMat ? (hoverMat.depthTest = false) : "Can't find the hover material";
     };
 
@@ -240,17 +284,17 @@ const IFCViewer = () => {
       return Number([...Object.values(fragmentMap)[0]][0]);
     };
 
-    const culler = new OBC.ScreenCuller(viewer);
-    cameraComponent.controls.addEventListener("sleep", () => {
-      culler.needsUpdate = true;
-    });
+    //const culler = new OBC.ScreenCuller(viewer);
+    //cameraComponent.controls.addEventListener("sleep", () => {
+    //  culler.needsUpdate = true;
+    //});
 
     const onModelLoaded = async (model: FragmentsGroup) => {
       highlighter.update();
-      for (const fragment of model.items) {
-        culler.add(fragment.mesh);
-      }
-      culler.needsUpdate = true;
+      //for (const fragment of model.items) {
+      //  culler.add(fragment.mesh);
+      //}
+      //culler.needsUpdate = true;
 
       try {
         classifier.byModel(model.name, model);
@@ -276,21 +320,50 @@ const IFCViewer = () => {
     });
 
     fragmentManager.onFragmentsLoaded.add((model) => {
-      importFromJson(model);
+      alert(`${model.name} is loaded, please load properties manually.`);
+      const loadPropBtn = new OBC.Button(viewer, {
+        materialIconName: "upload",
+        tooltip: "Load Properties",
+      });
+      loadPropBtn.onClick.add(() => {
+        importFromJson(model);
+        toolbar.removeChild(loadPropBtn);
+        loadPropBtn.dispose();
+      });
+      toolbar.addChild(loadPropBtn);
     });
 
     const todoCreator = new TodoCreator(viewer);
-    await todoCreator.setup();
-    todoCreator.onProjectCreated.add((todo) => {
-      console.log(`Task:${todo.id} is successfully added to list`);
-    });
+    await todoCreator.setup(project);
 
-    window.addEventListener("keydown", (e) => {
-      if (!(e.key === "a" || e.key === "A")) return;
-      console.log("getting fragment qtys..");
-      todoCreator.fragmentQty;
-      console.log("end");
+    //TODO CREATOR WILL SYNCHRONIZE WITH FIREBASE DATA AT THIS POINT
+    const todosCollection = getCollection<IToDo>("/todos");
+    const firebaseTodos = await Firestore.getDocs(todosCollection);
+    const todosDocs = firebaseTodos.docs;
+    for (const doc of todosDocs) {
+      if (doc.data().projectId !== project.id) continue;
+      const data = doc.data();
+      const deadline = data.deadline
+        ? (data.deadline as unknown as Firestore.Timestamp).toDate()
+        : monthsAfterToday(1);
+      const itodo: IToDo = {
+        ...data,
+        deadline,
+      };
+      try {
+        todoCreator.addTodo(itodo, doc.id);
+      } catch (error) {
+        const todo = project.getToDo(doc.id);
+        //console.log("todo exists,", todo);
+        if (!todo) throw new Error("Todo not found");
+        todoCreator.createExistingCard(todo, highlighter, cameraComponent);
+      }
+    }
+
+    todoCreator.onToDoCreated.add((todo) => {
+      //console.log(todo.taskId);
     });
+    //AFTER THIS LINE THE TODOCREATOR LIST WILL BE EQUAL TO FIREBASE
 
     const qtoManager = new SimpleQto(viewer);
     await qtoManager.setup();
@@ -311,6 +384,7 @@ const IFCViewer = () => {
 
     toolbar.addChild(toggleGridBtn, toggleViewBtn);
     toolbar.addChild(loaderBtn);
+    toolbar.addChild(fragmentManager.uiElement.get("main"));
     loaderBtn.addChild(ifcLoader.uiElement.get("main"));
     loaderBtn.addChild(fragmentLoadBtn);
 
@@ -328,16 +402,22 @@ const IFCViewer = () => {
   };
 
   React.useEffect(() => {
-    createViewer();
-    console.log("viewer created");
+    createViewer(id);
+    //console.log("viewer created");
     return () => {
       viewer.dispose();
       setViewer(null);
-      console.log("viewer disposed");
+      //console.log("viewer disposed");
     };
   }, []);
 
-  return <div id="viewer-container" className="dashboard-card" style={{ minWidth: 0, position: "relative" }} />;
+  return (
+    <div
+      id="viewer-container"
+      className="dashboard-card"
+      style={{ minWidth: 0, position: "relative" }}
+    />
+  );
 };
 
 export default IFCViewer;

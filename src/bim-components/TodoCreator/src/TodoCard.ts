@@ -8,22 +8,16 @@ export class TodoCard extends OBC.SimpleUIComponent {
   };
 
   set priority(value: string) {
-    const priorityElement = this.getInnerElement(
-      "priority"
-    ) as HTMLParagraphElement;
+    const priorityElement = this.getInnerElement("priority") as HTMLParagraphElement;
     priorityElement.textContent = value;
   }
 
   set visible(value: boolean) {
-    value
-      ? (this.get().style.display = "flex")
-      : (this.get().style.display = "none");
+    value ? (this.get().style.display = "flex") : (this.get().style.display = "none");
   }
 
   set description(value: string) {
-    const descriptionElement = this.getInnerElement(
-      "description"
-    ) as HTMLParagraphElement;
+    const descriptionElement = this.getInnerElement("description") as HTMLParagraphElement;
     descriptionElement.textContent = value;
   }
   set date(value: Date) {
