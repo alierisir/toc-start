@@ -10,7 +10,7 @@ interface Props {
 
 const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
   const [status, setStatus] = React.useState(todo.getStatus());
-
+  const [priority] = React.useState(todo.priority);
   const getFragmentQty = () => {
     let count = 0;
     for (const fragmentId in todo.fragmentMap) {
@@ -25,6 +25,7 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
     completed: "check_box",
     overdue: "disabled_by_default",
   };
+
   const status_symbol = symbols[status];
 
   const onCheckboxClicked = async () => {
@@ -35,12 +36,18 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
   };
 
   return (
-    <div className={`list-item todo-${status}`}>
-      <p todo-list-functions="toggle-active" onClick={onCheckboxClicked}>
+    <div className={`todo-card todo-${status}-${todo.priority}`}>
+      <p
+        todo-list-functions="toggle-active"
+        onClick={onCheckboxClicked}
+        className="todo-checkbox"
+      >
         <span className="material-symbols-outlined">{status_symbol}</span>
       </p>
-      <p>{todo.task}</p>
-      <p>{todo.deadline.toLocaleDateString()}</p>
+      <div className="task-date-section">
+        <p className="date">{todo.deadline.toLocaleDateString()}</p>
+        <p className="task">{todo.task}</p>
+      </div>
       <div className="todo-btn-section">
         <p onClick={onCardClick}>
           <span className="material-symbols-outlined">ads_click</span>
