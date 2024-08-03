@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  IToDo,
-  ToDo,
-  ToDoPriority,
-} from "../bim-components/TodoCreator/src/ToDo";
+import { IToDo, ToDo, ToDoPriority } from "../bim-components/TodoCreator/src/ToDo";
 import { updateDocument } from "../firebase";
 
 interface Props {
@@ -43,31 +39,24 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
   };
 
   const onCancelClick = () => {
-    const modal = document.getElementById(
-      "edit-todo-modal"
-    ) as HTMLDialogElement;
+    const modal = document.getElementById(`edit-${todo.taskId}`) as HTMLDialogElement;
     modal.close();
-    const form = document.getElementById("edit-todo-form") as HTMLFormElement;
+    const form = document.getElementById(`form-${todo.taskId}`) as HTMLFormElement;
     form.reset();
   };
 
   const onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const form = document.getElementById("edit-todo-form") as HTMLFormElement;
+    const form = document.getElementById(`form-${todo.taskId}`) as HTMLFormElement;
     const formData = new FormData(form);
     const deadline =
-      new Date(formData.get("todo-deadline") as string).toDateString() ===
-      "Invalid Date"
+      new Date(formData.get("todo-deadline") as string).toDateString() === "Invalid Date"
         ? todo.deadline
         : new Date(formData.get("todo-deadline") as string);
     const data: Partial<IToDo> = {
-      task: formData.get("todo-task")
-        ? (formData.get("todo-task") as string)
-        : todo.task,
+      task: formData.get("todo-task") ? (formData.get("todo-task") as string) : todo.task,
       deadline,
-      priority: formData.get("todo-priority")
-        ? (formData.get("todo-priority") as ToDoPriority)
-        : todo.priority,
+      priority: formData.get("todo-priority") ? (formData.get("todo-priority") as ToDoPriority) : todo.priority,
     };
     try {
       if (data.task && data.priority) todo.edit(data.task, data.priority);
@@ -84,17 +73,15 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
   };
 
   const onEditTodoClick = () => {
-    const modal = document.getElementById(
-      "edit-todo-modal"
-    ) as HTMLDialogElement;
+    const modal = document.getElementById(`edit-${todo.taskId}`) as HTMLDialogElement;
     modal.showModal();
   };
 
   return (
     <div>
-      <dialog id="edit-todo-modal">
+      <dialog id={`edit-${todo.taskId}`}>
         <form
-          id="edit-todo-form"
+          id={`form-${todo.taskId}`}
           className="modal-container"
           onSubmit={(e) => {
             onFormSubmit(e);
@@ -106,16 +93,15 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
           </h2>
           <div className="project-properties">
             <label htmlFor="todo-task">
-              <span className="material-symbols-outlined">assignment</span>Edit
-              Task
+              <span className="material-symbols-outlined">assignment</span>Edit Task
             </label>
             <textarea
-              required={true}
+              required={false}
               rows={5}
               cols={30}
               name="todo-task"
               id="todo-task"
-              placeholder="Write the task to be done.(max. 270 characters)"
+              placeholder={todo.task}
               maxLength={270}
               defaultValue={""}
             />
@@ -133,18 +119,12 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
           </div>
           <div className="project-properties">
             <label htmlFor="todo-deadline">
-              <span className="material-symbols-outlined">event</span>Edit
-              Deadline
+              <span className="material-symbols-outlined">event</span>Edit Deadline
             </label>
             <input id="todo-deadline" name="todo-deadline" type="date" />
           </div>
           <div className="button-section">
-            <button
-              id="todo-cancel"
-              type="button"
-              className="cancel-btn"
-              onClick={onCancelClick}
-            >
+            <button id="todo-cancel" type="button" className="cancel-btn" onClick={onCancelClick}>
               <span className="material-symbols-outlined">cancel</span>Cancel
             </button>
             <button type="submit" className="accept-btn">
@@ -155,11 +135,7 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
         </form>
       </dialog>
       <div className={`todo-card todo-${status}-${priority}`}>
-        <p
-          todo-list-functions="toggle-active"
-          onClick={onCheckboxClicked}
-          className="todo-checkbox"
-        >
+        <p todo-list-functions="toggle-active" onClick={onCheckboxClicked} className="todo-checkbox">
           <span className="material-symbols-outlined">{status_symbol}</span>
         </p>
         <div className="task-date-section">
@@ -169,9 +145,7 @@ const ToDoCard = ({ todo, onDeleteClick, onCardClick }: Props) => {
               <span className="material-symbols-outlined">more_horiz</span>
             </p>
             {getFragmentQty() ? (
-              <p style={{ fontSize: "0.6rem", fontStyle: "italic" }}>
-                {getFragmentQty()} elements assigned
-              </p>
+              <p style={{ fontSize: "0.6rem", fontStyle: "italic" }}>{getFragmentQty()} elements assigned</p>
             ) : null}
           </div>
           <p className="task">{task}</p>
